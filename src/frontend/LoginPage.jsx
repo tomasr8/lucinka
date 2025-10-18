@@ -20,14 +20,16 @@ export default function LoginPage({ onLogin }) {
       });
 
       const data = await response.json();
+      console.log(data)
 
       if (response.ok) {
         setMessage({ type: 'success', text: 'Login successful!' });
-        onLogin(data.token, data.username);
+        // onLogin(data.token, data.username);
       } else {
         setMessage({ type: 'error', text: data.error || 'Login failed' });
       }
     } catch (error) {
+      console.log(error);
       setMessage({ type: 'error', text: 'Connection error. Is the backend running?' });
     } finally {
       setLoading(false);
