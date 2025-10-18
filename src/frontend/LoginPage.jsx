@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AlertCircle, CheckCircle, Loader2, LogOut, Home, User } from 'lucide-react';
+import { useNavigate } from "react-router";
 
 // Login Page Component
-export default function LoginPage({ onLogin }) {
+export default function LoginPage() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -13,7 +15,7 @@ export default function LoginPage({ onLogin }) {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -23,7 +25,8 @@ export default function LoginPage({ onLogin }) {
       console.log(data)
 
       if (response.ok) {
-        setMessage({ type: 'success', text: 'Login successful!' });
+        // setMessage({ type: 'success', text: 'Login successful!' });
+        navigate('/lucie/home');
         // onLogin(data.token, data.username);
       } else {
         setMessage({ type: 'error', text: data.error || 'Login failed' });
@@ -43,7 +46,7 @@ export default function LoginPage({ onLogin }) {
           <User className="w-12 h-12 text-purple-500" />
         </div>
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Login</h2>
-        
+
         <div className="space-y-4">
           <div>
             <input
@@ -54,7 +57,7 @@ export default function LoginPage({ onLogin }) {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
             />
           </div>
-          
+
           <div>
             <input
               type="password"
@@ -65,7 +68,7 @@ export default function LoginPage({ onLogin }) {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
             />
           </div>
-          
+
           <button
             onClick={handleLogin}
             disabled={loading}
@@ -83,11 +86,10 @@ export default function LoginPage({ onLogin }) {
         </div>
 
         {message.text && (
-          <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 ${
-            message.type === 'error' 
-              ? 'bg-red-50 text-red-700' 
+          <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 ${message.type === 'error'
+              ? 'bg-red-50 text-red-700'
               : 'bg-green-50 text-green-700'
-          }`}>
+            }`}>
             {message.type === 'error' ? (
               <AlertCircle className="w-5 h-5" />
             ) : (
