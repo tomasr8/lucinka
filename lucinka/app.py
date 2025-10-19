@@ -60,6 +60,9 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     CORS(app)  # Allow frontend to connect
 
     @app.get("/")
+    @app.get("/login")
+    @app.get("/admin")
+    @app.get("/admin/login-stats")
     def index():
         return send_from_directory(app.static_folder, "index.html")
 
