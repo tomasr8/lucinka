@@ -1,4 +1,5 @@
 import { useState, useReducer, useEffect } from "react";
+import { useNavigate } from "react-router";
 import {
   LineChart,
   Line,
@@ -31,6 +32,7 @@ function weightReducer(state, action) {
 }
 
 export default function App() {
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
   const [darkMode, setDarkMode] = useState(
@@ -57,21 +59,21 @@ export default function App() {
         const res = await fetch("/api/data");
         if (!res.ok) {
           // not logged in, redirect to login page
-          window.location.href = "login";
+          navigate("login");
           return;
         }
 
         const data = await res.json();
         dispatch({ type: "success", payload: data });
       } catch (err) {
-        window.location.href = "login";
+        console.error(err);
+        navigate("login");
         return;
-        // dispatch({ type: "error", payload: err.message })
       }
     }
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
   if (state.loading) {
     return (

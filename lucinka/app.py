@@ -1,33 +1,15 @@
 import json
-import os
 from functools import wraps
 from pathlib import Path
 
-from flask import Flask, jsonify, session
+from flask import Flask, jsonify, send_from_directory, session
 from flask_cors import CORS
 from webargs.flaskparser import use_kwargs
 
-from lucinka.config import config
+import lucinka
+from lucinka.config import Config
 from lucinka.models import LoginRecord, User, db
 from lucinka.schemas import GetLoginRecordSchema, GetUserSchema, LoginSchema
-
-
-def create_app(config_name=None) -> Flask:
-    """Application factory pattern."""
-    app = Flask(__name__)
-
-    # Load configuration
-    config_name = config_name or os.environ.get("FLASK_ENV", "development")
-    app.config.from_object(config[config_name])
-
-    # Initialize extensions
-    db.init_app(app)
-
-    CORS(app)  # Allow frontend to connect
-    return app
-
-
-app = create_app()
 
 
 def login_required(f):
@@ -59,50 +41,65 @@ def admin_required(f):
     return decorated_function
 
 
-@app.get("/api/users")
-@admin_required
-def get_users():
-    users = User.query.all()
-    return jsonify(GetUserSchema(many=True).dump(users))
+def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
+    """Application factory pattern."""
+    # Load configuration
+    config = Config(dev=dev, testing=testing)
+    app = Flask(__name__, static_url_path=config.STATIC_URL_PATH, static_folder=config.STATIC_FOLDER)
+    app.config.from_object(config)
 
+    # Initialize extensions
+    db.init_app(app)
 
-@app.get("/api/login-stats")
-@admin_required
-def get_login_stats():
-    stats = LoginRecord.query.all()
-    return jsonify(GetLoginRecordSchema(many=True).dump(stats))
+    CORS(app)  # Allow frontend to connect
 
+    @app.get("/")
+    def index():
+        return send_from_directory(app.static_folder, "index.html")
 
-@app.post("/api/login")
-@use_kwargs(LoginSchema)
-def login(username: str, password: str):
-    user = User.query.filter_by(username=username).first()
-    if not user or not user.verify_password(password):
-        return jsonify({"message": "Invalid credentials"}), 401
+    @app.get("/api/users")
+    @admin_required
+    def get_users():
+        users = User.query.all()
+        return jsonify(GetUserSchema(many=True).dump(users))
 
-    session["user_id"] = user.id
-    session.permanent = True
-    record = LoginRecord(user=user)
-    db.session.add(record)
-    db.session.commit()
-    return jsonify({})
+    @app.get("/api/login-stats")
+    @admin_required
+    def get_login_stats():
+        stats = LoginRecord.query.all()
+        return jsonify(GetLoginRecordSchema(many=True).dump(stats))
 
+    @app.post("/api/login")
+    @use_kwargs(LoginSchema)
+    def login(username: str, password: str):
+        user = User.query.filter_by(username=username).first()
+        if not user or not user.verify_password(password):
+            return jsonify({"message": "Invalid credentials"}), 401
 
-@app.post("/api/logout")
-@login_required
-def logout():
-    session.pop("user_id", None)
-    return jsonify({})
+        session["user_id"] = user.id
+        session.permanent = True
+        record = LoginRecord(user=user)
+        db.session.add(record)
+        db.session.commit()
+        return jsonify({})
 
+    @app.post("/api/logout")
+    @login_required
+    def logout():
+        session.pop("user_id", None)
+        return jsonify({})
 
-@app.get("/api/data")
-@login_required
-def get_data():
-    data = Path(__file__).parent / "weight.json"
-    with Path.open(data) as f:
-        weights = json.load(f)
-    return jsonify(weights)
+    @app.get("/api/data")
+    @login_required
+    def get_data():
+        data = Path(__file__).parent / "weight.json"
+        with Path.open(data) as f:
+            weights = json.load(f)
+        return jsonify(weights)
+
+    return app
 
 
 if __name__ == "__main__":
+    app = create_app(dev=True)
     app.run(debug=True, port=5000)

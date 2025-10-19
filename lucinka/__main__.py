@@ -13,6 +13,22 @@ def cli() -> None:
     pass
 
 
+@cli.command("run")
+@click.option("--port", default=5000, help="Port to run the server on.")
+def run(port: int) -> None:
+    """Run the development server."""
+    app = create_app(dev=False)
+    app.run(debug=False, host="0.0.0.0", port=port)
+
+
+@cli.command("debug")
+@click.option("--port", default=5000, help="Port to run the server on.")
+def debug(port: int) -> None:
+    """Run the development server."""
+    app = create_app(dev=True)
+    app.run(debug=True, port=port)
+
+
 @cli.group()
 def user() -> None:
     """User management commands."""

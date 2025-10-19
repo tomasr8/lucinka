@@ -30,3 +30,6 @@ __pycache__/
 
 # Sqlite DB
 db/*.db
+
+# Static files
+static/

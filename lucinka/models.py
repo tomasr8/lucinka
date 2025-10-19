@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, date
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, Text
@@ -43,3 +43,22 @@ class LoginRecord(db.Model):
 
     def __repr__(self) -> str:
         return f"<LoginRecord({self.id}) user_id={self.user_id} login_dt={self.login_dt}>"
+
+
+class DataEntry(db.Model):
+    __tablename__ = "data"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"), nullable=False)
+    created_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=db.func.now())
+    date: Mapped[date] = mapped_column(db.Date, nullable=False)
+    weight: Mapped[float | None] = mapped_column(db.Float, nullable=True)
+    height: Mapped[float | None] = mapped_column(db.Float, nullable=True)
+    notes: Mapped[str | None] = mapped_column(db.Text, nullable=True)
+
+    user: Mapped[User] = db.relationship()
+
+    def __repr__(self) -> str:
+        return (
+            f"<DataEntry({self.id}) user_id={self.user_id} date={self.date} weight={self.weight} height={self.height}>"
+        )

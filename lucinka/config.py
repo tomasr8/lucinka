@@ -6,45 +6,37 @@ import lucinka
 
 
 basedir = Path(lucinka.__file__).parents[1]
-db_path = basedir / "db"
+dev_db_path = f"sqlite:///{basedir / 'db' / 'app.db'}"
 
 
 class Config:
-    """Base configuration."""
+    """App config"""
 
-    SECRET_KEY = os.environ.get("SECRET_KEY") or "dev-secret-key-change-in-production"
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_RECORD_QUERIES = True
+    def __init__(self, *, dev: bool = False, testing: bool = False) -> None:
+        self.DEBUG = dev
+        self.SQLALCHEMY_ECHO = dev
+        self.SECRET_KEY = "dev-secret-key" if dev else os.environ.get("SECRET_KEY")
+        if not dev:
+            assert self.SECRET_KEY and len(self.SECRET_KEY) >= 16, (
+                "SECRET_KEY must be set and at least 16 characters long."
+            )
+        if not dev:
+            db_uri = os.environ.get("SQLALCHEMY_DATABASE_URI")
+            assert db_uri, "SQLALCHEMY_DATABASE_URI must be set in production."
+        self.SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI") or dev_db_path
+        self.STATIC_URL_PATH = ""
 
+        if dev:
+            self.STATIC_FOLDER = Path(lucinka.__file__).parents[1] / "static"
+        else:
+            static_folder = os.environ.get("STATIC_FOLDER")
+            assert static_folder, "STATIC_FOLDER must be set in production."
+            self.STATIC_FOLDER = static_folder
 
-class DevelopmentConfig(Config):
-    """Development configuration."""
+        if not dev:
+            self.PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
 
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or f"sqlite:///{db_path / 'app.db'}"
-    SQLALCHEMY_ECHO = True
-
-
-class ProductionConfig(Config):
-    """Production configuration."""
-
-    DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or f"sqlite:///{db_path / 'prod.db'}"
-    SQLALCHEMY_ECHO = False
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
-
-
-class TestingConfig(Config):
-    """Testing configuration."""
-
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    WTF_CSRF_ENABLED = False
-
-
-config = {
-    "development": DevelopmentConfig,
-    "production": ProductionConfig,
-    "testing": TestingConfig,
-    "default": DevelopmentConfig,
-}
+        if testing:
+            self.TESTING = True
+            self.SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+            self.WTF_CSRF_ENABLED = False

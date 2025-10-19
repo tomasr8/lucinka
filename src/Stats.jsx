@@ -1,4 +1,5 @@
 import React, { useState, useReducer, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { User, Calendar } from "lucide-react";
 import { Moon, Sun } from "lucide-react";
 
@@ -30,6 +31,7 @@ function statsReducer(state, action) {
 }
 
 const UserLoginStats = () => {
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(
     document.documentElement.classList.contains("dark")
   );
@@ -38,7 +40,7 @@ const UserLoginStats = () => {
     const theme = darkMode ? "light" : "dark";
     localStorage.setItem("theme", theme);
     document.documentElement.classList.toggle("dark");
-    setDarkMode((d) => !d);
+    setDarkMode(d => !d);
   };
 
   const [stats, dispatch] = useReducer(statsReducer, {
@@ -57,7 +59,7 @@ const UserLoginStats = () => {
         ]);
 
         if (!loginDataResponse.ok || !usersResponse.ok) {
-          window.location.href = "login";
+          navigate("login");
           return;
         }
 
@@ -68,13 +70,14 @@ const UserLoginStats = () => {
 
         dispatch({ type: "success", payload: { loginData, users } });
       } catch (error) {
-        window.location.href = "login";
+        console.error(error);
+        navigate("login");
         return;
       }
     }
 
     fetchStats();
-  }, []);
+  }, [navigate]);
 
   // Sample data - replace with your actual data source
   // const { loginData, users } = stats;
@@ -88,7 +91,7 @@ const UserLoginStats = () => {
   }
 
   // Get avatar color based on index
-  const getAvatarColor = (index) => {
+  const getAvatarColor = index => {
     return avatarColors[index % avatarColors.length];
   };
 
@@ -100,7 +103,7 @@ const UserLoginStats = () => {
     return acc;
   }, {});
 
-  const loginData = stats.loginData.map((record) => ({
+  const loginData = stats.loginData.map(record => ({
     id: record.id,
     username: usersById[record.user_id]?.username || "<unknown>",
     avatarColor:
@@ -109,7 +112,7 @@ const UserLoginStats = () => {
   }));
 
   // Format date for display
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     const date = new Date(dateString);
     return date.toLocaleString("en-GB", {
       year: "numeric",
