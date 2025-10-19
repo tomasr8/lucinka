@@ -1,4 +1,4 @@
-import { useState, useReducer, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
   LineChart,
@@ -10,26 +10,9 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, ShieldUser } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { setLocale } from "./i18n";
-
-function weightReducer(state, action) {
-  if (action.type === "success") {
-    return {
-      loading: false,
-      error: null,
-      data: action.payload,
-    };
-  } else if (action.type === "error") {
-    return {
-      loading: false,
-      error: action.payload,
-      data: null,
-    };
-  }
-  throw Error("Unknown action " + action.type);
-}
 
 export default function App() {
   const navigate = useNavigate();
@@ -46,25 +29,25 @@ export default function App() {
     setDarkMode(d => !d);
   };
 
-  // fetch entries from backend
-  const [state, dispatch] = useReducer(weightReducer, {
-    loading: true,
-    error: null,
-    data: null,
-  });
+  const [state, setState] = useState({ loading: true });
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch("/api/data");
-        if (!res.ok) {
+        const [userRes, dataRes] = await Promise.all([
+          fetch("/api/current-user"),
+          fetch("/api/data"),
+        ]);
+
+        if (!userRes.ok || !dataRes.ok) {
           // not logged in, redirect to login page
           navigate("login");
           return;
         }
 
-        const data = await res.json();
-        dispatch({ type: "success", payload: data });
+        const user = await userRes.json();
+        const data = await dataRes.json();
+        setState({ loading: false, user, data });
       } catch (err) {
         console.error(err);
         navigate("login");
@@ -154,10 +137,22 @@ export default function App() {
           </div>
           {/* Language selector */}
           <div className="flex items-center gap-4">
+            {state.user.is_admin && (
+              <button
+                onClick={() => navigate("/stats")}
+                className="cursor-pointer p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
+              >
+                {darkMode ? (
+                  <ShieldUser className="w-5 h-5 text-violet-400" />
+                ) : (
+                  <ShieldUser className="w-5 h-5 text-violet-600" />
+                )}
+              </button>
+            )}
             <select
               value={language}
               onChange={e => setLocale(e.target.value)}
-              className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 dark:text-gray-100"
+              className="cursor-pointer p-3 rounded-lg border border-gray-200 dark:border-gray-700 dark:text-gray-100"
             >
               <option value="en">🇬🇧 English</option>
               <option value="cs">🇨🇿 Čeština</option>
@@ -165,8 +160,7 @@ export default function App() {
             </select>
             <button
               onClick={toggleDarkMode}
-              className="p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
-              aria-label="Toggle dark mode"
+              className="cursor-pointer p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
             >
               {darkMode ? (
                 <Sun className="w-5 h-5 text-yellow-400" />
@@ -188,7 +182,7 @@ export default function App() {
             <p
               className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
             >
-              {sortedEntries[sortedEntries.length - 1]?.weight.toFixed(1)} kg
+              {sortedEntries[sortedEntries.length - 1]?.weight.toFixed(2)}kg
             </p>
           </div>
           <div

@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { User, Calendar } from "lucide-react";
 import { Moon, Sun } from "lucide-react";
@@ -14,22 +14,6 @@ const avatarColors = [
   "from-cyan-400 to-cyan-600 dark:from-cyan-500 dark:to-cyan-700",
 ];
 
-function statsReducer(state, action) {
-  if (action.type === "success") {
-    return {
-      loading: false,
-      error: null,
-      ...action.payload,
-    };
-  } else if (action.type === "error") {
-    return {
-      loading: false,
-      error: action.payload,
-    };
-  }
-  throw Error("Unknown action " + action.type);
-}
-
 const UserLoginStats = () => {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(
@@ -43,11 +27,7 @@ const UserLoginStats = () => {
     setDarkMode(d => !d);
   };
 
-  const [stats, dispatch] = useReducer(statsReducer, {
-    loading: true,
-    error: null,
-    data: null,
-  });
+  const [stats, setState] = useState({ loading: true });
 
   useEffect(() => {
     async function fetchStats() {
@@ -68,7 +48,7 @@ const UserLoginStats = () => {
           usersResponse.json(),
         ]);
 
-        dispatch({ type: "success", payload: { loginData, users } });
+        setState({ loading: false, loginData, users });
       } catch (error) {
         console.error(error);
         navigate("login");
@@ -111,6 +91,10 @@ const UserLoginStats = () => {
     loginDateTime: record.login_dt,
   }));
 
+  loginData.sort(
+    (a, b) => new Date(b.loginDateTime) - new Date(a.loginDateTime)
+  );
+
   // Format date for display
   const formatDate = dateString => {
     const date = new Date(dateString);
@@ -125,8 +109,8 @@ const UserLoginStats = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -137,7 +121,6 @@ const UserLoginStats = () => {
           <button
             onClick={toggleDarkMode}
             className="p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
-            aria-label="Toggle dark mode"
           >
             {darkMode ? (
               <Sun className="w-5 h-5 text-yellow-400" />

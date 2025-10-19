@@ -72,6 +72,17 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         users = User.query.all()
         return jsonify(GetUserSchema(many=True).dump(users))
 
+    @app.get("/api/current-user")
+    @login_required
+    def get_current_user():
+        user_id = session["user_id"]
+        if not user_id:
+            return jsonify({"error": "Not logged in"}), 401
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        return jsonify(GetUserSchema().dump(user))
+
     @app.get("/api/login-stats")
     @admin_required
     def get_login_stats():
