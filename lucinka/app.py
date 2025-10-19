@@ -7,7 +7,7 @@ from lucinka.config import config
 from lucinka.models import db
 
 
-def create_app(config_name=None):
+def create_app(config_name=None) -> Flask:
     """Application factory pattern."""
     app = Flask(__name__)
 
@@ -17,10 +17,6 @@ def create_app(config_name=None):
 
     # Initialize extensions
     db.init_app(app)
-
-    # Create tables if they don't exist
-    with app.app_context():
-        db.create_all()
 
     CORS(app)  # Allow frontend to connect
     return app

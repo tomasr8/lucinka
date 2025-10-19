@@ -16,6 +16,7 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(Text, unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    is_admin: Mapped[bool] = mapped_column(db.Boolean, nullable=False)
 
     def __repr__(self) -> str:
         return f"<User {self.username}>"
