@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import lucinka
@@ -30,6 +31,7 @@ class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or f"sqlite:///{db_path / 'prod.db'}"
     SQLALCHEMY_ECHO = False
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
 
 
 class TestingConfig(Config):

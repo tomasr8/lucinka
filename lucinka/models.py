@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -35,7 +37,7 @@ class LoginRecord(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"), nullable=False)
-    login_dt = mapped_column(db.DateTime, nullable=False)
+    login_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=db.func.now())
 
     user: Mapped[User] = db.relationship(back_populates="login_records")
 

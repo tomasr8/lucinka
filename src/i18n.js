@@ -9,8 +9,8 @@ const resources = {
         translation: {
             "Current Weight": "Aktuální váha",
             "Weight Change (since last measurement)":
-                "Změna hmotnosti (od posledního měření)",
-            "Weight Change (since birth)": "Změna hmotnosti (od narození)",
+                "Změna váhy (od posledního měření)",
+            "Weight Change (since birth)": "Změna váhy (od narození)",
             "Weight Over Time": "Váha v čase",
             "Weight (kg)": "Váha (kg)",
             weight: "Váha",

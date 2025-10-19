@@ -81,6 +81,10 @@ def login(username: str, password: str):
         return jsonify({"message": "Invalid credentials"}), 401
 
     session["user_id"] = user.id
+    session.permanent = True
+    record = LoginRecord(user=user)
+    db.session.add(record)
+    db.session.commit()
     return jsonify({})
 
 
