@@ -25,3 +25,8 @@ dist-ssr
 
 venv/
 .python-version
+__pycache__/
+*.pyc
+
+# Sqlite DB
+db/*.db
