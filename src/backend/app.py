@@ -8,6 +8,10 @@ CORS(app)  # Allow frontend to connect
 tasks = []
 task_id_counter = 1
 
+@app.route('/api/weight', methods=['GET'])
+def get_weights():
+    return jsonify({'weights': tasks})
+
 # Login route
 @app.route('/api/login', methods=['POST'])
 def login():
