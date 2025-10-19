@@ -15,7 +15,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Get Flask app and its config
-app = create_app()
+app = create_app(dev=True)
 with app.app_context():
     # Override sqlalchemy.url with app's database URI
     config.set_main_option("sqlalchemy.url", app.config["SQLALCHEMY_DATABASE_URI"])

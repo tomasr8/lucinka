@@ -1,7 +1,9 @@
+from datetime import datetime
+
 import click
 
 from lucinka.app import create_app
-from lucinka.models import User, db
+from lucinka.models import DataEntry, User, db
 from lucinka.users import create_user as _create_user
 
 
@@ -37,6 +39,11 @@ def user() -> None:
 @cli.group()
 def admin() -> None:
     """Admin management commands."""
+
+
+@cli.group()
+def data() -> None:
+    """Data management commands."""
 
 
 @user.command("list")
@@ -92,6 +99,48 @@ def delete_user(username: str) -> None:
             click.secho(f"User {username} deleted.", fg="green")
         else:
             click.secho(f"User {username} not found.", fg="red")
+
+
+@data.command("list")
+def list_data() -> None:
+    """List all data entries."""
+    with app.app_context():
+        for entry in DataEntry.query.order_by(DataEntry.date).all():
+            click.secho(f"{entry.id} | {entry.date} | {entry.weight}kg | {entry.height}cm | {entry.notes}", fg="blue")
+
+
+@data.command("delete")
+@click.argument("data_id", type=int)
+def delete_data(data_id: int) -> None:
+    """Delete a data entry by ID."""
+    with app.app_context():
+        entry = DataEntry.query.get(data_id)
+        if entry:
+            db.session.delete(entry)
+            db.session.commit()
+            click.secho(f"Data entry {data_id} deleted.", fg="green")
+        else:
+            click.secho(f"Data entry {data_id} not found.", fg="red")
+
+
+@data.command("add")
+@click.argument("date")
+@click.option("--user", type=str, required=True, help="Username of the user.")
+@click.option("--weight", type=float, required=False, help="Weight in kg.")
+@click.option("--height", type=float, required=False, help="Height in cm.")
+@click.option("--notes", type=str, required=False, help="Additional notes.")
+def add_data(date: str, user: str, weight: float, height: float, notes: str) -> None:
+    """Add a new data entry."""
+    with app.app_context():
+        dt = datetime.fromisoformat(date)
+        user = User.query.filter_by(username=user).first()
+        if not user:
+            click.secho(f"User {user} not found.", fg="red")
+            return
+        entry = DataEntry(date=dt, user=user, weight=weight, height=height, notes=notes)
+        db.session.add(entry)
+        db.session.commit()
+        click.secho(f"Data entry added: {entry.date} | {entry.weight}kg | {entry.height}cm | {entry.notes}", fg="green")
 
 
 if __name__ == "__main__":
