@@ -319,7 +319,7 @@ export default function App() {
             {t("All Entries")}
           </h2>
           <div className="space-y-3">
-            {sortedEntries.map(entry => (
+            {sortedEntries.toReversed().map(entry => (
               <div
                 key={entry.id}
                 className={`flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg`}
