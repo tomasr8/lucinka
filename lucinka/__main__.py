@@ -5,7 +5,7 @@ from lucinka.models import User, db
 from lucinka.users import create_user as _create_user
 
 
-app = create_app()
+app = create_app(dev=True)
 
 
 @click.group()

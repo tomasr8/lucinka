@@ -4,9 +4,10 @@ from pathlib import Path
 
 from flask import Flask, jsonify, send_from_directory, session
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from webargs.flaskparser import use_kwargs
 
-import lucinka
 from lucinka.config import Config
 from lucinka.models import LoginRecord, User, db
 from lucinka.schemas import GetLoginRecordSchema, GetUserSchema, LoginSchema
@@ -47,6 +48,11 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     config = Config(dev=dev, testing=testing)
     app = Flask(__name__, static_url_path=config.STATIC_URL_PATH, static_folder=config.STATIC_FOLDER)
     app.config.from_object(config)
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        storage_uri="memory://",
+    )
 
     # Initialize extensions
     db.init_app(app)
@@ -70,6 +76,7 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         return jsonify(GetLoginRecordSchema(many=True).dump(stats))
 
     @app.post("/api/login")
+    @limiter.limit("100 per hour")
     @use_kwargs(LoginSchema)
     def login(username: str, password: str):
         user = User.query.filter_by(username=username).first()
