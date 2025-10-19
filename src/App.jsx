@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useReducer, useEffect } from "react"
 import {
     LineChart,
     Line,
@@ -10,6 +10,23 @@ import {
     Legend,
 } from "recharts"
 import { Moon, Sun } from "lucide-react"
+
+function weightReducer(state, action) {
+    if (action.type === "success") {
+        return {
+            loading: false,
+            error: null,
+            data: action.payload,
+        }
+    } else if (action.type === "error") {
+        return {
+            loading: false,
+            error: action.payload,
+            data: null,
+        }
+    }
+    throw Error("Unknown action " + action.type)
+}
 
 export default function App() {
     const [darkMode, setDarkMode] = useState(
@@ -23,23 +40,44 @@ export default function App() {
         setDarkMode(d => !d)
     }
 
-    const entries = [
-        { id: "1", date: "2025-10-10", weight: 2.882, notes: "Birth weight" },
-        {
-            id: "2",
-            date: "2025-10-16",
-            weight: 2.732,
-            notes: "Leaving hospital",
-        },
-        {
-            id: "3",
-            date: "2025-10-17",
-            weight: 2.83,
-            notes: "Sage-femme visit",
-        },
-    ]
+    // fetch entries from backend
+    const [state, dispatch] = useReducer(weightReducer, {
+        loading: true,
+        error: null,
+        data: null,
+    })
 
-    const sortedEntries = [...entries].sort(
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const res = await fetch("/api/weight")
+                if (!res.ok) {
+                    // not logged in, redirect to login page
+                    window.location.href = "login"
+                    return
+                }
+
+                const data = await res.json()
+                dispatch({ type: "success", payload: data })
+            } catch (err) {
+                window.location.href = "login"
+                return
+                // dispatch({ type: "error", payload: err.message })
+            }
+        }
+
+        fetchData()
+    }, [])
+
+    if (state.loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <p className="text-gray-500">Loading...</p>
+            </div>
+        )
+    }
+
+    const sortedEntries = [...(state.data || [])].sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     )
 

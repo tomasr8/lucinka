@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from werkzeug.security import check_password_hash
 
 
 class Base(DeclarativeBase):
@@ -18,5 +21,23 @@ class User(db.Model):
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     is_admin: Mapped[bool] = mapped_column(db.Boolean, nullable=False)
 
+    login_records: Mapped[list[LoginRecord]] = db.relationship("LoginRecord", back_populates="user")
+
+    def verify_password(self, password: str) -> bool:
+        return check_password_hash(self.password_hash, password)
+
     def __repr__(self) -> str:
-        return f"<User {self.username}>"
+        return f"<User({self.id}) {self.username}>"
+
+
+class LoginRecord(db.Model):
+    __tablename__ = "login_stats"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"), nullable=False)
+    login_dt = mapped_column(db.DateTime, nullable=False)
+
+    user: Mapped[User] = db.relationship(back_populates="login_records")
+
+    def __repr__(self) -> str:
+        return f"<LoginRecord({self.id}) user_id={self.user_id} login_dt={self.login_dt}>"

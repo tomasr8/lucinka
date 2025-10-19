@@ -1,0 +1,20 @@
+[
+    {
+        "id": "1",
+        "date": "2025-10-10",
+        "weight": 2.882,
+        "notes": "Birth weight"
+    },
+    {
+        "id": "2",
+        "date": "2025-10-16",
+        "weight": 2.732,
+        "notes": "Leaving hospital"
+    },
+    {
+        "id": "3",
+        "date": "2025-10-17",
+        "weight": 2.83,
+        "notes": "Sage-femme visit"
+    }
+]
