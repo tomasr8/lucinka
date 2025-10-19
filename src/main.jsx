@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import './index.css'
 import App from './App.jsx'
 import LoginPage from './LoginPage.jsx'
-
+import './i18n';
 
 
 createRoot(document.getElementById('root')).render(

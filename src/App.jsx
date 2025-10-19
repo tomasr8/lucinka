@@ -10,6 +10,8 @@ import {
     Legend,
 } from "recharts"
 import { Moon, Sun } from "lucide-react"
+import { useTranslation } from "react-i18next"
+import { setLocale } from "./i18n"
 
 function weightReducer(state, action) {
     if (action.type === "success") {
@@ -29,6 +31,8 @@ function weightReducer(state, action) {
 }
 
 export default function App() {
+    const { t, i18n } = useTranslation()
+    const language = i18n.language || "en"
     const [darkMode, setDarkMode] = useState(
         document.documentElement.classList.contains("dark")
     )
@@ -82,7 +86,7 @@ export default function App() {
     )
 
     const chartData = sortedEntries.map(entry => ({
-        date: new Date(entry.date).toLocaleDateString("en-GB", {
+        date: new Date(entry.date).toLocaleDateString(language, {
             month: "short",
             day: "numeric",
         }),
@@ -126,17 +130,29 @@ export default function App() {
                             Lucinka
                         </h1>
                     </div>
-                    <button
-                        onClick={toggleDarkMode}
-                        className="p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
-                        aria-label="Toggle dark mode"
-                    >
-                        {darkMode ? (
-                            <Sun className="w-5 h-5 text-yellow-400" />
-                        ) : (
-                            <Moon className="w-5 h-5 text-gray-600" />
-                        )}
-                    </button>
+                    {/* Language selector */}
+                    <div className="flex items-center gap-4">
+                        <select
+                            value={language}
+                            onChange={e => setLocale(e.target.value)}
+                            className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 dark:text-gray-100"
+                        >
+                            <option value="en">🇬🇧 English</option>
+                            <option value="cs">🇨🇿 Čeština</option>
+                            <option value="it">🇮🇹 Italiano</option>
+                        </select>
+                        <button
+                            onClick={toggleDarkMode}
+                            className="p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
+                            aria-label="Toggle dark mode"
+                        >
+                            {darkMode ? (
+                                <Sun className="w-5 h-5 text-yellow-400" />
+                            ) : (
+                                <Moon className="w-5 h-5 text-gray-600" />
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Stats Summary */}
@@ -145,7 +161,7 @@ export default function App() {
                         className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6`}
                     >
                         <p className="text-gray-600 dark:text-gray-400">
-                            Current Weight
+                            {t("Current Weight")}
                         </p>
                         <p
                             className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
@@ -160,7 +176,7 @@ export default function App() {
                         className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6`}
                     >
                         <p className="text-gray-600 dark:text-gray-400">
-                            Weight Change (since last measurement)
+                            {t("Weight Change (since last measurement)")}
                         </p>
                         <p
                             className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
@@ -172,7 +188,7 @@ export default function App() {
                         className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6`}
                     >
                         <p className="text-gray-600 dark:text-gray-400">
-                            Weight Change (since birth)
+                            {t("Weight Change (since birth)")}
                         </p>
                         <p
                             className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
@@ -189,7 +205,7 @@ export default function App() {
                     <h2
                         className={`text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100`}
                     >
-                        Weight Over Time
+                        {t("Weight Over Time")}
                     </h2>
                     <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={chartData}>
@@ -205,7 +221,7 @@ export default function App() {
                                 stroke={darkMode ? "#9ca3af" : "#6b7280"}
                                 domain={[yAxisMin, yAxisMax]}
                                 label={{
-                                    value: "Weight (kg)",
+                                    value: t("Weight (kg)"),
                                     angle: -90,
                                     position: "insideLeft",
                                     fill: darkMode ? "#9ca3af" : "#6b7280",
@@ -225,7 +241,7 @@ export default function App() {
                                 }}
                                 formatter={value => value.toFixed(2)}
                             />
-                            <Legend />
+                            {/* <Legend  /> */}
                             <Line
                                 type="monotone"
                                 dataKey="weight"
@@ -245,7 +261,7 @@ export default function App() {
                     <h2
                         className={`text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100`}
                     >
-                        All Entries
+                        {t("All Entries")}
                     </h2>
                     <div className="space-y-3">
                         {sortedEntries.map(entry => (
@@ -260,7 +276,7 @@ export default function App() {
                                         >
                                             {new Date(
                                                 entry.date
-                                            ).toLocaleDateString("en-GB", {
+                                            ).toLocaleDateString(language, {
                                                 year: "numeric",
                                                 month: "long",
                                                 day: "numeric",
