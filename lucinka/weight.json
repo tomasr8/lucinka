@@ -3,7 +3,8 @@
         "id": "1",
         "date": "2025-10-10",
         "weight": 2.882,
-        "notes": "Birth weight"
+        "height": 45.5,
+        "notes": "Birth weight & height"
     },
     {
         "id": "2",
@@ -15,6 +16,13 @@
         "id": "3",
         "date": "2025-10-17",
         "weight": 2.83,
+        "notes": "Sage-femme visit"
+    },
+    {
+        "id": "3",
+        "date": "2025-10-19",
+        "weight": 2.965,
+        "height": 50.0,
         "notes": "Sage-femme visit"
     }
 ]

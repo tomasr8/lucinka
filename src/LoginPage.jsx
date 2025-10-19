@@ -33,7 +33,7 @@ export default function LoginPage() {
 
             if (response.ok) {
                 // setMessage({ type: 'success', text: 'Login successful!' });
-                navigate("/lucie/home")
+                navigate("/")
                 // onLogin(data.token, data.username);
             } else {
                 setMessage({

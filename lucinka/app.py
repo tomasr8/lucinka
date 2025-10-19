@@ -95,9 +95,9 @@ def logout():
     return jsonify({})
 
 
-@app.get("/api/weight")
+@app.get("/api/data")
 @login_required
-def get_weights():
+def get_data():
     data = Path(__file__).parent / "weight.json"
     with Path.open(data) as f:
         weights = json.load(f)
