@@ -26,6 +26,6 @@ class GetDataEntrySchema(Schema):
 
 class AddDataEntrySchema(Schema):
     date = fields.Date(required=True)
-    weight = fields.Float()
-    height = fields.Float()
-    notes = fields.Str()
+    weight = fields.Float(load_default=None)
+    height = fields.Float(load_default=None)
+    notes = fields.Str(load_default=None)

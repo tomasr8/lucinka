@@ -13,7 +13,7 @@ import {
 import { Moon, Sun, ShieldUser, CirclePlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { setLocale } from "./i18n";
-import Form from "./Form.jsx";
+import FormModal from "./Form.jsx";
 
 export default function App() {
   const navigate = useNavigate();
@@ -95,7 +95,8 @@ export default function App() {
     }));
 
   let weightChange = "N/A";
-  if (sortedEntries.length > 1) {
+  const filteredEntries = sortedEntries.filter(entry => !!entry.weight);
+  if (filteredEntries.length > 1) {
     const first = sortedEntries[0].weight;
     const last = sortedEntries[sortedEntries.length - 1].weight;
     const diff = (last - first) * 1000;
@@ -104,9 +105,9 @@ export default function App() {
   }
 
   let lastWeightChange = "N/A";
-  if (sortedEntries.length > 1) {
-    const last = sortedEntries.at(-1).weight;
-    const secondToLast = sortedEntries.at(-2).weight;
+  if (filteredEntries.length > 1) {
+    const last = filteredEntries.at(-1).weight;
+    const secondToLast = filteredEntries.at(-2).weight;
     const diff = (last - secondToLast) * 1000;
     const sign = diff >= 0 ? "+" : "";
     lastWeightChange = `${sign}${diff.toFixed(0)}g`;
@@ -184,7 +185,7 @@ export default function App() {
             <p
               className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
             >
-              {sortedEntries[sortedEntries.length - 1]?.weight.toFixed(2)}kg
+              {filteredEntries[filteredEntries.length - 1]?.weight.toFixed(2)}kg
             </p>
           </div>
           <div
@@ -331,7 +332,7 @@ export default function App() {
           )}
           </div>
           {formVisible && (
-           <Form />
+           <FormModal setState={setState} />
           )}
           <div className="space-y-3">
             {sortedEntries.toReversed().map(entry => (
