@@ -10,9 +10,10 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { Moon, Sun, ShieldUser } from "lucide-react";
+import { Moon, Sun, ShieldUser, CirclePlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { setLocale } from "./i18n";
+import Form from "./Form.jsx";
 
 export default function App() {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ export default function App() {
   };
 
   const [state, setState] = useState({ loading: true });
+  const [formVisible, setFormVisible] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -313,11 +315,24 @@ export default function App() {
         <div
           className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6`}
         >
+          <div className="flex items-center justify-between">
           <h2
             className={`text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100`}
           >
             {t("All Entries")}
           </h2>
+          {state.user.is_admin && (
+          <button
+            onClick={() => setFormVisible(v => !v)}
+            className="mb-4 px-2 py-2 bg-teal-600 text-white rounded-full hover:bg-teal-700 transition-colors"
+          >
+            <CirclePlus />
+          </button>
+          )}
+          </div>
+          {formVisible && (
+           <Form />
+          )}
           <div className="space-y-3">
             {sortedEntries.toReversed().map(entry => (
               <div

@@ -16,3 +16,16 @@ class GetLoginRecordSchema(Schema):
     id = fields.Int(dump_only=True)
     user_id = fields.Int(dump_only=True)
     login_dt = fields.DateTime(dump_only=True)
+
+class GetDataEntrySchema(Schema):
+    id = fields.Int(dump_only=True)
+    date = fields.Date(dump_only=True)
+    weight = fields.Float(dump_only=True)
+    height = fields.Float(dump_only=True)
+    notes = fields.Str(dump_only=True)
+
+class AddDataEntrySchema(Schema):
+    date = fields.Date(required=True)
+    weight = fields.Float()
+    height = fields.Float()
+    notes = fields.Str()

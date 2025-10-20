@@ -9,8 +9,8 @@ from flask_limiter.util import get_remote_address
 from webargs.flaskparser import use_kwargs
 
 from lucinka.config import Config
-from lucinka.models import LoginRecord, User, db
-from lucinka.schemas import GetLoginRecordSchema, GetUserSchema, LoginSchema
+from lucinka.models import LoginRecord, User, db, DataEntry
+from lucinka.schemas import AddDataEntrySchema, GetLoginRecordSchema, GetUserSchema, LoginSchema, GetDataEntrySchema
 
 
 def login_required(f):
@@ -113,10 +113,22 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     @app.get("/api/data")
     @login_required
     def get_data():
-        data = Path(__file__).parent / "weight.json"
-        with Path.open(data) as f:
-            weights = json.load(f)
-        return jsonify(weights)
+        data = DataEntry.query.order_by(DataEntry.date).all()
+        print(data)
+        return jsonify(GetDataEntrySchema(many=True).dump(data))
+    
+    @app.post("/api/data")
+    @admin_required
+    @use_kwargs(AddDataEntrySchema)
+    def add_data(date: str, weight: float, height: float, notes: str):
+        user_id = session["user_id"]
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        data_entry = DataEntry(date=date, weight=weight, height=height, notes=notes, user=user)
+        db.session.add(data_entry)
+        db.session.commit()
+        return jsonify({}), 201
 
     return app
 
