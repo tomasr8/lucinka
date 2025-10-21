@@ -29,3 +29,18 @@ class AddDataEntrySchema(Schema):
     weight = fields.Float(load_default=None)
     height = fields.Float(load_default=None)
     notes = fields.Str(load_default=None)
+
+class GetVisitSchema(Schema):
+    id = fields.Int(dump_only=True)
+    date = fields.DateTime(dump_only=True)
+    doctor = fields.Str(dump_only=True)
+    location = fields.Str(dump_only=True)
+    type = fields.Str(dump_only=True)
+    notes = fields.Str(dump_only=True)
+
+class AddVisitSchema(Schema):
+    date = fields.DateTime(required=True)
+    doctor = fields.Str(required=True)
+    location = fields.Str(required=True)
+    type = fields.Str(required=True)
+    notes = fields.Str(load_default=None)

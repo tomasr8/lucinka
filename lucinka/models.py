@@ -62,3 +62,22 @@ class DataEntry(db.Model):
         return (
             f"<DataEntry({self.id}) user_id={self.user_id} date={self.date} weight={self.weight} height={self.height}>"
         )
+
+class Visit(db.Model):
+    __tablename__ = "visits"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"), nullable=False)
+    created_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=db.func.now())
+    date: Mapped[date] = mapped_column(db.DateTime, nullable=False)
+    doctor: Mapped[str] = mapped_column(db.Text, nullable=False)
+    location: Mapped[str] = mapped_column(db.Text, nullable=False)
+    type: Mapped[str] = mapped_column(db.Text, nullable=False)
+    notes: Mapped[str | None] = mapped_column(db.Text, nullable=True)
+
+    user: Mapped[User] = db.relationship()
+
+    def __repr__(self) -> str:
+        return (
+            f"<Visit({self.id}) user_id={self.user_id} date={self.date} time={self.time} doctor={self.doctor} location={self.location}>"
+        )

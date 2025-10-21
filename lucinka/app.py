@@ -9,8 +9,8 @@ from flask_limiter.util import get_remote_address
 from webargs.flaskparser import use_kwargs
 
 from lucinka.config import Config
-from lucinka.models import LoginRecord, User, db, DataEntry
-from lucinka.schemas import AddDataEntrySchema, GetLoginRecordSchema, GetUserSchema, LoginSchema, GetDataEntrySchema
+from lucinka.models import LoginRecord, User, db, DataEntry, Visit
+from lucinka.schemas import AddDataEntrySchema, GetLoginRecordSchema, GetUserSchema, GetVisitSchema, LoginSchema, GetDataEntrySchema, AddVisitSchema
 
 
 def login_required(f):
@@ -114,9 +114,8 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     @login_required
     def get_data():
         data = DataEntry.query.order_by(DataEntry.date).all()
-        print(data)
         return jsonify(GetDataEntrySchema(many=True).dump(data))
-    
+
     @app.post("/api/data")
     @admin_required
     @use_kwargs(AddDataEntrySchema)
@@ -130,7 +129,47 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         db.session.commit()
         return jsonify({}), 201
 
+    @app.delete("/api/data/<int:entry_id>")
+    @admin_required
+    def delete_data_entry(entry_id: int):
+        data_entry = DataEntry.query.get(entry_id)
+        if not data_entry:
+            return jsonify({"error": "Data entry not found"}), 404
+        db.session.delete(data_entry)
+        db.session.commit()
+        return jsonify({}), 204
+
+    @app.get("/api/visits")
+    @login_required
+    def get_visits():
+        visits = Visit.query.order_by(Visit.date).all()
+        return jsonify(GetVisitSchema(many=True).dump(visits))
+
+    @app.post("/api/visits")
+    @admin_required
+    @use_kwargs(AddVisitSchema)
+    def add_visit(date: str, doctor: str, location: str, type: str, notes: str):
+        user_id = session["user_id"]
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        visit = Visit(date=date, doctor=doctor, location=location, type=type, notes=notes, user=user)
+        db.session.add(visit)
+        db.session.commit()
+        return jsonify({}), 201
+
+    @app.delete("/api/visits/<int:visit_id>")
+    @admin_required
+    def delete_visit(visit_id: int):
+        visit = Visit.query.get(visit_id)
+        if not visit:
+            return jsonify({"error": "Visit not found"}), 404
+        db.session.delete(visit)
+        db.session.commit()
+        return jsonify({}), 204
+
     return app
+
 
 
 if __name__ == "__main__":

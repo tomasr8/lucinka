@@ -72,16 +72,6 @@ export default function FormModal({ setState }) {
                 </div>
             )}
 
-            {/* Trigger Button */}
-
-            {/* <button
-        onClick={() => setIsOpen(true)}
-        className="px-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-      >
-        <CirclePlus className="w-5 h-5" />
-        Add Health Entry
-      </button> */}
-
             {/* Modal Overlay */}
             {isOpen && (
                 <div
