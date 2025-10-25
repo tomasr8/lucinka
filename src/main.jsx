@@ -5,6 +5,7 @@ import "./index.css";
 import App from "./App.jsx";
 import LoginPage from "./LoginPage.jsx";
 import Stats from "./Stats.jsx";
+import Gallery from "./Gallery.jsx";
 import "./i18n";
 
 createRoot(document.getElementById("root")).render(
@@ -14,6 +15,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<App />} />
         <Route path="/stats" element={<Stats />} />
+        <Route path="/gallery" element={<Gallery />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

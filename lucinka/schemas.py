@@ -17,6 +17,7 @@ class GetLoginRecordSchema(Schema):
     user_id = fields.Int(dump_only=True)
     login_dt = fields.DateTime(dump_only=True)
 
+
 class GetDataEntrySchema(Schema):
     id = fields.Int(dump_only=True)
     date = fields.Date(dump_only=True)
@@ -24,11 +25,13 @@ class GetDataEntrySchema(Schema):
     height = fields.Float(dump_only=True)
     notes = fields.Str(dump_only=True)
 
+
 class AddDataEntrySchema(Schema):
     date = fields.Date(required=True)
     weight = fields.Float(load_default=None)
     height = fields.Float(load_default=None)
     notes = fields.Str(load_default=None)
+
 
 class GetVisitSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -38,9 +41,25 @@ class GetVisitSchema(Schema):
     type = fields.Str(dump_only=True)
     notes = fields.Str(dump_only=True)
 
+
 class AddVisitSchema(Schema):
     date = fields.DateTime(required=True)
     doctor = fields.Str(required=True)
     location = fields.Str(required=True)
     type = fields.Str(required=True)
     notes = fields.Str(load_default=None)
+
+
+class GetBreastfeedingSchema(Schema):
+    id = fields.Int(dump_only=True)
+    start_dt = fields.DateTime(dump_only=True)
+    end_dt = fields.DateTime(dump_only=True)
+    left_duration = fields.Int(dump_only=True)
+    right_duration = fields.Int(dump_only=True)
+
+
+class AddBreastfeedingSchema(Schema):
+    start_dt = fields.DateTime(required=True)
+    end_dt = fields.DateTime(required=True)
+    left_duration = fields.Int(load_default=None)
+    right_duration = fields.Int(load_default=None)

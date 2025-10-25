@@ -1,36 +1,44 @@
 import { useState } from "react";
 
-export default function GalleryPage() {
-    const [images, setImages] = useState([]);
+import Header from "./Header";
 
-    const handleImageUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImages([...images, reader.result]);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+export default function Gallery() {
+  const [images, setImages] = useState([]);
 
-    const handleImageDelete = (index) => {
-        const updatedImages = images.filter((_, i) => i !== index);
-        setImages(updatedImages);
-    };
+  const handleImageUpload = event => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImages([...images, reader.result]);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    return (
-        <div className="gallery-page">
-            <h1>Gallery</h1>
-            <input type="file" accept="image/*" onChange={handleImageUpload} />
-            <div className="image-grid">
-                {images.map((image, index) => (
-                    <div key={index} className="image-item">
-                        <img src={image} alt={`Uploaded ${index}`} />
-                        <button onClick={() => handleImageDelete(index)}>Delete</button>
-                    </div>
-                ))}
-            </div>
+  const handleImageDelete = index => {
+    const updatedImages = images.filter((_, i) => i !== index);
+    setImages(updatedImages);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <div className="max-w-6xl mx-auto p-6">
+        {/* Header */}
+        <Header isAdmin={false} />
+        <div>
+          <h1>Gallery</h1>
+          <input type="file" accept="image/*" onChange={handleImageUpload} />
+          <div>
+            {images.map((image, index) => (
+              <div key={index}>
+                <img src={image} alt={`Uploaded ${index}`} />
+                <button onClick={() => handleImageDelete(index)}>Delete</button>
+              </div>
+            ))}
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

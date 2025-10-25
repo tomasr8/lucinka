@@ -3,7 +3,7 @@ from datetime import datetime
 import click
 
 from lucinka.app import create_app
-from lucinka.models import DataEntry, User, db
+from lucinka.models import Breastfeeding, DataEntry, User, Visit, db
 from lucinka.users import create_user as _create_user
 
 
@@ -107,7 +107,10 @@ def list_data() -> None:
     with app.app_context():
         for entry in DataEntry.query.order_by(DataEntry.date).all():
             click.secho(f"{entry.id} | {entry.date} | {entry.weight}kg | {entry.height}cm | {entry.notes}", fg="blue")
-
+        for visit in Visit.query.order_by(Visit.date).all():
+            click.secho(f"{visit.id} | {visit.date} | {visit.doctor} | {visit.location} | Type: {visit.type} | Notes: {visit.notes}", fg="green")
+        for breastfeeding in Breastfeeding.query.order_by(Breastfeeding.date).all():
+            click.secho(f"{breastfeeding.id} | {breastfeeding.date} | Breast: {breastfeeding.breast} | Left Duration: {breastfeeding.left_duration}min | Right Duration: {breastfeeding.right_duration}min", fg="magenta")
 
 @data.command("delete")
 @click.argument("data_id", type=int)

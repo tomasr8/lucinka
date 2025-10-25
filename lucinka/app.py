@@ -9,8 +9,18 @@ from flask_limiter.util import get_remote_address
 from webargs.flaskparser import use_kwargs
 
 from lucinka.config import Config
-from lucinka.models import LoginRecord, User, db, DataEntry, Visit
-from lucinka.schemas import AddDataEntrySchema, GetLoginRecordSchema, GetUserSchema, GetVisitSchema, LoginSchema, GetDataEntrySchema, AddVisitSchema
+from lucinka.models import LoginRecord, User, db, DataEntry, Visit, Breastfeeding
+from lucinka.schemas import (
+    AddBreastfeedingSchema,
+    AddDataEntrySchema,
+    GetLoginRecordSchema,
+    GetUserSchema,
+    GetVisitSchema,
+    LoginSchema,
+    GetDataEntrySchema,
+    AddVisitSchema,
+    GetBreastfeedingSchema,
+)
 
 
 def login_required(f):
@@ -168,8 +178,44 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         db.session.commit()
         return jsonify({}), 204
 
-    return app
+    @app.get("/api/breastfeeding")
+    @admin_required
+    def get_breastfeeding():
+        breastfeeding = Breastfeeding.query.order_by(Breastfeeding.start_dt.desc()).all()
+        return jsonify(GetBreastfeedingSchema(many=True).dump(breastfeeding))
 
+    @app.post("/api/breastfeeding")
+    @admin_required
+    @use_kwargs(AddBreastfeedingSchema)
+    def add_breastfeeding(
+        start_dt: str, end_dt: str, left_duration: int = None, right_duration: int = None
+    ):
+        user_id = session["user_id"]
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        breastfeeding = Breastfeeding(
+            start_dt=start_dt,
+            end_dt=end_dt,
+            left_duration=left_duration,
+            right_duration=right_duration,
+            user=user,
+        )
+        db.session.add(breastfeeding)
+        db.session.commit()
+        return jsonify({}), 201
+
+    @app.delete("/api/breastfeeding/<int:breastfeeding_id>")
+    @admin_required
+    def delete_breastfeeding(breastfeeding_id: int):
+        breastfeeding = Breastfeeding.query.get(breastfeeding_id)
+        if not breastfeeding:
+            return jsonify({"error": "Breastfeeding record not found"}), 404
+        db.session.delete(breastfeeding)
+        db.session.commit()
+        return jsonify({}), 204
+
+    return app
 
 
 if __name__ == "__main__":

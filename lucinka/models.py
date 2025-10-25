@@ -63,6 +63,7 @@ class DataEntry(db.Model):
             f"<DataEntry({self.id}) user_id={self.user_id} date={self.date} weight={self.weight} height={self.height}>"
         )
 
+
 class Visit(db.Model):
     __tablename__ = "visits"
 
@@ -78,6 +79,21 @@ class Visit(db.Model):
     user: Mapped[User] = db.relationship()
 
     def __repr__(self) -> str:
-        return (
-            f"<Visit({self.id}) user_id={self.user_id} date={self.date} time={self.time} doctor={self.doctor} location={self.location}>"
-        )
+        return f"<Visit({self.id}) user_id={self.user_id} date={self.date} time={self.time} doctor={self.doctor} location={self.location}>"
+
+
+class Breastfeeding(db.Model):
+    __tablename__ = "breastfeeding"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"), nullable=False)
+    created_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=db.func.now())
+    start_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
+    end_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
+    left_duration: Mapped[int | None] = mapped_column(db.Integer, nullable=True)
+    right_duration: Mapped[int | None] = mapped_column(db.Integer, nullable=True)
+
+    user: Mapped[User] = db.relationship()
+
+    def __repr__(self) -> str:
+        return f"<Breastfeeding({self.id}) user_id={self.user_id} date={self.date} start_time={self.start_time} end_time={self.end_time} breast={self.breast} left_duration={self.left_duration} right_duration={self.right_duration}>"

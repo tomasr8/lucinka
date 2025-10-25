@@ -24,7 +24,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("created_dt", sa.DateTime(), nullable=False),
-        sa.Column("date", sa.Date(), nullable=False),
+        sa.Column("date", sa.DateTime(), nullable=False),
         sa.Column("doctor", sa.Text(), nullable=False),
         sa.Column("location", sa.Text(), nullable=False),
         sa.Column("type", sa.Text(), nullable=False),
