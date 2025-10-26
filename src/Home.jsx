@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useState } from "react";
 import {
   LineChart,
   Line,
@@ -14,14 +13,14 @@ import { useTranslation } from "react-i18next";
 import FormModal from "./Form.jsx";
 import Header from "./Header.jsx";
 import { useTheme } from "./theme.jsx";
+import { useData } from "./util";
 
 export default function App() {
-  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
   const { darkMode } = useTheme();
 
-  const [state, setState] = useState({ loading: true });
+  const { data, loading, refetch } = useData("user", "data");
   const [formVisible, setFormVisible] = useState(false);
 
   const deleteEntry = async id => {
@@ -32,10 +31,7 @@ export default function App() {
       });
       if (res.ok) {
         // Refresh data
-        setState(s => ({
-          ...s,
-          data: s.data.filter(entry => entry.id !== id),
-        }));
+        refetch();
       } else {
         console.error("Failed to delete entry");
       }
@@ -44,42 +40,24 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [userRes, dataRes] = await Promise.all([
-          fetch("/api/current-user"),
-          fetch("/api/data"),
-        ]);
-
-        if (!userRes.ok || !dataRes.ok) {
-          // not logged in, redirect to login page
-          navigate("login");
-          return;
-        }
-
-        const user = await userRes.json();
-        const data = await dataRes.json();
-        setState({ loading: false, user, data });
-      } catch (err) {
-        console.error(err);
-        navigate("login");
-        return;
-      }
-    }
-
-    fetchData();
-  }, [navigate]);
-
-  if (state.loading) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Loading...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+        <div className="max-w-6xl mx-auto p-6">
+          {/* Header */}
+          <Header isAdmin={false} />
+          <div className="mb-6">
+            <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
+              Data
+            </h1>
+            <p className="dark:text-white text-gray-600">Lucinka's vitals</p>
+          </div>
+        </div>
       </div>
     );
   }
 
-  const sortedEntries = [...(state.data || [])].sort(
+  const sortedEntries = [...data.data].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
@@ -143,7 +121,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header isAdmin={state.user.is_admin} />
+        <Header isAdmin={data.user.is_admin} />
         <div className="mb-6">
           <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
             Data
@@ -306,7 +284,7 @@ export default function App() {
               >
                 {t("All Entries")}
               </h2>
-              {state.user.is_admin && (
+              {data.user.is_admin && (
                 <button
                   onClick={() => setFormVisible(v => !v)}
                   className="mb-4 px-2 py-2 bg-teal-600 text-white rounded-full hover:bg-teal-700 transition-colors"
@@ -315,7 +293,7 @@ export default function App() {
                 </button>
               )}
             </div>
-            {formVisible && <FormModal setState={setState} />}
+            {formVisible && <FormModal onSubmit={refetch} />}
             <div className="space-y-3">
               {sortedEntries.toReversed().map(entry => (
                 <div
@@ -362,7 +340,7 @@ export default function App() {
                       </p>
                     )}
                     <div className="flex justify-end">
-                      {state.user.is_admin && (
+                      {data.user.is_admin && (
                         <button
                           onClick={() => deleteEntry(entry.id)}
                           className="mb-4 px-2 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"

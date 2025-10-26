@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -13,6 +13,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Header from "./Header";
+import { useData } from "./util";
 
 export default function VisitsPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -20,26 +21,11 @@ export default function VisitsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-
-  // Sample visit data - replace with API call
-  const [state, setState] = useState({ loading: true });
-
-  const [loading, setLoading] = useState(true);
-  const [visits, setVisits] = useState([]);
-
-  useEffect(() => {
-    // Fetch visits from API
-    fetch("/api/visits")
-      .then(response => response.json())
-      .then(data => {
-        setVisits(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("Error fetching visits:", error);
-        setLoading(false);
-      });
-  }, []);
+  const {
+    data: { user, visits },
+    loading,
+    refetch,
+  } = useData("user", "visits");
 
   const [newVisit, setNewVisit] = useState({
     date: "",
@@ -66,10 +52,10 @@ export default function VisitsPage() {
 
     return { daysInMonth, startingDayOfWeek };
   };
-  console.log(currentDate);
+
   const previousMonth = () => {
     setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth( ) - 1)
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
     );
   };
 
@@ -81,12 +67,7 @@ export default function VisitsPage() {
 
   const handleAddVisit = e => {
     e.preventDefault();
-    const visitToAdd = {
-      ...newVisit,
-      // id: visits.length + 1,
-    };
 
-    setVisits([...visits, visitToAdd]);
     const data = {
       date: `${newVisit.date} ${newVisit.time}`,
       doctor: newVisit.doctor,
@@ -101,12 +82,16 @@ export default function VisitsPage() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-    }).then(response => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    });
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then(() => {
+        refetch();
+      });
 
     setNewVisit({
       date: "",
@@ -143,7 +128,7 @@ export default function VisitsPage() {
     } catch (err) {
       console.error(err);
     }
-    setVisits(visits.filter(visit => visit.id !== selectedVisit.id));
+    await refetch();
     setSuccessMessage("Visit deleted successfully!");
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
@@ -186,7 +171,9 @@ export default function VisitsPage() {
         <div
           key={day}
           className={`p-2 min-h-24 border border-gray-100 rounded-lg cursor-pointer transition-all dark:hover:bg-gray-800 hover:bg-gray-50 ${
-            isToday ? "dark:bg-gray-800 bg-teal-50 dark:border-gray-100 border-teal-300" : "dark:border-gray-500"
+            isToday
+              ? "dark:bg-gray-800 bg-teal-50 dark:border-gray-100 border-teal-300"
+              : "dark:border-gray-500"
           }`}
           onClick={() => hasVisits && setSelectedVisit(dayVisits[0])}
         >
@@ -217,11 +204,35 @@ export default function VisitsPage() {
     return days;
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+        <div className="max-w-6xl mx-auto p-6">
+          {/* Header */}
+          <Header isAdmin={false} />
+          <div>
+            {/* Title */}
+            <div className="flex justify-between items-center">
+              <div className="mb-6">
+                <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
+                  Visits
+                </h1>
+                <p className="dark:text-white text-gray-600">
+                  Upcoming appointments
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header isAdmin={false} />
+        <Header isAdmin={user.is_admin} />
         <div>
           {/* Success Notification */}
           {showSuccess && (
@@ -236,16 +247,18 @@ export default function VisitsPage() {
             </div>
           )}
 
-          <div className="max-w-6xl mx-auto">
+          <div>
             {/* Title */}
             <div className="flex justify-between items-center">
               <div className="mb-6">
                 <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
                   Visits
                 </h1>
-                <p className="dark:text-white text-gray-600">Upcoming appointments</p>
+                <p className="dark:text-white text-gray-600">
+                  Upcoming appointments
+                </p>
               </div>
-              {state?.user?.is_admin && (
+              {user.is_admin && (
                 <button
                   onClick={() => setIsAddModalOpen(true)}
                   className="px-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
@@ -299,15 +312,21 @@ export default function VisitsPage() {
               <div className="flex gap-4 mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 dark:bg-teal-200 bg-teal-100 rounded"></div>
-                  <span className="text-sm dark:text-white text-gray-600">Upcoming</span>
+                  <span className="text-sm dark:text-white text-gray-600">
+                    Upcoming
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 dark:bg-gray-500 bg-gray-200 rounded"></div>
-                  <span className="text-sm dark:text-white text-gray-600">Completed</span>
+                  <span className="text-sm dark:text-white text-gray-600">
+                    Completed
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 dark:bg-teal-800 bg-teal-50 border-2 dark:border-teal-500 border-teal-300 rounded"></div>
-                  <span className="text-sm dark:text-white text-gray-600">Today</span>
+                  <span className="text-sm dark:text-white text-gray-600">
+                    Today
+                  </span>
                 </div>
               </div>
             </div>
@@ -575,7 +594,7 @@ export default function VisitsPage() {
 
                 {/* Modal Footer */}
                 <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                  {state?.user?.is_admin && (
+                  {user.is_admin && (
                     <button
                       onClick={() => handleDeleteVisit(selectedVisit.id)}
                       className="flex-1 px-6 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-all flex items-center justify-center gap-2"

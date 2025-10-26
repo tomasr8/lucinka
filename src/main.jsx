@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import "./index.css";
-import Home from "./App.jsx";
+import Home from "./Home.jsx";
 import LoginPage from "./LoginPage.jsx";
 import Stats from "./Stats.jsx";
 import Gallery from "./Gallery.jsx";

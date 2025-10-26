@@ -1,9 +1,11 @@
 import { useState } from "react";
 
 import Header from "./Header";
+import { useData } from "./util";
 
 export default function Gallery() {
   const [images, setImages] = useState([]);
+  const { data, loading } = useData("user");
 
   const handleImageUpload = event => {
     const file = event.target.files[0];
@@ -21,13 +23,27 @@ export default function Gallery() {
     setImages(updatedImages);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+        <div className="max-w-6xl mx-auto p-6">
+          {/* Header */}
+          <Header isAdmin={false} />
+          <div>
+            <h1 className="text-gray-900 dark:text-white">Gallery</h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header isAdmin={false} />
+        <Header isAdmin={data.user.is_admin} />
         <div>
-          <h1>Gallery</h1>
+          <h1 className="text-gray-900 dark:text-white">Gallery</h1>
           <input type="file" accept="image/*" onChange={handleImageUpload} />
           <div>
             {images.map((image, index) => (

@@ -11,6 +11,7 @@ import {
   Square,
 } from "lucide-react";
 import Header from "./Header";
+import { useData } from "./util";
 
 function getDurationInMinutes(startDt, endDt) {
   const startTime = new Date(startDt);
@@ -42,14 +43,16 @@ function _formatDuration(startDt, endDt) {
 }
 
 export default function BreastfeedingPage() {
-  const [sessions, setSessions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: { breastfeeding: sessions, user },
+    loading,
+    refetch,
+  } = useData("user", "breastfeeding");
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // console.log('Sessions:', sessions);
   // Timer states
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -58,9 +61,7 @@ export default function BreastfeedingPage() {
   const [rightTime, setRightTime] = useState(0);
   const [sessionStartTime, setSessionStartTime] = useState(null);
 
-  console.log(new Date().toISOString().split("T")[1]);
   // Manual entry states
-
   const now = new Date();
   const nowDate = now.toISOString().split("T")[0];
   const nowTime = `${now.getHours()}:${now.getMinutes()}`;
@@ -77,10 +78,6 @@ export default function BreastfeedingPage() {
     time: false,
   });
 
-  useEffect(() => {
-    fetchSessions();
-  }, []);
-
   // Timer effect
   useEffect(() => {
     let interval = null;
@@ -95,19 +92,6 @@ export default function BreastfeedingPage() {
     }
     return () => clearInterval(interval);
   }, [isTimerActive, isPaused, activeBreast]);
-
-  const fetchSessions = () => {
-    fetch("/api/breastfeeding")
-      .then(response => response.json())
-      .then(data => {
-        setSessions(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("Error fetching sessions:", error);
-        setLoading(false);
-      });
-  };
 
   const startTimer = breast => {
     if (!isTimerActive) {
@@ -145,7 +129,7 @@ export default function BreastfeedingPage() {
     })
       .then(response => response.json())
       .then(() => {
-        setSessions([...sessions, data]);
+        refetch();
         resetTimer();
         setSuccessMessage("Session saved successfully!");
         setShowSuccess(true);
@@ -190,37 +174,6 @@ export default function BreastfeedingPage() {
       return `${hours}h ${mins}m`;
     }
     return `${mins}m`;
-  };
-
-  const aggregateByDay = () => {
-    const dayMap = {};
-
-    sessions.forEach(session => {
-      const duration =
-        session.left_duration && session.right_duration
-          ? Math.round(session.left_duration + session.right_duration)
-          : calculateDuration(session.start_dt, session.end_dt);
-
-      // console.log(session.start_dt)
-      const dateKey = new Date(session.start_dt).toISOString().split("T")[0];
-      if (dayMap[dateKey]) {
-        dayMap[dateKey].total += duration;
-        dayMap[dateKey].leftTotal += session.left_duration;
-        dayMap[dateKey].rightTotal += session.right_duration;
-        dayMap[dateKey].sessions.push(session);
-      } else {
-        dayMap[dateKey] = {
-          total: duration,
-          leftTotal: session.left_duration,
-          rightTotal: session.right_duration,
-          sessions: [session],
-        };
-      }
-    });
-
-    return Object.entries(dayMap)
-      .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA))
-      .map(([date, data]) => ({ date, ...data }));
   };
 
   const handleInputChange = e => {
@@ -272,15 +225,7 @@ export default function BreastfeedingPage() {
     })
       .then(response => response.json())
       .then(() => {
-        setSessions([
-          ...sessions,
-          {
-            start_dt: startDt,
-            end_dt: endDt,
-            left_duration: parseFloat(newSession.left_duration),
-            right_duration: parseFloat(newSession.right_duration),
-          },
-        ]);
+        refetch();
         setNewSession({
           date: "",
           time: "",
@@ -309,7 +254,7 @@ export default function BreastfeedingPage() {
         method: "DELETE",
       });
       if (res.ok) {
-        setSessions(sessions.filter(session => session.id !== id));
+        await refetch();
         setSuccessMessage("Session deleted successfully!");
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
@@ -319,24 +264,69 @@ export default function BreastfeedingPage() {
     }
   };
 
-  const dailyData = aggregateByDay();
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading sessions...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+        <div className="max-w-6xl mx-auto p-6">
+          {/* Header */}
+          <Header isAdmin={false} />
+          <div>
+            <div>
+              <div className="grid grid-cols-3 md:grid-cols-2 flex mb-8">
+                <div className="mb-6">
+                  <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
+                    Breastfeeding
+                  </h1>
+                  <p className="dark:text-white text-gray-600">
+                    Breastfeeding over days
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
+  const aggregateByDay = () => {
+    const dayMap = {};
+
+    sessions.forEach(session => {
+      const duration =
+        session.left_duration && session.right_duration
+          ? Math.round(session.left_duration + session.right_duration)
+          : calculateDuration(session.start_dt, session.end_dt);
+
+      // console.log(session.start_dt)
+      const dateKey = new Date(session.start_dt).toISOString().split("T")[0];
+      if (dayMap[dateKey]) {
+        dayMap[dateKey].total += duration;
+        dayMap[dateKey].leftTotal += session.left_duration;
+        dayMap[dateKey].rightTotal += session.right_duration;
+        dayMap[dateKey].sessions.push(session);
+      } else {
+        dayMap[dateKey] = {
+          total: duration,
+          leftTotal: session.left_duration,
+          rightTotal: session.right_duration,
+          sessions: [session],
+        };
+      }
+    });
+
+    return Object.entries(dayMap)
+      .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA))
+      .map(([date, data]) => ({ date, ...data }));
+  };
+
+  const dailyData = aggregateByDay();
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header isAdmin={false} />
+        <Header isAdmin={user.is_admin} />
         <div>
           {showSuccess && (
             <div className="fixed top-4 right-4 z-50">
@@ -371,7 +361,7 @@ export default function BreastfeedingPage() {
           )}
 
           <div>
-            <div className="grid grid-cols-3 md:grid-cols-2 flex mb-8">
+            <div className="grid grid-cols-3 md:grid-cols-2 flex">
               <div className="mb-6">
                 <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
                   Breastfeeding
