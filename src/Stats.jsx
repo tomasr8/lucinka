@@ -118,32 +118,29 @@ const UserLoginStats = ({ isAdmin }) => {
               User Login Statistics
             </h1>
           </div>
-          {/* {isAdmin && ( */}
-            <>
-              <button
-                onClick={() => navigate("/")}
-                className="cursor-pointer p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
-              >
-                {darkMode ? (
-                  <HouseHeart className="w-5 h-5 text-violet-400" />
-                ) : (
-                  <HouseHeart className="w-5 h-5 text-violet-600" />
-                )}
-              </button>
-              <div className="py-4 border-l-2 border-solid border-gray-200 dark:border-gray-700"></div>
-            </>
-          {/* )} */}
-          <button
-            onClick={toggleDarkMode}
-            className="p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
-          >
-            {darkMode ? (
-              <Sun className="w-5 h-5 text-yellow-400" />
-            ) : (
-              <Moon className="w-5 h-5 text-gray-600" />
-            )}
-          </button>
-          
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate("/")}
+              className="cursor-pointer p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
+            >
+              {darkMode ? (
+                <HouseHeart className="w-5 h-5 text-violet-400" />
+              ) : (
+                <HouseHeart className="w-5 h-5 text-violet-600" />
+              )}
+            </button>
+            <div className="py-4 border-l-2 border-solid border-gray-200 dark:border-gray-700"></div>
+            <button
+              onClick={toggleDarkMode}
+              className="p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
+            >
+              {darkMode ? (
+                <Sun className="w-5 h-5 text-yellow-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}

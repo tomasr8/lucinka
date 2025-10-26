@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router";
 import {
   Moon,
   Sun,
-  ShieldUser,
+  Wrench,
   HouseHeart,
   Stethoscope,
   Milk,
@@ -11,10 +11,12 @@ import {
 import { useTranslation } from "react-i18next";
 import { setLocale } from "./i18n";
 import { useTheme } from "./theme.jsx";
+import { useUser } from "./user.jsx";
 
-export default function Header({ isAdmin }) {
+export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin } = useUser();
   const { darkMode, toggleDarkMode } = useTheme();
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
@@ -43,9 +45,9 @@ export default function Header({ isAdmin }) {
                 className="cursor-pointer p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
               >
                 {darkMode ? (
-                  <ShieldUser className="w-5 h-5 text-violet-400" />
+                  <Wrench className="w-5 h-5 text-violet-400" />
                 ) : (
-                  <ShieldUser className="w-5 h-5 text-violet-600" />
+                  <Wrench className="w-5 h-5 text-violet-600" />
                 )}
               </button>
               <div className="py-4 border-l-2 border-solid border-gray-200 dark:border-gray-700"></div>
@@ -83,7 +85,7 @@ export default function Header({ isAdmin }) {
             } ${commonStyle}`}
           >
             <HouseHeart />
-            Home
+            {t("Home")}
           </button>
           <button
             type="button"
@@ -93,7 +95,7 @@ export default function Header({ isAdmin }) {
             } ${commonStyle}`}
           >
             <Stethoscope />
-            Visits
+            {t("Visits")}
           </button>
           <button
             type="button"
@@ -105,7 +107,7 @@ export default function Header({ isAdmin }) {
             } ${commonStyle}`}
           >
             <Milk />
-            Breastfeeding
+            {t("Breastfeeding")}
           </button>
           <button
             type="button"
@@ -115,7 +117,7 @@ export default function Header({ isAdmin }) {
             } ${commonStyle}`}
           >
             <BookImage />
-            Gallery
+            {t("Gallery")}
           </button>
         </div>
       </div>

@@ -12,20 +12,24 @@ import {
   Trash2,
   CheckCircle,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Header from "./Header";
 import { useData } from "./util";
+import { useUser } from "./user.jsx";
 
 export default function VisitsPage() {
+  const { t, i18n } = useTranslation();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedVisit, setSelectedVisit] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const {
-    data: { user, visits },
+    data: { visits },
     loading,
     refetch,
-  } = useData("user", "visits");
+  } = useData("visits");
+  const { isAdmin } = useUser();
 
   const [newVisit, setNewVisit] = useState({
     date: "",
@@ -141,7 +145,7 @@ export default function VisitsPage() {
   };
 
   const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
-  const monthName = currentDate.toLocaleString("default", {
+  const monthName = currentDate.toLocaleString(i18n.language || "en", {
     month: "long",
     year: "numeric",
   });
@@ -209,16 +213,16 @@ export default function VisitsPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-6xl mx-auto p-6">
           {/* Header */}
-          <Header isAdmin={false} />
+          <Header />
           <div>
             {/* Title */}
             <div className="flex justify-between items-center">
               <div className="mb-6">
                 <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
-                  Visits
+                  {t("Visits")}
                 </h1>
                 <p className="dark:text-white text-gray-600">
-                  Upcoming appointments
+                  {t("Upcoming appointments")}
                 </p>
               </div>
             </div>
@@ -232,7 +236,7 @@ export default function VisitsPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header isAdmin={user.is_admin} />
+        <Header />
         <div>
           {/* Success Notification */}
           {showSuccess && (
@@ -252,13 +256,13 @@ export default function VisitsPage() {
             <div className="flex justify-between items-center">
               <div className="mb-6">
                 <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
-                  Visits
+                  {t("Visits")}
                 </h1>
                 <p className="dark:text-white text-gray-600">
-                  Upcoming appointments
+                  {t("Upcoming appointments")}
                 </p>
               </div>
-              {user.is_admin && (
+              {isAdmin && (
                 <button
                   onClick={() => setIsAddModalOpen(true)}
                   className="px-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
@@ -294,7 +298,15 @@ export default function VisitsPage() {
 
               {/* Calendar Grid */}
               <div className="grid grid-cols-7 gap-2 mb-4">
-                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
+                {[
+                  t("Sun"),
+                  t("Mon"),
+                  t("Tue"),
+                  t("Wed"),
+                  t("Thu"),
+                  t("Fri"),
+                  t("Sat"),
+                ].map(day => (
                   <div
                     key={day}
                     className="text-center font-semibold dark:text-white text-gray-600 text-sm py-2"
@@ -313,19 +325,19 @@ export default function VisitsPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 dark:bg-teal-200 bg-teal-100 rounded"></div>
                   <span className="text-sm dark:text-white text-gray-600">
-                    Upcoming
+                    {t("Upcoming")}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 dark:bg-gray-500 bg-gray-200 rounded"></div>
                   <span className="text-sm dark:text-white text-gray-600">
-                    Completed
+                    {t("Completed")}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 dark:bg-teal-800 bg-teal-50 border-2 dark:border-teal-500 border-teal-300 rounded"></div>
                   <span className="text-sm dark:text-white text-gray-600">
-                    Today
+                    {t("Today")}
                   </span>
                 </div>
               </div>
@@ -594,7 +606,7 @@ export default function VisitsPage() {
 
                 {/* Modal Footer */}
                 <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                  {user.is_admin && (
+                  {isAdmin && (
                     <button
                       onClick={() => handleDeleteVisit(selectedVisit.id)}
                       className="flex-1 px-6 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-all flex items-center justify-center gap-2"

@@ -16,6 +16,7 @@ import VisitsPage from "./Visits.jsx";
 import BreastfeedingPage from "./Breastfeeding.jsx";
 import "./i18n";
 import { ThemeProvider } from "./theme.jsx";
+import { UserProvider } from "./user.jsx";
 
 // async function loadUserData() {
 //   const response = await fetch("/api/current-user");
@@ -47,16 +48,18 @@ import { ThemeProvider } from "./theme.jsx";
 function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/stats" element={<Stats />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/visits" element={<VisitsPage />} />
-          <Route path="/breastfeeding" element={<BreastfeedingPage />} />
-        </Routes>
-      </BrowserRouter>
+      <UserProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/stats" element={<Stats />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/visits" element={<VisitsPage />} />
+            <Route path="/breastfeeding" element={<BreastfeedingPage />} />
+          </Routes>
+        </BrowserRouter>
+      </UserProvider>
     </ThemeProvider>
   );
 }

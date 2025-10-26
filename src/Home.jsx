@@ -14,13 +14,15 @@ import FormModal from "./Form.jsx";
 import Header from "./Header.jsx";
 import { useTheme } from "./theme.jsx";
 import { useData } from "./util";
+import { useUser } from "./user.jsx";
 
-export default function App() {
+export default function Home() {
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
   const { darkMode } = useTheme();
+  const { isAdmin } = useUser();
 
-  const { data, loading, refetch } = useData("user", "data");
+  const { data, loading, refetch } = useData("data");
   const [formVisible, setFormVisible] = useState(false);
 
   const deleteEntry = async id => {
@@ -45,12 +47,14 @@ export default function App() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-6xl mx-auto p-6">
           {/* Header */}
-          <Header isAdmin={false} />
+          <Header />
           <div className="mb-6">
             <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
-              Data
+              {t("Data")}
             </h1>
-            <p className="dark:text-white text-gray-600">Lucinka's vitals</p>
+            <p className="dark:text-white text-gray-600">
+              {t("Lucinka's vitals")}
+            </p>
           </div>
         </div>
       </div>
@@ -121,7 +125,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header isAdmin={data.user.is_admin} />
+        <Header />
         <div className="mb-6">
           <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
             Data
@@ -284,7 +288,7 @@ export default function App() {
               >
                 {t("All Entries")}
               </h2>
-              {data.user.is_admin && (
+              {isAdmin && (
                 <button
                   onClick={() => setFormVisible(v => !v)}
                   className="mb-4 px-2 py-2 bg-teal-600 text-white rounded-full hover:bg-teal-700 transition-colors"
@@ -340,7 +344,7 @@ export default function App() {
                       </p>
                     )}
                     <div className="flex justify-end">
-                      {data.user.is_admin && (
+                      {isAdmin && (
                         <button
                           onClick={() => deleteEntry(entry.id)}
                           className="mb-4 px-2 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"

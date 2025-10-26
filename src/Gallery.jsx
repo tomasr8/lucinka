@@ -28,7 +28,7 @@ export default function Gallery() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-6xl mx-auto p-6">
           {/* Header */}
-          <Header isAdmin={false} />
+          <Header />
           <div>
             <h1 className="text-gray-900 dark:text-white">Gallery</h1>
           </div>
@@ -41,7 +41,7 @@ export default function Gallery() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header isAdmin={data.user.is_admin} />
+        <Header />
         <div>
           <h1 className="text-gray-900 dark:text-white">Gallery</h1>
           <input type="file" accept="image/*" onChange={handleImageUpload} />

@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router";
 
 const dataMap = {
   user: "/api/current-user",
@@ -9,7 +8,6 @@ const dataMap = {
 };
 
 export function useData(...args) {
-  const navigate = useNavigate();
   const identifier = args.join("-");
   const [data, setData] = useState({ loading: true, data: {} });
 
@@ -30,9 +28,9 @@ export function useData(...args) {
       setData({ loading: false, data });
     } catch (error) {
       console.error(error);
-      navigate("/login");
+      window.location.href = "/login";
     }
-  }, [navigate, identifier]);
+  }, [identifier]);
 
   const refetch = useCallback(async () => {
     fetchData();

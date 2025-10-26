@@ -10,8 +10,10 @@ import {
   Pause,
   Square,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Header from "./Header";
 import { useData } from "./util";
+import { useUser } from "./user.jsx";
 
 function getDurationInMinutes(startDt, endDt) {
   const startTime = new Date(startDt);
@@ -20,34 +22,14 @@ function getDurationInMinutes(startDt, endDt) {
   return Math.round(diffMs / 1000 / 60);
 }
 
-function _formatDuration(startDt, endDt) {
-  const startTime = new Date(startDt);
-  const endTime = new Date(endDt);
-
-  const diffMs = endTime - startTime;
-
-  // Convert to duration object
-  const duration = {
-    hours: Math.floor(diffMs / (1000 * 60 * 60)),
-    minutes: Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)),
-    seconds: Math.floor((diffMs % (1000 * 60)) / 1000),
-  };
-
-  const formatter = new Intl.DurationFormat("en", {
-    style: "long",
-    hours: "numeric",
-    minutes: "numeric",
-    seconds: "numeric",
-  });
-  return formatter.format(duration);
-}
-
 export default function BreastfeedingPage() {
+  const { t, i18n } = useTranslation();
   const {
-    data: { breastfeeding: sessions, user },
+    data: { breastfeeding: sessions },
     loading,
     refetch,
-  } = useData("user", "breastfeeding");
+  } = useData("breastfeeding");
+  const { isAdmin } = useUser();
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -121,7 +103,6 @@ export default function BreastfeedingPage() {
       left_duration: leftTime,
       right_duration: rightTime,
     };
-    console.log(data);
     fetch("/api/breastfeeding", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -176,9 +157,50 @@ export default function BreastfeedingPage() {
     return `${mins}m`;
   };
 
+  function formatRelativeTime(date) {
+    const locale = i18n.language || "en";
+    const style = "long";
+    const rounding = "round";
+    const now = Date.now();
+    const diff = now - new Date(date);
+    const seconds = Math.abs(diff) / 1000;
+
+    const rtf = new Intl.RelativeTimeFormat(locale, {
+      numeric: "auto",
+      style, // 'long', 'short', or 'narrow'
+    });
+
+    const units = [
+      { name: "year", seconds: 31536000 },
+      { name: "month", seconds: 2592000 },
+      { name: "week", seconds: 604800 },
+      { name: "day", seconds: 86400 },
+      { name: "hour", seconds: 3600 },
+      { name: "minute", seconds: 60 },
+      { name: "second", seconds: 1 },
+    ];
+
+    // Find the most suitable unit
+    for (const unit of units) {
+      const value = seconds / unit.seconds;
+      if (value >= 1) {
+        const roundedValue =
+          rounding === "round"
+            ? Math.round(value)
+            : rounding === "ceil"
+            ? Math.ceil(value)
+            : Math.floor(value);
+
+        return rtf.format(-roundedValue, unit.name);
+      }
+    }
+
+    // Less than a second
+    return rtf.format(0, "second");
+  }
+
   const handleInputChange = e => {
     const { name, value } = e.target;
-    console.log(name, value);
     setNewSession(prev => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: false }));
@@ -193,7 +215,6 @@ export default function BreastfeedingPage() {
       date: !newSession.date,
       time: !newSession.time,
     };
-    console.log(newErrors);
     setErrors(newErrors);
 
     if (Object.values(newErrors).some(error => error)) {
@@ -269,16 +290,16 @@ export default function BreastfeedingPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-6xl mx-auto p-6">
           {/* Header */}
-          <Header isAdmin={false} />
+          <Header />
           <div>
             <div>
               <div className="grid grid-cols-3 md:grid-cols-2 flex mb-8">
                 <div className="mb-6">
                   <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
-                    Breastfeeding
+                    {t("Breastfeeding")}
                   </h1>
                   <p className="dark:text-white text-gray-600">
-                    Breastfeeding over days
+                    {t("Breastfeeding over days")}
                   </p>
                 </div>
               </div>
@@ -326,7 +347,7 @@ export default function BreastfeedingPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header isAdmin={user.is_admin} />
+        <Header />
         <div>
           {showSuccess && (
             <div className="fixed top-4 right-4 z-50">
@@ -364,123 +385,125 @@ export default function BreastfeedingPage() {
             <div className="grid grid-cols-3 md:grid-cols-2 flex">
               <div className="mb-6">
                 <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
-                  Breastfeeding
+                  {t("Breastfeeding")}
                 </h1>
                 <p className="dark:text-white text-gray-600">
-                  Breastfeeding over days
+                  {t("Breastfeeding over days")}
                 </p>
               </div>
               <div className={`flex justify-end md:justify-end md:mb-6 p-2`}>
                 <p
                   className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
                 >
-                  last session:{" "}
-                  {formatDuration(
+                  {t("Last session:")} {formatRelativeTime(sessions[0].end_dt)}
+                  {/* {formatDuration(
                     getDurationInMinutes(sessions[0].end_dt, new Date())
                   )}{" "}
-                  ago
+                  {t("ago")} */}
                 </p>
               </div>
             </div>
 
             {/* Timer Section */}
-            <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-6">
-              <h2 className="text-xl font-bold dark:text-white text-gray-800 mb-4">
-                Active Session
-              </h2>
+            {isAdmin && (
+              <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <h2 className="text-xl font-bold dark:text-white text-gray-800 mb-4">
+                  Active Session
+                </h2>
 
-              {/* Breast Selection Buttons */}
-              {!isTimerActive && (
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <button
-                    onClick={() => startTimer("left")}
-                    className="p-8 bg-gradient-to-br from-pink-400 to-pink-500 text-white rounded-xl hover:from-pink-500 hover:to-pink-600 transition-all shadow-md hover:shadow-lg"
-                  >
-                    <div className="text-4xl font-bold mb-2">L</div>
-                    <div className="text-sm">Left Breast</div>
-                  </button>
-                  <button
-                    onClick={() => startTimer("right")}
-                    className="p-8 bg-gradient-to-br from-purple-400 to-purple-500 text-white rounded-xl hover:from-purple-500 hover:to-purple-600 transition-all shadow-md hover:shadow-lg"
-                  >
-                    <div className="text-4xl font-bold mb-2">R</div>
-                    <div className="text-sm">Right Breast</div>
-                  </button>
-                </div>
-              )}
-
-              {/* Active Timer Display */}
-              {isTimerActive && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div
-                      className={`p-6 rounded-xl ${
-                        activeBreast === "left"
-                          ? "bg-pink-100 border-2 border-pink-500"
-                          : "bg-gray-100"
-                      }`}
-                    >
-                      <div className="text-sm text-gray-600 mb-1">
-                        Left Breast
-                      </div>
-                      <div className="text-3xl font-bold text-gray-800">
-                        {formatTime(leftTime)}
-                      </div>
-                    </div>
-                    <div
-                      className={`p-6 rounded-xl ${
-                        activeBreast === "right"
-                          ? "bg-purple-100 border-2 border-purple-500"
-                          : "bg-gray-100"
-                      }`}
-                    >
-                      <div className="text-sm text-gray-600 mb-1">
-                        Right Breast
-                      </div>
-                      <div className="text-3xl font-bold text-gray-800">
-                        {formatTime(rightTime)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
+                {/* Breast Selection Buttons */}
+                {!isTimerActive && (
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <button
-                      onClick={pauseTimer}
-                      className="flex-1 px-6 py-3 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-600 transition-all flex items-center justify-center gap-2"
+                      onClick={() => startTimer("left")}
+                      className="p-8 bg-gradient-to-br from-pink-400 to-pink-500 text-white rounded-xl hover:from-pink-500 hover:to-pink-600 transition-all shadow-md hover:shadow-lg"
                     >
-                      {isPaused ? (
-                        <Play className="w-5 h-5" />
-                      ) : (
-                        <Pause className="w-5 h-5" />
-                      )}
-                      {isPaused ? "Resume" : "Pause"}
+                      <div className="text-4xl font-bold mb-2">L</div>
+                      <div className="text-sm">Left Breast</div>
                     </button>
                     <button
-                      onClick={switchBreast}
-                      className="flex-1 px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-all"
+                      onClick={() => startTimer("right")}
+                      className="p-8 bg-gradient-to-br from-purple-400 to-purple-500 text-white rounded-xl hover:from-purple-500 hover:to-purple-600 transition-all shadow-md hover:shadow-lg"
                     >
-                      Switch Breast
-                    </button>
-                    <button
-                      onClick={stopAndSaveTimer}
-                      className="flex-1 px-6 py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Square className="w-5 h-5" />
-                      Stop & Save
+                      <div className="text-4xl font-bold mb-2">R</div>
+                      <div className="text-sm">Right Breast</div>
                     </button>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Manual Entry Button */}
-              <button
-                onClick={() => setIsManualModalOpen(true)}
-                className="w-full mt-4 px-6 py-3 dark:bg-gray-400 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition-all flex items-center justify-center gap-2"
-              >
-                <Plus className="w-5 h-5" />
-                Manual Entry
-              </button>
-            </div>
+                {/* Active Timer Display */}
+                {isTimerActive && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div
+                        className={`p-6 rounded-xl ${
+                          activeBreast === "left"
+                            ? "bg-pink-100 border-2 border-pink-500"
+                            : "bg-gray-100"
+                        }`}
+                      >
+                        <div className="text-sm text-gray-600 mb-1">
+                          Left Breast
+                        </div>
+                        <div className="text-3xl font-bold text-gray-800">
+                          {formatTime(leftTime)}
+                        </div>
+                      </div>
+                      <div
+                        className={`p-6 rounded-xl ${
+                          activeBreast === "right"
+                            ? "bg-purple-100 border-2 border-purple-500"
+                            : "bg-gray-100"
+                        }`}
+                      >
+                        <div className="text-sm text-gray-600 mb-1">
+                          Right Breast
+                        </div>
+                        <div className="text-3xl font-bold text-gray-800">
+                          {formatTime(rightTime)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={pauseTimer}
+                        className="flex-1 px-6 py-3 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-600 transition-all flex items-center justify-center gap-2"
+                      >
+                        {isPaused ? (
+                          <Play className="w-5 h-5" />
+                        ) : (
+                          <Pause className="w-5 h-5" />
+                        )}
+                        {isPaused ? "Resume" : "Pause"}
+                      </button>
+                      <button
+                        onClick={switchBreast}
+                        className="flex-1 px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-all"
+                      >
+                        Switch Breast
+                      </button>
+                      <button
+                        onClick={stopAndSaveTimer}
+                        className="flex-1 px-6 py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition-all flex items-center justify-center gap-2"
+                      >
+                        <Square className="w-5 h-5" />
+                        Stop & Save
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Manual Entry Button */}
+                <button
+                  onClick={() => setIsManualModalOpen(true)}
+                  className="w-full mt-4 px-6 py-3 dark:bg-gray-400 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition-all flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Manual Entry
+                </button>
+              </div>
+            )}
 
             {/* Daily Sessions */}
             <div className="space-y-4">
@@ -503,15 +526,18 @@ export default function BreastfeedingPage() {
                     <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
                       <div>
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white">
-                          {new Date(day.date).toLocaleDateString("en-US", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          {new Date(day.date).toLocaleDateString(
+                            i18n.language || "en",
+                            {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
                         </h3>
                         <p className="text-sm dark:text-gray-100 text-gray-500 mt-1">
-                          {day.sessions.length} session
+                          {day.sessions.length} {t("session")}
                           {day.sessions.length !== 1 ? "s" : ""}
                         </p>
                       </div>
@@ -521,7 +547,7 @@ export default function BreastfeedingPage() {
                             {formatDuration(day.total)}
                           </div>
                           <p className="text-sm dark:text-white text-gray-500">
-                            Total time
+                            {t("Total time")}
                           </p>
                         </div>
                         <div className="text-right">
@@ -529,7 +555,7 @@ export default function BreastfeedingPage() {
                             {formatDuration(day.leftTotal)}
                           </div>
                           <p className="text-sm dark:text-white text-gray-500">
-                            Total left
+                            {t("Total left")}
                           </p>
                         </div>
                         <div className="text-right">
@@ -537,14 +563,14 @@ export default function BreastfeedingPage() {
                             {formatDuration(day.rightTotal)}
                           </div>
                           <p className="text-sm dark:text-white text-gray-500">
-                            Total right
+                            {t("Total right")}
                           </p>
                         </div>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      {day.sessions.map((session, i) => {
+                      {day.sessions.map(session => {
                         const duration =
                           session.left_duration && session.right_duration
                             ? Math.round(
@@ -617,12 +643,14 @@ export default function BreastfeedingPage() {
                                 </p>
                               </div>
                             </div>
-                            <button
-                              onClick={() => handleDeleteSession(session.id)}
-                              className="p-2 dark:text-white text-red-500 dark:hover:bg-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                            >
-                              <Trash2 className="w-5 h-5" />
-                            </button>
+                            {isAdmin && (
+                              <button
+                                onClick={() => handleDeleteSession(session.id)}
+                                className="cursor-pointer p-2 dark:text-white text-red-500 dark:hover:bg-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
+                            )}
                           </div>
                         );
                       })}
@@ -648,7 +676,7 @@ export default function BreastfeedingPage() {
                     Manual Entry
                   </h2>
                   <p className="text-gray-500 text-sm mt-1">
-                    Enter feeding session manually
+                    Enter session manually
                   </p>
                 </div>
 
