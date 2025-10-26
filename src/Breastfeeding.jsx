@@ -380,9 +380,9 @@ export default function BreastfeedingPage() {
                   Breastfeeding over days
                 </p>
               </div>
-              <div className={`flex justify-end md:justify-center md:mb-6 p-2`}>
+              <div className={`flex justify-end md:justify-end md:mb-6 p-2`}>
                 <p
-                  className={`text-3xl font-bold text-gray-900 dark:text-gray-100 justify-right`}
+                  className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
                 >
                   last session:{" "}
                   {formatDuration(
