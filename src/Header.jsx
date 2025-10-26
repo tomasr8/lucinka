@@ -15,7 +15,6 @@ import { setLocale } from "./i18n";
 export default function Header({ isAdmin }) {
   const navigate = useNavigate();
   const location = useLocation();
-  console.log("location", location);
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
   const [darkMode, setDarkMode] = useState(

@@ -156,7 +156,14 @@ export default function App() {
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
         <Header isAdmin={state.user.is_admin} />
-
+        <div className="mb-6">
+          <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
+            Data
+          </h1>
+          <p className="dark:text-white text-gray-600">
+            Lucinka's vitals
+          </p>
+        </div>
         <div>
           {/* Stats Summary */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
