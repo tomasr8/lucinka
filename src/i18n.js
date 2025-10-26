@@ -44,6 +44,7 @@ const resources = {
         "Today": "Dnes",
         "Data": "Data",
         "Lucinka's vitals": "Lucinčiny parametry",
+        "Add Visit": "Přidat návštěvu",
     },
   },
   it: {
@@ -85,6 +86,7 @@ const resources = {
         "Data": "Dati",
         "Lucinka's vitals": "Parametri di Lucinka",
         "Upcoming appointments": "Appuntamenti a venire",
+        "Add Visit": "Aggiungi Visita",
     },
   },
 };

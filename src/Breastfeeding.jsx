@@ -10,10 +10,20 @@ import {
   Pause,
   Square,
 } from "lucide-react";
+import {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
 import { useTranslation } from "react-i18next";
 import Header from "./Header";
 import { useData } from "./util";
 import { useUser } from "./user.jsx";
+import { useTheme } from "./theme.jsx";
 
 function getDurationInMinutes(startDt, endDt) {
   const startTime = new Date(startDt);
@@ -23,6 +33,8 @@ function getDurationInMinutes(startDt, endDt) {
 }
 
 export default function BreastfeedingPage() {
+  const { darkMode } = useTheme();
+
   const { t, i18n } = useTranslation();
   const {
     data: { breastfeeding: sessions },
@@ -100,8 +112,8 @@ export default function BreastfeedingPage() {
     const data = {
       start_dt: sessionStartTime.toISOString(),
       end_dt: now.toISOString(),
-      left_duration: leftTime,
-      right_duration: rightTime,
+      left_duration: Math.floor(leftTime / 60),
+      right_duration: Math.floor(rightTime / 60),
     };
     fetch("/api/breastfeeding", {
       method: "POST",
@@ -149,6 +161,7 @@ export default function BreastfeedingPage() {
   };
 
   const formatDuration = minutes => {
+    console.log("Formatting duration:", minutes);
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     if (hours > 0) {
@@ -208,7 +221,6 @@ export default function BreastfeedingPage() {
   };
 
   const handleManualEntry = e => {
-    // console.log('submitting', newSession)
     e.preventDefault();
 
     const newErrors = {
@@ -322,15 +334,15 @@ export default function BreastfeedingPage() {
       // console.log(session.start_dt)
       const dateKey = new Date(session.start_dt).toISOString().split("T")[0];
       if (dayMap[dateKey]) {
-        dayMap[dateKey].total += duration;
-        dayMap[dateKey].leftTotal += session.left_duration;
-        dayMap[dateKey].rightTotal += session.right_duration;
+        dayMap[dateKey].total += Math.floor(duration);
+        dayMap[dateKey].leftTotal += Math.floor(session.left_duration);
+        dayMap[dateKey].rightTotal += Math.floor(session.right_duration);
         dayMap[dateKey].sessions.push(session);
       } else {
         dayMap[dateKey] = {
-          total: duration,
-          leftTotal: session.left_duration,
-          rightTotal: session.right_duration,
+          total: Math.floor(duration),
+          leftTotal: Math.floor(session.left_duration),
+          rightTotal: Math.floor(session.right_duration),
           sessions: [session],
         };
       }
@@ -342,7 +354,6 @@ export default function BreastfeedingPage() {
   };
 
   const dailyData = aggregateByDay();
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
@@ -382,27 +393,36 @@ export default function BreastfeedingPage() {
           )}
 
           <div>
-            <div className="grid grid-cols-3 md:grid-cols-2 flex">
-              <div className="mb-6">
-                <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
-                  {t("Breastfeeding")}
-                </h1>
-                <p className="dark:text-white text-gray-600">
-                  {t("Breastfeeding over days")}
-                </p>
-              </div>
-              <div className={`flex justify-end md:justify-end md:mb-6 p-2`}>
-                <p
-                  className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
-                >
-                  {t("Last session")}: {formatRelativeTime(sessions[0].end_dt)}
-                  {/* {formatDuration(
+            {dailyData.length > 0 ? (
+              <div className="grid grid-cols-3 md:grid-cols-2 flex">
+                <div className="mb-6">
+                  <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
+                    {t("Breastfeeding")}
+                  </h1>
+                  <p className="dark:text-white text-gray-600">
+                    {t("Breastfeeding over days")}
+                  </p>
+                </div>
+                <div className={`flex justify-end md:justify-end md:mb-6 p-2`}>
+                  <p
+                    className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
+                  >
+                    {t("Last session")}:{" "}
+                    {formatRelativeTime(sessions[0].end_dt)}
+                    {/* {formatDuration(
                     getDurationInMinutes(sessions[0].end_dt, new Date())
                   )}{" "}
                   {t("ago")} */}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  {t("No breastfeeding data available")}
                 </p>
               </div>
-            </div>
+            )}
 
             {/* Timer Section */}
             {isAdmin && (
@@ -504,6 +524,48 @@ export default function BreastfeedingPage() {
                 </button>
               </div>
             )}
+            {/* Barchart stacked with daily left and right breast times */}
+            <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-6">
+              <h2 className="text-xl font-bold dark:text-white text-gray-800 mb-4">
+                {t("Breastfeeding Overview")}
+              </h2>
+              <div style={{ width: "100%", height: 400 }}>
+                <ResponsiveContainer>
+                  <BarChart
+                    data={dailyData
+                      .map(day => ({
+                        date: new Date(day.date).toLocaleDateString(
+                          i18n.language || "en",
+                          { month: "short", day: "numeric" }
+                        ),
+                        Left: Math.floor(day.leftTotal),
+                        Right: Math.floor(day.rightTotal),
+                      }))
+                      .reverse()}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis
+                      label={{
+                        value: t("Duration (hours)"),
+                        angle: -90,
+                        position: "insideLeft",
+                      }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: darkMode ? "#1f2937" : "#ffffff",
+                        border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
+                        borderRadius: "0.5rem",
+                        color: darkMode ? "#f3f4f6" : "#111827",
+                      }}
+                    />
+                    <Bar dataKey="Left" stackId="a" fill="#ec4899" />
+                    <Bar dataKey="Right" stackId="a" fill="#a855f7" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
             {/* Daily Sessions */}
             <div className="space-y-4">
@@ -575,8 +637,7 @@ export default function BreastfeedingPage() {
                           session.left_duration && session.right_duration
                             ? Math.round(
                                 (session.left_duration +
-                                  session.right_duration) /
-                                  60
+                                  session.right_duration)
                               )
                             : calculateDuration(
                                 session.start_dt,
@@ -624,21 +685,16 @@ export default function BreastfeedingPage() {
                                     )
                                   )}{" "}
                                   (
-                                  {session.left_duration &&
-                                  session.right_duration ? (
                                     <>
-                                      L:{" "}
-                                      {formatDuration(
-                                        Math.floor(session.left_duration / 60)
-                                      )}{" "}
-                                      | R:{" "}
-                                      {formatDuration(
-                                        Math.floor(session.right_duration / 60)
-                                      )}
+                                      L:
+                                      {
+                                        Math.floor(session.left_duration)
+                                      }
+                                       | R:
+                                      {
+                                        Math.floor(session.right_duration)
+                                      }
                                     </>
-                                  ) : (
-                                    <>Duration: {formatDuration(duration)}</>
-                                  )}
                                   )
                                 </p>
                               </div>
@@ -732,6 +788,7 @@ export default function BreastfeedingPage() {
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                       Left Breast
+                      {console.log(newSession.left_duration)}
                     </label>
                     <input
                       type="number"
