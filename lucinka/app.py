@@ -179,7 +179,7 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         return jsonify({}), 204
 
     @app.get("/api/breastfeeding")
-    @admin_required
+    @login_required
     def get_breastfeeding():
         breastfeeding = Breastfeeding.query.order_by(Breastfeeding.start_dt.desc()).all()
         return jsonify(GetBreastfeedingSchema(many=True).dump(breastfeeding))

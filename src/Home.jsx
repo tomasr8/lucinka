@@ -128,7 +128,7 @@ export default function Home() {
         <Header />
         <div className="mb-6">
           <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
-            Data
+            {t("Data")}
           </h1>
           <p className="dark:text-white text-gray-600">Lucinka's vitals</p>
         </div>

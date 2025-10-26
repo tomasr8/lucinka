@@ -117,15 +117,12 @@ export default function VisitsPage() {
   const handleDeleteVisit = async id => {
     if (!id) return;
     try {
-      const res = await fetch(`/api/data/${id}`, {
+      const res = await fetch(`/api/visits/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
         // Refresh data
-        s => ({
-          ...s,
-          data: s.data.filter(entry => entry.id !== id),
-        });
+        refetch();
       } else {
         console.error("Failed to delete entry");
       }
@@ -169,7 +166,6 @@ export default function VisitsPage() {
       const dateStr = date.toISOString().split("T")[0];
       const dayVisits = getVisitsForDate(date);
       const isToday = dateStr === todayStr;
-      // console.log(date, day, isToday, dateStr, todayStr);
       const hasVisits = dayVisits.length > 0;
       days.push(
         <div
@@ -194,7 +190,7 @@ export default function VisitsPage() {
               className={`text-xs p-1 rounded mb-1 ${
                 visit.status === "completed"
                   ? "dark:bg-gray-200 bg-gray-700"
-                  : "dark:bg-teal-100 bg-teal-700"
+                  : "dark:bg-teal-100 bg-teal-200"
               }`}
             >
               <div className="font-medium truncate">{visit.time}</div>
@@ -318,28 +314,6 @@ export default function VisitsPage() {
 
               <div className="grid grid-cols-7 gap-2">
                 {renderCalendarDays()}
-              </div>
-
-              {/* Legend */}
-              <div className="flex gap-4 mt-6 pt-6 border-t border-gray-200">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 dark:bg-teal-200 bg-teal-100 rounded"></div>
-                  <span className="text-sm dark:text-white text-gray-600">
-                    {t("Upcoming")}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 dark:bg-gray-500 bg-gray-200 rounded"></div>
-                  <span className="text-sm dark:text-white text-gray-600">
-                    {t("Completed")}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 dark:bg-teal-800 bg-teal-50 border-2 dark:border-teal-500 border-teal-300 rounded"></div>
-                  <span className="text-sm dark:text-white text-gray-600">
-                    {t("Today")}
-                  </span>
-                </div>
               </div>
             </div>
           </div>

@@ -395,7 +395,7 @@ export default function BreastfeedingPage() {
                 <p
                   className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
                 >
-                  {t("Last session:")} {formatRelativeTime(sessions[0].end_dt)}
+                  {t("Last session")}: {formatRelativeTime(sessions[0].end_dt)}
                   {/* {formatDuration(
                     getDurationInMinutes(sessions[0].end_dt, new Date())
                   )}{" "}
@@ -523,7 +523,7 @@ export default function BreastfeedingPage() {
                     key={day.date}
                     className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6"
                   >
-                    <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
+                    <div className="flex justify-between items-center mb-4 pb-4">
                       <div>
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white">
                           {new Date(day.date).toLocaleDateString(
