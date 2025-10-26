@@ -45,6 +45,7 @@ const resources = {
         "Data": "Data",
         "Lucinka's vitals": "Lucinčiny parametry",
         "Add Visit": "Přidat návštěvu",
+        "Breastfeeding Overview": "Přehled kojení",
     },
   },
   it: {
@@ -87,6 +88,7 @@ const resources = {
         "Lucinka's vitals": "Parametri di Lucinka",
         "Upcoming appointments": "Appuntamenti a venire",
         "Add Visit": "Aggiungi Visita",
+        "Breastfeeding Overview": "Grafico Allattamento",
     },
   },
 };

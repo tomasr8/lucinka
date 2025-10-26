@@ -409,10 +409,6 @@ export default function BreastfeedingPage() {
                   >
                     {t("Last session")}:{" "}
                     {formatRelativeTime(sessions[0].end_dt)}
-                    {/* {formatDuration(
-                    getDurationInMinutes(sessions[0].end_dt, new Date())
-                  )}{" "}
-                  {t("ago")} */}
                   </p>
                 </div>
               </div>
@@ -543,16 +539,24 @@ export default function BreastfeedingPage() {
                       }))
                       .reverse()}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={darkMode ? "#374151" : "#e5e7eb"}
+                    />
+                    <XAxis
+                      dataKey="date"
+                      stroke={darkMode ? "#9ca3af" : "#6b7280"}
+                    />
                     <YAxis
                       label={{
                         value: t("Duration (hours)"),
                         angle: -90,
                         position: "insideLeft",
+                        fill: darkMode ? "#9ca3af" : "#6b7280",
                       }}
                     />
                     <Tooltip
+                      cursor={{ fill: "transparent" }}
                       contentStyle={{
                         backgroundColor: darkMode ? "#1f2937" : "#ffffff",
                         border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
@@ -636,8 +640,7 @@ export default function BreastfeedingPage() {
                         const duration =
                           session.left_duration && session.right_duration
                             ? Math.round(
-                                (session.left_duration +
-                                  session.right_duration)
+                                session.left_duration + session.right_duration
                               )
                             : calculateDuration(
                                 session.start_dt,
@@ -668,15 +671,15 @@ export default function BreastfeedingPage() {
                                 {breast}
                               </div>
                               <div>
-                                <p className="font-semibold dark:text-white text-gray-800">
+                                {/* <p className="font-semibold dark:text-white text-gray-800">
                                   {formatDuration(
                                     getDurationInMinutes(
                                       session.end_dt,
                                       new Date()
                                     )
                                   )}{" "}
-                                  ago
-                                </p>
+                                  {t("ago")}
+                                </p> */}
                                 <p className="text-sm dark:text-white text-gray-600">
                                   {formatDuration(
                                     getDurationInMinutes(
@@ -685,16 +688,11 @@ export default function BreastfeedingPage() {
                                     )
                                   )}{" "}
                                   (
-                                    <>
-                                      L:
-                                      {
-                                        Math.floor(session.left_duration)
-                                      }
-                                       | R:
-                                      {
-                                        Math.floor(session.right_duration)
-                                      }
-                                    </>
+                                  <>
+                                    L:
+                                    {Math.floor(session.left_duration)}| R:
+                                    {Math.floor(session.right_duration)}
+                                  </>
                                   )
                                 </p>
                               </div>
