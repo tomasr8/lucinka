@@ -9,29 +9,17 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Moon, Sun, ShieldUser, CirclePlus, Trash } from "lucide-react";
+import { CirclePlus, Trash } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { setLocale } from "./i18n";
 import FormModal from "./Form.jsx";
-import Visits from "./Visits.jsx";
-import Gallery from "./Gallery.jsx";
-import Breastfeeding from "./Breastfeeding.jsx";
 import Header from "./Header.jsx";
+import { useTheme } from "./theme.jsx";
 
 export default function App() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
-  const [darkMode, setDarkMode] = useState(
-    document.documentElement.classList.contains("dark")
-  );
-
-  const toggleDarkMode = () => {
-    const theme = darkMode ? "light" : "dark";
-    localStorage.setItem("theme", theme);
-    document.documentElement.classList.toggle("dark");
-    setDarkMode(d => !d);
-  };
+  const { darkMode } = useTheme();
 
   const [state, setState] = useState({ loading: true });
   const [formVisible, setFormVisible] = useState(false);
@@ -160,9 +148,7 @@ export default function App() {
           <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
             Data
           </h1>
-          <p className="dark:text-white text-gray-600">
-            Lucinka's vitals
-          </p>
+          <p className="dark:text-white text-gray-600">Lucinka's vitals</p>
         </div>
         <div>
           {/* Stats Summary */}

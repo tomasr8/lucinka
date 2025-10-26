@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { User, Calendar } from "lucide-react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, HouseHeart } from "lucide-react";
 
 const avatarColors = [
   "from-blue-400 to-blue-600 dark:from-blue-500 dark:to-blue-700",
@@ -14,7 +14,7 @@ const avatarColors = [
   "from-cyan-400 to-cyan-600 dark:from-cyan-500 dark:to-cyan-700",
 ];
 
-const UserLoginStats = () => {
+const UserLoginStats = ({ isAdmin }) => {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(
     document.documentElement.classList.contains("dark")
@@ -118,6 +118,21 @@ const UserLoginStats = () => {
               User Login Statistics
             </h1>
           </div>
+          {/* {isAdmin && ( */}
+            <>
+              <button
+                onClick={() => navigate("/")}
+                className="cursor-pointer p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
+              >
+                {darkMode ? (
+                  <HouseHeart className="w-5 h-5 text-violet-400" />
+                ) : (
+                  <HouseHeart className="w-5 h-5 text-violet-600" />
+                )}
+              </button>
+              <div className="py-4 border-l-2 border-solid border-gray-200 dark:border-gray-700"></div>
+            </>
+          {/* )} */}
           <button
             onClick={toggleDarkMode}
             className="p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
@@ -128,6 +143,7 @@ const UserLoginStats = () => {
               <Moon className="w-5 h-5 text-gray-600" />
             )}
           </button>
+          
         </div>
 
         {/* Stats Cards */}

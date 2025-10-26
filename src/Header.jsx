@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import {
   Moon,
@@ -11,22 +10,14 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { setLocale } from "./i18n";
+import { useTheme } from "./theme.jsx";
 
 export default function Header({ isAdmin }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { darkMode, toggleDarkMode } = useTheme();
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
-  const [darkMode, setDarkMode] = useState(
-    document.documentElement.classList.contains("dark")
-  );
-
-  const toggleDarkMode = () => {
-    const theme = darkMode ? "light" : "dark";
-    localStorage.setItem("theme", theme);
-    document.documentElement.classList.toggle("dark");
-    setDarkMode(d => !d);
-  };
 
   const commonStyle =
     "flex gap-4 items-center justify-center cursor-pointer font-medium rounded-lg text-sm px-5 py-4 text-center me-2 mb-2";

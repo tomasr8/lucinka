@@ -323,7 +323,7 @@ export default function BreastfeedingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading sessions...</p>
@@ -512,7 +512,7 @@ export default function BreastfeedingPage() {
                   >
                     <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
                       <div>
-                        <h3 className="text-xl font-bold text-gray-800">
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-white">
                           {new Date(day.date).toLocaleDateString("en-US", {
                             weekday: "long",
                             year: "numeric",
