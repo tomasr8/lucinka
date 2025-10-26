@@ -258,11 +258,6 @@ export default function BreastfeedingPage() {
         parseFloat(newSession.right_duration)
     );
 
-    // console.log(startDt)
-    // console.log(startDt.getMinutes())
-    // console.log(newSession.left_duration + newSession.right_duration)
-    // console.log(endDt)
-
     setSubmitting(true);
 
     fetch("/api/breastfeeding", {
@@ -325,7 +320,6 @@ export default function BreastfeedingPage() {
   };
 
   const dailyData = aggregateByDay();
-  // console.log('Daily Data:', dailyData);
 
   if (loading) {
     return (
@@ -377,18 +371,31 @@ export default function BreastfeedingPage() {
           )}
 
           <div>
-            <div className="mb-6">
-              <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
-                Breastfeeding
-              </h1>
-              <p className="dark:text-white text-gray-600">
-                Breastfeeding over days
-              </p>
+            <div className="grid grid-cols-3 md:grid-cols-2 flex mb-8">
+              <div className="mb-6">
+                <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
+                  Breastfeeding
+                </h1>
+                <p className="dark:text-white text-gray-600">
+                  Breastfeeding over days
+                </p>
+              </div>
+              <div className={`flex justify-end md:justify-center md:mb-6 p-2`}>
+                <p
+                  className={`text-3xl font-bold text-gray-900 dark:text-gray-100 justify-right`}
+                >
+                  last session:{" "}
+                  {formatDuration(
+                    getDurationInMinutes(sessions[0].end_dt, new Date())
+                  )}{" "}
+                  ago
+                </p>
+              </div>
             </div>
 
             {/* Timer Section */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
+            <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-6">
+              <h2 className="text-xl font-bold dark:text-white text-gray-800 mb-4">
                 Active Session
               </h2>
 
@@ -478,7 +485,7 @@ export default function BreastfeedingPage() {
               {/* Manual Entry Button */}
               <button
                 onClick={() => setIsManualModalOpen(true)}
-                className="w-full mt-4 px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition-all flex items-center justify-center gap-2"
+                className="w-full mt-4 px-6 py-3 dark:bg-gray-400 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition-all flex items-center justify-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 Manual Entry
@@ -488,12 +495,12 @@ export default function BreastfeedingPage() {
             {/* Daily Sessions */}
             <div className="space-y-4">
               {dailyData.length === 0 ? (
-                <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+                <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-8 text-center">
                   <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 text-lg">
+                  <p className="dark:text-gray-500 text-gray-500 text-lg">
                     No sessions logged yet
                   </p>
-                  <p className="text-gray-400 text-sm mt-2">
+                  <p className="dark:text-gray-400 text-gray-400 text-sm mt-2">
                     Start a timer or add manual entry
                   </p>
                 </div>
@@ -501,7 +508,7 @@ export default function BreastfeedingPage() {
                 dailyData.map(day => (
                   <div
                     key={day.date}
-                    className="bg-white rounded-2xl shadow-lg p-6"
+                    className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6"
                   >
                     <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
                       <div>
@@ -513,29 +520,35 @@ export default function BreastfeedingPage() {
                             day: "numeric",
                           })}
                         </h3>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm dark:text-gray-100 text-gray-500 mt-1">
                           {day.sessions.length} session
                           {day.sessions.length !== 1 ? "s" : ""}
                         </p>
                       </div>
                       <div className="flex gap-16">
                         <div className="text-right">
-                          <div className="text-3xl font-bold text-pink-600">
+                          <div className="text-3xl font-bold dark:text-white text-pink-600">
                             {formatDuration(day.total)}
                           </div>
-                          <p className="text-sm text-gray-500">Total time</p>
+                          <p className="text-sm dark:text-white text-gray-500">
+                            Total time
+                          </p>
                         </div>
                         <div className="text-right">
-                          <div className="text-3xl font-bold text-pink-600">
+                          <div className="text-3xl font-bold dark:text-white text-pink-600">
                             {formatDuration(day.leftTotal)}
                           </div>
-                          <p className="text-sm text-gray-500">Total left</p>
+                          <p className="text-sm dark:text-white text-gray-500">
+                            Total left
+                          </p>
                         </div>
                         <div className="text-right">
-                          <div className="text-3xl font-bold text-pink-600">
+                          <div className="text-3xl font-bold dark:text-white text-pink-600">
                             {formatDuration(day.rightTotal)}
                           </div>
-                          <p className="text-sm text-gray-500">Total right</p>
+                          <p className="text-sm dark:text-white text-gray-500">
+                            Total right
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -563,7 +576,7 @@ export default function BreastfeedingPage() {
                         return (
                           <div
                             key={session.id}
-                            className="flex items-center justify-between p-4 bg-pink-50 rounded-lg hover:bg-pink-100 transition-colors"
+                            className="flex items-center justify-between p-4 dark:bg-gray-600 bg-pink-50 rounded-lg hover:dark:bg-gray-700 hover:bg-pink-100 transition-colors"
                           >
                             <div className="flex items-center gap-4">
                               <div
@@ -578,7 +591,7 @@ export default function BreastfeedingPage() {
                                 {breast}
                               </div>
                               <div>
-                                <p className="font-semibold text-gray-800">
+                                <p className="font-semibold dark:text-white text-gray-800">
                                   {formatDuration(
                                     getDurationInMinutes(
                                       session.end_dt,
@@ -587,7 +600,7 @@ export default function BreastfeedingPage() {
                                   )}{" "}
                                   ago
                                 </p>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm dark:text-white text-gray-600">
                                   {formatDuration(
                                     getDurationInMinutes(
                                       session.start_dt,
@@ -616,7 +629,7 @@ export default function BreastfeedingPage() {
                             </div>
                             <button
                               onClick={() => handleDeleteSession(session.id)}
-                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                              className="p-2 dark:text-white text-red-500 dark:hover:bg-red-700 hover:bg-red-50 rounded-lg transition-colors"
                             >
                               <Trash2 className="w-5 h-5" />
                             </button>
