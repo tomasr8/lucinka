@@ -6,7 +6,7 @@ import { useTheme } from "./theme.jsx";
 import Header from "./Header";
 import { useData } from "./util";
 
-import { Upload, X, Calendar, FileText } from "lucide-react";
+import { Upload, X, Trash2, Calendar, FileText, Trash } from "lucide-react";
 
 export default function PhotoGallery() {
   const { darkMode } = useTheme();
@@ -105,7 +105,6 @@ export default function PhotoGallery() {
               <h1 className="text-3xl font-bold dark:text-white text-gray-900">
                 {t("Photo Gallery")}
               </h1>
-              <p className="text-gray-600 mt-1">{photos?.length || 0} photos</p>
             </div>
             {isAdmin && (
               <button
@@ -144,7 +143,7 @@ export default function PhotoGallery() {
                       onClick={() => handleDelete(photo.id)}
                       className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-colors"
                     >
-                      <X size={16} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                   <div className="p-4 bg-gray-100">
