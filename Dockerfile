@@ -26,6 +26,7 @@ COPY alembic.ini ./
 COPY uv.lock ./
 
 RUN mkdir -p /app/db
+RUN mkdir -p /app/db/photos
 
 RUN uv pip install --system .
 
