@@ -139,12 +139,15 @@ export default function PhotoGallery() {
                       className="w-full h-64 object-contain p-4 bg-white"
                       loading="lazy"
                     />
-                    <button
-                      onClick={() => handleDelete(photo.id)}
-                      className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-colors"
-                    >
+                    {
+                      isAdmin && (
+                        <button
+                        onClick={() => handleDelete(photo.id)}
+                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-colors"
+                        >
                       <Trash2 size={16} />
                     </button>
+                    )}
                   </div>
                   <div className="p-4 bg-gray-100">
                     <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
