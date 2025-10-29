@@ -97,3 +97,23 @@ class Breastfeeding(db.Model):
 
     def __repr__(self) -> str:
         return f"<Breastfeeding({self.id}) user_id={self.user_id} date={self.date} start_time={self.start_time} end_time={self.end_time} breast={self.breast} left_duration={self.left_duration} right_duration={self.right_duration}>"
+
+
+class Photo(db.Model):
+    __tablename__ = "photos"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    date: Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
+    notes: Mapped[str | None] = mapped_column(db.Text, nullable=True)
+    ext: Mapped[str] = mapped_column(db.Text, nullable=False)
+    created_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=db.func.now())
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"), nullable=False)
+
+    user: Mapped[User] = db.relationship()
+
+    @property
+    def storage_filename(self) -> str:
+        return f"{self.id}{self.ext}"
+
+    def __repr__(self) -> str:
+        return f"<Photo({self.id}) date={self.date} notes={self.notes} created_dt={self.created_dt} user_id={self.user_id}>"

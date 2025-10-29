@@ -46,6 +46,10 @@ const resources = {
         "Lucinka's vitals": "Lucinčiny parametry",
         "Add Visit": "Přidat návštěvu",
         "Breastfeeding Overview": "Přehled kojení",
+        "Photo Gallery": "Fotky",
+        "Upload Photo": "Nahrát fotku",
+        "No photos yet": "Zatím žádné fotky",
+        "photos": "fotky",
     },
   },
   it: {
@@ -89,6 +93,10 @@ const resources = {
         "Upcoming appointments": "Appuntamenti a venire",
         "Add Visit": "Aggiungi Visita",
         "Breastfeeding Overview": "Grafico Allattamento",
+        "Photo Gallery": "Foto",
+        "Upload Photo": "Carica Foto",
+        "No photos yet": "Nessuna foto ancora",
+        "photos": "foto",
     },
   },
 };

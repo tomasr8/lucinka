@@ -1,26 +1,39 @@
 import json
+import datetime
 from functools import wraps
 from pathlib import Path
-
-from flask import Flask, jsonify, send_from_directory, session
+import os
+from flask import Flask, jsonify, send_from_directory, session, request
+from werkzeug.utils import secure_filename
+from webargs import fields
+from datetime import datetime
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from webargs.flaskparser import use_kwargs
-
+import sqlite3
 from lucinka.config import Config
-from lucinka.models import LoginRecord, User, db, DataEntry, Visit, Breastfeeding
+from lucinka.models import LoginRecord, Photo, User, db, DataEntry, Visit, Breastfeeding
 from lucinka.schemas import (
     AddBreastfeedingSchema,
     AddDataEntrySchema,
     GetLoginRecordSchema,
+    GetPhotoSchema,
     GetUserSchema,
     GetVisitSchema,
     LoginSchema,
     GetDataEntrySchema,
     AddVisitSchema,
     GetBreastfeedingSchema,
+    AddPhotoSchema,
 )
+
+ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+UPLOAD_FOLDER = Path(__file__).parents[1] / "db/photos"
+
+
+def utcnow():
+    return datetime.datetime.now(datetime.UTC)
 
 
 def login_required(f):
@@ -68,6 +81,9 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     db.init_app(app)
 
     CORS(app)  # Allow frontend to connect
+
+    app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max file size
 
     @app.get("/")
     @app.get("/login")
@@ -187,9 +203,7 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     @app.post("/api/breastfeeding")
     @admin_required
     @use_kwargs(AddBreastfeedingSchema)
-    def add_breastfeeding(
-        start_dt: str, end_dt: str, left_duration: int = None, right_duration: int = None
-    ):
+    def add_breastfeeding(start_dt: str, end_dt: str, left_duration: int = None, right_duration: int = None):
         user_id = session["user_id"]
         user = User.query.get(user_id)
         if not user:
@@ -215,6 +229,74 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         db.session.commit()
         return jsonify({}), 204
 
+    # Serve images from db/images folder
+    def allowed_file(filename):
+        return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    @app.post("/api/photos")
+    @admin_required
+    @use_kwargs(
+        AddPhotoSchema,
+        location="form",
+    )
+    def add_photo(date: datetime.datetime, notes: str):
+        user_id = session["user_id"]
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        # Check if file is in request
+        if "photo" not in request.files:
+            return jsonify({"error": "No file part"}), 422
+
+        file = request.files["photo"]
+        ext = Path(file.filename).suffix
+        if not file or ext not in ALLOWED_EXTENSIONS:
+            return jsonify({"error": "Invalid file"}), 400
+
+        photo = Photo(
+            date=date,
+            notes=notes,
+            ext=ext,
+            user=user,
+        )
+        db.session.add(photo)
+        db.session.commit()
+
+        # Save the file
+        filepath = app.config["UPLOAD_FOLDER"] / photo.storage_filename
+        try:
+            file.save(filepath)
+        except OSError as e:
+            print(f"Error saving file: {e}")
+            db.session.delete(photo)
+            db.session.commit()
+            return jsonify({"error": "Failed to save file"}), 500
+
+        return jsonify({}), 201
+
+    @app.get("/api/photos")
+    @login_required
+    def get_photos():
+        photos = Photo.query.order_by(Photo.date.desc()).all()
+        return jsonify(GetPhotoSchema(many=True).dump(photos))
+
+    # Serve uploaded images
+    @app.get("/api/photos/<filename>")
+    @login_required
+    def serve_photo(filename: str):
+        return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
+    @app.delete("/api/photos/<int:photo_id>")
+    @admin_required
+    def delete_photo(photo_id: int):
+        photo = Photo.query.get(photo_id)
+        if not photo:
+            return jsonify({"error": "Photo not found"}), 404
+        db.session.delete(photo)
+        db.session.commit()
+        Path.unlink(app.config["UPLOAD_FOLDER"] / photo.storage_filename)
+        return jsonify({}), 204
     return app
 
 

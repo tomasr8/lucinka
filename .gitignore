@@ -33,3 +33,5 @@ db/*.db
 
 # Static files
 static/
+
+photos/

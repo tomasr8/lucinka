@@ -1,4 +1,10 @@
+import datetime
+
 from marshmallow import Schema, fields
+
+
+def utcnow():
+    return datetime.datetime.now(datetime.UTC)
 
 
 class GetUserSchema(Schema):
@@ -63,3 +69,18 @@ class AddBreastfeedingSchema(Schema):
     end_dt = fields.DateTime(required=True)
     left_duration = fields.Int(load_default=None)
     right_duration = fields.Int(load_default=None)
+
+
+class AddPhotoSchema(Schema):
+    date = fields.DateTime(load_default=utcnow)
+    notes = fields.Str(load_default="")
+
+
+class GetPhotoSchema(Schema):
+    id = fields.Int(dump_only=True)
+    filename = fields.Method("get_filename", dump_only=True)
+    date = fields.DateTime(dump_only=True)
+    notes = fields.Str(dump_only=True)
+
+    def get_filename(self, obj):
+        return obj.storage_filename

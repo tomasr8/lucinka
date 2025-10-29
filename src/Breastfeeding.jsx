@@ -161,7 +161,6 @@ export default function BreastfeedingPage() {
   };
 
   const formatDuration = minutes => {
-    console.log("Formatting duration:", minutes);
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     if (hours > 0) {
@@ -637,15 +636,6 @@ export default function BreastfeedingPage() {
 
                     <div className="space-y-2">
                       {day.sessions.map(session => {
-                        const duration =
-                          session.left_duration && session.right_duration
-                            ? Math.round(
-                                session.left_duration + session.right_duration
-                              )
-                            : calculateDuration(
-                                session.start_dt,
-                                session.end_dt
-                              );
                         const breast =
                           session.right_duration === 0
                             ? "L"
@@ -671,15 +661,6 @@ export default function BreastfeedingPage() {
                                 {breast}
                               </div>
                               <div>
-                                {/* <p className="font-semibold dark:text-white text-gray-800">
-                                  {formatDuration(
-                                    getDurationInMinutes(
-                                      session.end_dt,
-                                      new Date()
-                                    )
-                                  )}{" "}
-                                  {t("ago")}
-                                </p> */}
                                 <p className="text-sm dark:text-white text-gray-600">
                                   {formatDuration(
                                     getDurationInMinutes(
