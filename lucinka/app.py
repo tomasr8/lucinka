@@ -1,32 +1,29 @@
-import json
 import datetime
 from functools import wraps
 from pathlib import Path
-import os
-from flask import Flask, jsonify, send_from_directory, session, request
-from werkzeug.utils import secure_filename
-from webargs import fields
-from datetime import datetime
+
+from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from webargs.flaskparser import use_kwargs
-import sqlite3
+
 from lucinka.config import Config
-from lucinka.models import LoginRecord, Photo, User, db, DataEntry, Visit, Breastfeeding
+from lucinka.models import Breastfeeding, DataEntry, LoginRecord, Photo, User, Visit, db
 from lucinka.schemas import (
     AddBreastfeedingSchema,
     AddDataEntrySchema,
+    AddPhotoSchema,
+    AddVisitSchema,
+    GetBreastfeedingSchema,
+    GetDataEntrySchema,
     GetLoginRecordSchema,
     GetPhotoSchema,
     GetUserSchema,
     GetVisitSchema,
     LoginSchema,
-    GetDataEntrySchema,
-    AddVisitSchema,
-    GetBreastfeedingSchema,
-    AddPhotoSchema,
 )
+
 
 ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 UPLOAD_FOLDER = Path(__file__).parents[1] / "db/photos"
