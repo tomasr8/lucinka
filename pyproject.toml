@@ -25,7 +25,7 @@ line-length = 120
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D"]
+ignore = ["ANN201", "ANN202", "D"]
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2

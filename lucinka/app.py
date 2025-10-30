@@ -77,7 +77,8 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     # Initialize extensions
     db.init_app(app)
 
-    CORS(app)  # Allow frontend to connect
+    if dev:
+        CORS(app)  # Allow frontend to connect
 
     app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max file size
@@ -113,7 +114,7 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         return jsonify(GetLoginRecordSchema(many=True).dump(stats))
 
     @app.post("/api/login")
-    @limiter.limit("100 per hour")
+    @limiter.limit("20 per hour")
     @use_kwargs(LoginSchema)
     def login(username: str, password: str):
         user = User.query.filter_by(username=username).first()
@@ -294,6 +295,7 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         db.session.commit()
         Path.unlink(app.config["UPLOAD_FOLDER"] / photo.storage_filename)
         return jsonify({}), 204
+
     return app
 
 

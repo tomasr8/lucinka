@@ -7,6 +7,7 @@ import {
   Stethoscope,
   Milk,
   BookImage,
+  LogOut,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { setLocale } from "./i18n";
@@ -27,6 +28,15 @@ export default function Header() {
     "text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl";
   const defaultStyle =
     "text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity";
+
+  async function logOut() {
+    try {
+      await fetch("/api/logout", { method: "POST", credentials: "include" });
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  }
 
   return (
     <div>
@@ -71,6 +81,12 @@ export default function Header() {
             ) : (
               <Moon className="w-5 h-5 text-gray-600" />
             )}
+          </button>
+          <button
+            onClick={logOut}
+            className="cursor-pointer p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
+          >
+            <LogOut className="w-5 h-5 text-red-600 dark:text-red-400" />
           </button>
         </div>
       </div>
