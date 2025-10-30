@@ -227,10 +227,6 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         db.session.commit()
         return jsonify({}), 204
 
-    # Serve images from db/images folder
-    def allowed_file(filename):
-        return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
     @app.post("/api/photos")
     @admin_required
     @use_kwargs(

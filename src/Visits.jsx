@@ -15,7 +15,6 @@ import {
 import { useTranslation } from "react-i18next";
 import Header from "./Header";
 import { useData } from "./util";
-import { useUser } from "./user.jsx";
 
 export default function VisitsPage() {
   const { t, i18n } = useTranslation();
@@ -25,11 +24,11 @@ export default function VisitsPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const {
-    data: { visits },
+    data: { visits, user },
     loading,
     refetch,
   } = useData("visits");
-  const { isAdmin } = useUser();
+  const isAdmin = user?.is_admin;
 
   const [newVisit, setNewVisit] = useState({
     date: "",
@@ -209,7 +208,7 @@ export default function VisitsPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-6xl mx-auto p-6">
           {/* Header */}
-          <Header />
+          <Header isAdmin={isAdmin} />
           <div>
             {/* Title */}
             <div className="flex justify-between items-center">
@@ -232,7 +231,7 @@ export default function VisitsPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header />
+        <Header isAdmin={isAdmin} />
         <div>
           {/* Success Notification */}
           {showSuccess && (

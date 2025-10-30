@@ -1,18 +1,12 @@
-// import { useState } from "react";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useUser } from "./user.jsx";
-import { useTheme } from "./theme.jsx";
 import Header from "./Header";
 import { useData } from "./util";
 
 import { Upload, X, Trash2, Calendar, FileText, Trash } from "lucide-react";
 
 export default function PhotoGallery() {
-  const { darkMode } = useTheme();
-  const { isAdmin } = useUser();
-
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadForm, setUploadForm] = useState({
@@ -24,10 +18,11 @@ export default function PhotoGallery() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
   const {
-    data: { photos },
+    data: { photos, user },
     loading,
     refetch,
   } = useData("photos");
+  const isAdmin = user?.is_admin;
 
   // Handle file selection
   const handleFileSelect = e => {
@@ -99,7 +94,7 @@ export default function PhotoGallery() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-6xl mx-auto p-6">
           {/* Header */}
-          <Header />
+          <Header isAdmin={isAdmin} />
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
             <div className="mb-6">
               <h1 className="text-3xl font-bold dark:text-white text-gray-900">
@@ -139,14 +134,13 @@ export default function PhotoGallery() {
                       className="w-full h-64 object-contain p-4 bg-white"
                       loading="lazy"
                     />
-                    {
-                      isAdmin && (
-                        <button
+                    {isAdmin && (
+                      <button
                         onClick={() => handleDelete(photo.id)}
                         className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-colors"
-                        >
-                      <Trash2 size={16} />
-                    </button>
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     )}
                   </div>
                   <div className="p-4 bg-gray-100">

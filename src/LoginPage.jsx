@@ -32,9 +32,7 @@ export default function LoginPage() {
       console.log(data);
 
       if (response.ok) {
-        // setMessage({ type: 'success', text: 'Login successful!' });
         navigate("/");
-        // onLogin(data.token, data.username);
       } else {
         setMessage({
           type: "error",

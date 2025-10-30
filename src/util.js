@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router";
 
 const dataMap = {
   user: "/api/current-user",
@@ -9,6 +10,10 @@ const dataMap = {
 };
 
 export function useData(...args) {
+  const navigate = useNavigate();
+  if (!args.includes("user")) {
+    args = [...args, "user"];
+  }
   const identifier = args.join("-");
   const [data, setData] = useState({ loading: true, data: {} });
 
@@ -23,7 +28,8 @@ export function useData(...args) {
         endpoints.map(endpoint => fetch(endpoint))
       );
       if (responses.some(res => !res.ok)) {
-        window.location.href = "/login";
+        navigate("/login");
+        return;
       }
       const jsonData = await Promise.all(responses.map(res => res.json()));
       const data = Object.fromEntries(
@@ -32,9 +38,10 @@ export function useData(...args) {
       setData({ loading: false, data });
     } catch (error) {
       console.error(error);
-      window.location.href = "/login";
+      navigate("/login");
+      return;
     }
-  }, [identifier]);
+  }, [identifier, navigate]);
 
   const refetch = useCallback(async () => {
     fetchData();

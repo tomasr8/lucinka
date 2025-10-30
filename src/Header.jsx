@@ -12,12 +12,10 @@ import {
 import { useTranslation } from "react-i18next";
 import { setLocale } from "./i18n";
 import { useTheme } from "./theme.jsx";
-import { useUser } from "./user.jsx";
 
-export default function Header() {
+export default function Header({ isAdmin = false }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAdmin } = useUser();
   const { darkMode, toggleDarkMode } = useTheme();
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";

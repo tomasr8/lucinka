@@ -14,19 +14,18 @@ import FormModal from "./Form.jsx";
 import Header from "./Header.jsx";
 import { useTheme } from "./theme.jsx";
 import { useData } from "./util";
-import { useUser } from "./user.jsx";
 
 export default function Home() {
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
   const { darkMode } = useTheme();
-  // const { isAdmin } = useUser();
 
   const {
     data: { data, user },
     loading,
     refetch,
-  } = useData("data", "user");
+  } = useData("data");
+  const isAdmin = user?.is_admin;
   const [formVisible, setFormVisible] = useState(false);
 
   const deleteEntry = async id => {
@@ -51,7 +50,7 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-6xl mx-auto p-6">
           {/* Header */}
-          <Header />
+          <Header isAdmin={isAdmin} />
           <div className="mb-6">
             <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
               {t("Data")}
@@ -64,8 +63,6 @@ export default function Home() {
       </div>
     );
   }
-
-  const isAdmin = user?.is_admin || false;
 
   const sortedEntries = [...data].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -131,7 +128,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header />
+        <Header isAdmin={isAdmin} />
         <div className="mb-6">
           <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
             {t("Data")}

@@ -14,7 +14,6 @@ class Config:
 
     def __init__(self, *, dev: bool = False, testing: bool = False) -> None:
         self.DEBUG = dev
-        # self.SQLALCHEMY_ECHO = dev
         self.SECRET_KEY = "dev-secret-key" if dev else os.environ.get("SECRET_KEY")
         if not dev:
             assert self.SECRET_KEY and len(self.SECRET_KEY) >= 16, (

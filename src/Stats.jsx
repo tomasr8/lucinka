@@ -14,7 +14,7 @@ const avatarColors = [
   "from-cyan-400 to-cyan-600 dark:from-cyan-500 dark:to-cyan-700",
 ];
 
-const UserLoginStats = ({ isAdmin }) => {
+const UserLoginStats = () => {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(
     document.documentElement.classList.contains("dark")
@@ -58,9 +58,6 @@ const UserLoginStats = ({ isAdmin }) => {
 
     fetchStats();
   }, [navigate]);
-
-  // Sample data - replace with your actual data source
-  // const { loginData, users } = stats;
 
   if (stats.loading) {
     return (

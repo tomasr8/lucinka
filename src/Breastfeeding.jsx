@@ -22,7 +22,6 @@ import {
 import { useTranslation } from "react-i18next";
 import Header from "./Header";
 import { useData } from "./util";
-import { useUser } from "./user.jsx";
 import { useTheme } from "./theme.jsx";
 
 function getDurationInMinutes(startDt, endDt) {
@@ -37,11 +36,11 @@ export default function BreastfeedingPage() {
 
   const { t, i18n } = useTranslation();
   const {
-    data: { breastfeeding: sessions },
+    data: { breastfeeding: sessions, user },
     loading,
     refetch,
   } = useData("breastfeeding");
-  const { isAdmin } = useUser();
+  const isAdmin = user?.is_admin;
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -301,7 +300,7 @@ export default function BreastfeedingPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-6xl mx-auto p-6">
           {/* Header */}
-          <Header />
+          <Header isAdmin={isAdmin} />
           <div>
             <div>
               <div className="grid grid-cols-3 md:grid-cols-2 flex mb-8">
@@ -357,7 +356,7 @@ export default function BreastfeedingPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <Header />
+        <Header isAdmin={isAdmin} />
         <div>
           {showSuccess && (
             <div className="fixed top-4 right-4 z-50">
