@@ -38,33 +38,33 @@ export default function Header({ isAdmin = false }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             Lucinka
           </h1>
         </div>
         {/* Language selector */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
           {isAdmin && (
             <>
               <button
                 onClick={() => navigate("/stats")}
-                className="cursor-pointer p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
+                className="cursor-pointer p-2 sm:p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
               >
                 {darkMode ? (
-                  <Wrench className="w-5 h-5 text-violet-400" />
+                  <Wrench className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400" />
                 ) : (
-                  <Wrench className="w-5 h-5 text-violet-600" />
+                  <Wrench className="w-4 h-4 sm:w-5 sm:h-5 text-violet-600" />
                 )}
               </button>
-              <div className="py-4 border-l-2 border-solid border-gray-200 dark:border-gray-700"></div>
+              <div className="hidden sm:block py-4 border-l-2 border-solid border-gray-200 dark:border-gray-700"></div>
             </>
           )}
           <select
             value={language}
             onChange={e => setLocale(e.target.value)}
-            className="cursor-pointer p-3 rounded-lg border border-gray-200 dark:border-gray-700 dark:text-gray-100 bg-white dark:bg-gray-800 hover:opacity-80 transition-opacity"
+            className="cursor-pointer p-2 sm:p-3 text-sm sm:text-base rounded-lg border border-gray-200 dark:border-gray-700 dark:text-gray-100 bg-white dark:bg-gray-800 hover:opacity-80 transition-opacity"
           >
             <option value="en">🇬🇧 English</option>
             <option value="cs">🇨🇿 Čeština</option>
@@ -72,19 +72,19 @@ export default function Header({ isAdmin = false }) {
           </select>
           <button
             onClick={toggleDarkMode}
-            className="cursor-pointer p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
+            className="cursor-pointer p-2 sm:p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
           >
             {darkMode ? (
-              <Sun className="w-5 h-5 text-yellow-400" />
+              <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
             ) : (
-              <Moon className="w-5 h-5 text-gray-600" />
+              <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
             )}
           </button>
           <button
             onClick={logOut}
-            className="cursor-pointer p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
+            className="cursor-pointer p-2 sm:p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
           >
-            <LogOut className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <LogOut className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
           </button>
         </div>
       </div>
