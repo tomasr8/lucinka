@@ -20,9 +20,13 @@ export default function Home() {
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
   const { darkMode } = useTheme();
-  const { isAdmin } = useUser();
+  // const { isAdmin } = useUser();
 
-  const { data, loading, refetch } = useData("data");
+  const {
+    data: { data, user },
+    loading,
+    refetch,
+  } = useData("data", "user");
   const [formVisible, setFormVisible] = useState(false);
 
   const deleteEntry = async id => {
@@ -61,7 +65,9 @@ export default function Home() {
     );
   }
 
-  const sortedEntries = [...data.data].sort(
+  const isAdmin = user?.is_admin || false;
+
+  const sortedEntries = [...data].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 

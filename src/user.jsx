@@ -5,10 +5,10 @@ import { useData } from "./util";
 const UserContext = createContext(null);
 
 export function UserProvider({ children }) {
-  const {
-    data: { user },
-  } = useData("user");
-  const isAdmin = user?.is_admin || false;
+  // const {
+  //   data: { user },
+  // } = useData("user");
+  const isAdmin = false;
 
   return (
     <UserContext.Provider value={{ isAdmin }}>{children}</UserContext.Provider>

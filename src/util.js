@@ -22,6 +22,9 @@ export function useData(...args) {
       const responses = await Promise.all(
         endpoints.map(endpoint => fetch(endpoint))
       );
+      if (responses.some(res => !res.ok)) {
+        window.location.href = "/login";
+      }
       const jsonData = await Promise.all(responses.map(res => res.json()));
       const data = Object.fromEntries(
         args.map((arg, index) => [arg, jsonData[index]])

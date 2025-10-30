@@ -18,33 +18,6 @@ import "./i18n";
 import { ThemeProvider } from "./theme.jsx";
 import { UserProvider } from "./user.jsx";
 
-// async function loadUserData() {
-//   const response = await fetch("/api/current-user");
-//   if (!response.ok) {
-//     return null;
-//   }
-//   return response.json();
-// }
-
-// async function loadData() {
-//   const response = await fetch("/api/data");
-//   if (!response.ok) {
-//     return null;
-//   }
-//   return response.json();
-// }
-
-// const router = createBrowserRouter([
-//   {
-//     path: "/",
-//     Component: App,
-//     loader: async () => {
-//       const [user, data] = await Promise.all([loadUserData(), loadData()]);
-//       return { user, data };
-//     },
-//   },
-// ]);
-
 function App() {
   return (
     <ThemeProvider>
