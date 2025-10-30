@@ -17,7 +17,8 @@ export default function LoginPage() {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+  const handleLogin = async e => {
+    e.preventDefault();
     setLoading(true);
     setMessage({ type: "", text: "" });
 
@@ -60,10 +61,12 @@ export default function LoginPage() {
           Login
         </h2>
 
-        <div className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <input
               type="text"
+              name="username"
+              autoComplete="username"
               value={username}
               onChange={e => setUsername(e.target.value)}
               placeholder="Username"
@@ -74,16 +77,17 @@ export default function LoginPage() {
           <div>
             <input
               type="password"
+              name="password"
+              autoComplete="current-password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Password"
-              onKeyPress={e => e.key === "Enter" && handleLogin()}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
             />
           </div>
 
           <button
-            onClick={handleLogin}
+            type="submit"
             disabled={loading}
             className="w-full py-3 bg-purple-500 text-white rounded-lg font-semibold hover:bg-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
@@ -96,7 +100,7 @@ export default function LoginPage() {
               "Login"
             )}
           </button>
-        </div>
+        </form>
 
         {message.text && (
           <div
