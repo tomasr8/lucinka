@@ -26,13 +26,14 @@ COPY alembic.ini ./
 COPY uv.lock ./
 
 RUN mkdir -p /app/db
-RUN mkdir -p /app/db/photos
+RUN mkdir -p /app/photos
 
 RUN uv pip install --system .
 
-EXPOSE 5000
+RUN addgroup --gid 1000 lucinkagroup
+RUN adduser --disabled-password --no-create-home -G lucinkagroup --uid 1000 lucinka
+USER lucinka
 
-ENV SQLALCHEMY_DATABASE_URI=sqlite:////app/db/app.db
-ENV STATIC_FOLDER=/app/static
+EXPOSE 5000
 
 CMD ["./docker-entrypoint.sh"]

@@ -26,7 +26,6 @@ from lucinka.schemas import (
 
 
 ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
-UPLOAD_FOLDER = Path(__file__).parents[1] / "db/photos"
 
 
 def utcnow():
@@ -80,7 +79,7 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     if dev:
         CORS(app)  # Allow frontend to connect
 
-    app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+    app.config["UPLOAD_FOLDER"] = config.UPLOAD_FOLDER
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max file size
 
     @app.get("/")

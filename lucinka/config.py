@@ -35,6 +35,9 @@ class Config:
         if not dev:
             self.PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
 
+        default_upload_folder = basedir / "photos"
+        self.UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER") or default_upload_folder
+
         if testing:
             self.TESTING = True
             self.SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"

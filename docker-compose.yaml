@@ -1,0 +1,28 @@
+services:
+  web:
+    image: lucinka:latest
+    user: "1000:1000" # non-root user
+    environment:
+      - FLASK_ENV=production
+      - SQLALCHEMY_DATABASE_URI=sqlite:////app/db/app.db
+      - UPLOAD_FOLDER=/app/photos
+      - SECRET_KEY=''
+      - STATIC_FOLDER=/app/static
+    ports:
+      - "5000:5000"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE # only if needed
+    tmpfs:
+      - /tmp
+    volumes:
+      - type: bind
+        source: ./photos
+        target: /app/photos
+      - type: bind
+        source: ./db
+        target: /app/db
