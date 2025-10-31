@@ -37,6 +37,7 @@ class Config:
 
         default_upload_folder = basedir / "photos"
         self.UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER") or default_upload_folder
+        self.UPLOAD_FOLDER = Path(self.UPLOAD_FOLDER)
 
         if testing:
             self.TESTING = True
