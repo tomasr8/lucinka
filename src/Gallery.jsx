@@ -125,13 +125,13 @@ export default function PhotoGallery() {
               {photos.map(photo => (
                 <div
                   key={photo.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
+                  className="dark:bg-gray-600 bg-gray-100 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <div className="relative aspect-w-4 aspect-h-3 bg-gray-200">
                     <img
                       src={`/api/photos/${photo.filename}`}
                       alt={photo.notes || "Photo"}
-                      className="w-full h-64 object-contain p-4 bg-white"
+                      className="w-full h-64 object-contain p-4 dark:bg-gray-700 bg-white dark:border-gray-300"
                       loading="lazy"
                     />
                     {isAdmin && (
@@ -143,13 +143,13 @@ export default function PhotoGallery() {
                       </button>
                     )}
                   </div>
-                  <div className="p-4 bg-gray-100">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                  <div className="p-4 dark:bg-gray-600 bg-gray-100">
+                    <div className="flex items-center gap-2 text-sm dark:text-white text-gray-600 mb-2">
                       <Calendar size={16} />
                       <span>{new Date(photo.date).toLocaleDateString()}</span>
                     </div>
                     {photo.notes && (
-                      <div className="flex gap-2 text-sm text-gray-700">
+                      <div className="flex gap-2 text-sm dark:text-white text-gray-500">
                         <FileText size={16} className="flex-shrink-0 mt-0.5" />
                         <p className="line-clamp-3">{photo.notes}</p>
                       </div>
