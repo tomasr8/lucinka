@@ -9,6 +9,7 @@ import {
   Play,
   Pause,
   Square,
+  ConciergeBellIcon,
 } from "lucide-react";
 import {
   XAxis,
@@ -392,7 +393,7 @@ export default function BreastfeedingPage() {
 
           <div>
             {dailyData.length > 0 ? (
-              <div className="grid grid-cols-3 md:grid-cols-2 flex">
+              <div className="flex grid md:grid-cols-2 grid-cols-1 md:text-left mb-8">
                 <div className="mb-6">
                   <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
                     {t("Breastfeeding")}
@@ -401,12 +402,19 @@ export default function BreastfeedingPage() {
                     {t("Breastfeeding over days")}
                   </p>
                 </div>
-                <div className={`flex justify-end md:justify-end md:mb-6 p-2`}>
+                <div className="flex md:justify-end">
                   <p
-                    className={`text-3xl font-bold text-gray-900 dark:text-gray-100`}
+                    className={`justify-end md:text-3xl text-xl font-bold text-gray-900 dark:text-gray-100`}
                   >
                     {t("Last session")}:{" "}
                     {formatRelativeTime(sessions[0].end_dt)}
+                    <br />
+                    {t("Side: ")}
+                    {dailyData[0].sessions[0].left_duration === 0
+                      ? "R"
+                      : dailyData[0].sessions[0].right_duration === 0
+                      ? "L"
+                      : "B"}
                   </p>
                 </div>
               </div>
@@ -586,8 +594,8 @@ export default function BreastfeedingPage() {
                   <div
                     key={day.date}
                     className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6"
-                  >
-                    <div className="flex justify-between items-center mb-4 pb-4">
+                    >
+                    <div className="flex grid justify-between items-center mb-4 pb-4 md:grid-cols-2 grid-cols-1">
                       <div>
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white">
                           {new Date(day.date).toLocaleDateString(
@@ -605,25 +613,25 @@ export default function BreastfeedingPage() {
                           {day.sessions.length !== 1 ? "s" : ""}
                         </p>
                       </div>
-                      <div className="flex gap-16">
-                        <div className="text-right">
-                          <div className="text-3xl font-bold dark:text-white text-pink-600">
+                      <div className="flex grid grid-cols-3 md:gap-16">
+                        <div className="text-left md:text-right">
+                          <div className="md:text-3xl text-xl font-bold dark:text-white text-pink-600">
                             {formatDuration(day.total)}
                           </div>
                           <p className="text-sm dark:text-white text-gray-500">
                             {t("Total time")}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <div className="text-3xl font-bold dark:text-white text-pink-600">
+                        <div className="text-left md:text-right">
+                          <div className="md:text-3xl text-xl font-bold dark:text-white text-pink-600">
                             {formatDuration(day.leftTotal)}
                           </div>
                           <p className="text-sm dark:text-white text-gray-500">
                             {t("Total left")}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <div className="text-3xl font-bold dark:text-white text-pink-600">
+                        <div className="text-left md:text-right">
+                          <div className="md:text-3xl text-xl font-bold dark:text-white text-pink-600">
                             {formatDuration(day.rightTotal)}
                           </div>
                           <p className="text-sm dark:text-white text-gray-500">
