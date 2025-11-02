@@ -84,8 +84,7 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
 
     @app.get("/")
     @app.get("/login")
-    @app.get("/admin")
-    @app.get("/admin/login-stats")
+    @app.get("/stats")
     @app.get("/data")
     @app.get("/visits")
     @app.get("/breastfeeding")
