@@ -14,7 +14,7 @@ import FormModal from "./Form.jsx";
 import Header from "./Header.jsx";
 import { useTheme } from "./theme.jsx";
 import { useData } from "./util";
-
+import percentiles from "./percentiles.json";
 export default function Home() {
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
@@ -68,6 +68,7 @@ export default function Home() {
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
+  // Find closest percentile data
   const chartWeightData = sortedEntries
     .filter(entry => !!entry.weight)
     .map(entry => ({
@@ -124,6 +125,46 @@ export default function Home() {
   const yAxisMinHeight = Math.max(0, minHeight - heightPadding);
   const yAxisMaxHeight = maxHeight + heightPadding;
 
+  const weightDataInMonths = sortedEntries.map(item => {
+    const birthDate = new Date("2025-10-10");
+    const currentDate = new Date(item.date);
+    const diffTime = currentDate - birthDate;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    const months = (diffDays / 30.44).toFixed(1); // Average days per month
+
+    return {
+      month: parseFloat(months),
+      weight: item.weight,
+    };
+  });
+
+  // Merge percentile data and weight data
+  // Create combined dataset with all unique months
+  const allMonths = new Set([
+    // take only the first 24 month of percentiles
+    ...percentiles.map(d => d.Month).slice(0, 25),
+    ...weightDataInMonths.map(d => d.month),
+  ]);
+
+  const combinedData = Array.from(allMonths)
+    .sort((a, b) => a - b)
+    .map(month => {
+      const percentile = percentiles.find(d => d.Month === month);
+      const weight = weightDataInMonths.find(d => d.month === month);
+
+      return {
+        month: month,
+        ...(percentile && {
+          P1: percentile.P1,
+          P25: percentile.P25,
+          P50: percentile.P50,
+          P75: percentile.P75,
+          P99: percentile.P99,
+        }),
+        ...(weight && { actualWeight: weight.weight }),
+      };
+    });
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
@@ -179,54 +220,145 @@ export default function Home() {
 
           {/* Chart */}
           <div
-            className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8`}
+            className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-8 p-16`}
           >
             <h2
               className={`text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100`}
             >
-              {t("Weight Over Time")}
+              {t("Weight Percentile Over Time")}
             </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartWeightData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={darkMode ? "#374151" : "#e5e7eb"}
-                />
+            {/* Percentile plot */}
+            <ResponsiveContainer width="100%" height={500}>
+              <LineChart
+                data={combinedData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "gray" : "#e5e7eb"} />
                 <XAxis
-                  dataKey="date"
-                  stroke={darkMode ? "#9ca3af" : "#6b7280"}
+                  dataKey="month"
+                  stroke="#6b7280"
+                  label={{
+                    value: "Age (months)",
+                    position: "insideBottom",
+                    offset: -2,
+                  }}
+                  style={{ fontSize: "14px", fontWeight: "500" }}
+                  type="number"
+                  ticks={Array.from({ length: 25 }, (_, i) => i)} // Ticks from 0 to 25
+                  // domain={[0, 25]}
                 />
                 <YAxis
-                  stroke={darkMode ? "#9ca3af" : "#6b7280"}
-                  domain={[yAxisMin, yAxisMax]}
+                  stroke="#6b7280"
                   label={{
-                    value: t("Weight (kg)"),
+                    value: "Weight (kg)",
                     angle: -90,
                     position: "insideLeft",
-                    fill: darkMode ? "#9ca3af" : "#6b7280",
                   }}
-                  tickFormatter={value => value.toFixed(2)}
+                  style={{ fontSize: "14px" }}
+                  domain={[0, 18]}
+                  ticks={[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]}
                 />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: darkMode ? "#1f2937" : "#ffffff",
-                    border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
-                    borderRadius: "0.5rem",
-                    color: darkMode ? "#f3f4f6" : "#111827",
-                  }}
-                  formatter={value => value.toFixed(2)}
-                />
-                {/* <Legend  /> */}
+                {/* WHO Percentile Lines */}
+                {["P01", "P25", "P50", "P75", "P99"].map((key, index) => {
+                  const names = ["1st", "25th", "50th", "75th", "99th"];
+                  return (
+                    <Line
+                      key={key}
+                      type="monotone"
+                      dataKey={key}
+                      stroke={darkMode ? "white" : "gray"}
+                      strokeWidth={1}
+                      activeDot={false}
+                      name={names[index]}
+                      dot={false}
+                      connectNulls
+                      label={(props) => {
+                      const { x, y, value, index: pointIndex } = props;
+                      const point = combinedData[pointIndex];
+                      // Show label only at month 24
+                      if (point && point.month === 24 && value) {
+                        return (
+                          <text
+                            x={x + 8}
+                            y={y}
+                            // fill={colors[index]}
+                            fontSize={12}
+                            fontWeight="bold"
+                            textAnchor="start"
+                            dominantBaseline="middle"
+                          >
+                            {names[index]}
+                          </text>
+                        );
+                      }
+                      return null;
+                    }}
+                    />
+                  );
+                })}
+
+                {/* Actual Weight Line */}
                 <Line
                   type="monotone"
-                  dataKey="weight"
+                  dataKey="actualWeight"
                   stroke="#8b5cf6"
                   strokeWidth={2}
-                  dot={{ fill: "#8b5cf6", r: 4 }}
-                  activeDot={{ r: 6 }}
+                  name="Actual Weight"
+                  dot={{ fill: "#8b5cf6", r: 3, strokeWidth: 1 }}
+                  activeDot={{ r: 3, strokeWidth: 3 }}
+                  connectNulls={false}
                 />
               </LineChart>
             </ResponsiveContainer>
+          </div>
+
+          {/* Chart */}
+          <div
+            className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8`}
+          >
+          <h2
+            className={`text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100`}
+          >
+            {t("Weight Over Time")}
+          </h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartWeightData}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke={darkMode ? "#374151" : "#e5e7eb"}
+              />
+              <XAxis dataKey="date" stroke={darkMode ? "#9ca3af" : "#6b7280"} />
+              <YAxis
+                stroke={darkMode ? "#9ca3af" : "#6b7280"}
+                domain={[yAxisMin, yAxisMax]}
+                label={{
+                  value: t("Weight (kg)"),
+                  angle: -90,
+                  position: "insideLeft",
+                  fill: darkMode ? "#9ca3af" : "#6b7280",
+                }}
+                tickFormatter={value => value.toFixed(2)}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: darkMode ? "#1f2937" : "#ffffff",
+                  border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
+                  borderRadius: "0.5rem",
+                  color: darkMode ? "#f3f4f6" : "#111827",
+                }}
+                formatter={value => value.toFixed(2)}
+              />
+              {/* <Legend  /> */}
+              <Line
+                type="monotone"
+                dataKey="weight"
+                stroke="#8b5cf6"
+                strokeWidth={2}
+                dot={{ fill: "#8b5cf6", r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
           </div>
 
           {/* Chart */}

@@ -35,3 +35,6 @@ db/*.db
 static/
 
 photos/
+
+*.csv
+percentile.py
