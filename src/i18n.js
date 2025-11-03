@@ -50,6 +50,7 @@ const resources = {
         "Upload Photo": "Nahrát fotku",
         "No photos yet": "Zatím žádné fotky",
         "photos": "fotky",
+        "About": "Skoro",
     },
   },
   it: {
@@ -97,6 +98,7 @@ const resources = {
         "Upload Photo": "Carica Foto",
         "No photos yet": "Nessuna foto ancora",
         "photos": "foto",
+        "About": "Circa",
     },
   },
 };

@@ -393,7 +393,7 @@ export default function BreastfeedingPage() {
 
           <div>
             {dailyData.length > 0 ? (
-              <div className="flex grid md:grid-cols-2 grid-cols-1 md:text-left mb-8">
+              <div className="flex grid md:grid-cols-3 grid-cols-1 md:text-left mb-8">
                 <div className="mb-6">
                   <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
                     {t("Breastfeeding")}
@@ -402,19 +402,22 @@ export default function BreastfeedingPage() {
                     {t("Breastfeeding over days")}
                   </p>
                 </div>
-                <div className="flex md:justify-end">
+                <div></div>
+                <div className="flex justify-center dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-2">
                   <p
                     className={`justify-end md:text-3xl text-xl font-bold text-gray-900 dark:text-gray-100`}
                   >
                     {t("Last session")}:{" "}
-                    {formatRelativeTime(sessions[0].end_dt)}
+                    {`${sessions[0].end_dt.split("T")[1].split(":")[0]}:${sessions[0].end_dt.split("T")[1].split(":")[1]}`}{" "}
+                    <br />
+                    {t("About")} {formatRelativeTime(sessions[0].end_dt)}
                     <br />
                     {t("Side: ")}
                     {dailyData[0].sessions[0].left_duration === 0
-                      ? "R"
+                      ? "Right"
                       : dailyData[0].sessions[0].right_duration === 0
-                      ? "L"
-                      : "B"}
+                      ? "Left"
+                      : "Both"}
                   </p>
                 </div>
               </div>
