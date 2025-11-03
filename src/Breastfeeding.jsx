@@ -487,7 +487,7 @@ export default function BreastfeedingPage() {
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="grid flex gap-2 md:grid-cols-3 grid-cols-1">
                       <button
                         onClick={pauseTimer}
                         className="flex-1 px-6 py-3 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-600 transition-all flex items-center justify-center gap-2"
@@ -593,7 +593,7 @@ export default function BreastfeedingPage() {
                 dailyData.map(day => (
                   <div
                     key={day.date}
-                    className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6"
+                    className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 h-116 overflow-y-scroll"
                     >
                     <div className="flex grid justify-between items-center mb-4 pb-4 md:grid-cols-2 grid-cols-1">
                       <div>
