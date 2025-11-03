@@ -157,7 +157,7 @@ export default function BreastfeedingPage() {
     const startTime = new Date(start_dt);
     const endTime = new Date(end_dt);
     const diff = (endTime - startTime) / 1000 / 60;
-    return Math.round(diff);
+    return Math.floor(diff);
   };
 
   const formatDuration = minutes => {
@@ -327,7 +327,8 @@ export default function BreastfeedingPage() {
     sessions.forEach(session => {
       const duration =
         session.left_duration && session.right_duration
-          ? Math.round(session.left_duration + session.right_duration)
+          ? Math.round(session.left_duration) +
+            Math.round(session.right_duration)
           : calculateDuration(session.start_dt, session.end_dt);
 
       // console.log(session.start_dt)
@@ -408,16 +409,18 @@ export default function BreastfeedingPage() {
                     className={`justify-end md:text-3xl text-xl font-bold text-gray-900 dark:text-gray-100`}
                   >
                     {t("Last session")}:{" "}
-                    {`${sessions[0].end_dt.split("T")[1].split(":")[0]}:${sessions[0].end_dt.split("T")[1].split(":")[1]}`}{" "}
+                    {`${sessions[0].end_dt.split("T")[1].split(":")[0]}:${
+                      sessions[0].end_dt.split("T")[1].split(":")[1]
+                    }`}{" "}
                     <br />
                     {t("About")} {formatRelativeTime(sessions[0].end_dt)}
                     <br />
-                    {t("Side: ")}
+                    {t("Side")}:{" "}
                     {dailyData[0].sessions[0].left_duration === 0
-                      ? "Right"
+                      ? t("right")
                       : dailyData[0].sessions[0].right_duration === 0
-                      ? "Left"
-                      : "Both"}
+                      ? t("left")
+                      : t("both")}
                   </p>
                 </div>
               </div>
@@ -525,7 +528,7 @@ export default function BreastfeedingPage() {
                   className="w-full mt-4 px-6 py-3 dark:bg-gray-400 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition-all flex items-center justify-center gap-2"
                 >
                   <Plus className="w-5 h-5" />
-                  Manual Entry
+                  {t("Manual Entry")}
                 </button>
               </div>
             )}
@@ -597,7 +600,7 @@ export default function BreastfeedingPage() {
                   <div
                     key={day.date}
                     className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 h-116 overflow-y-scroll"
-                    >
+                  >
                     <div className="flex grid justify-between items-center mb-4 pb-4 md:grid-cols-2 grid-cols-1">
                       <div>
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white">
@@ -671,20 +674,33 @@ export default function BreastfeedingPage() {
                                 {breast}
                               </div>
                               <div>
-                                <p className="text-sm dark:text-white text-gray-600">
-                                  {formatDuration(
-                                    getDurationInMinutes(
-                                      session.start_dt,
-                                      session.end_dt
-                                    )
-                                  )}{" "}
-                                  (
-                                  <>
-                                    L:
-                                    {Math.floor(session.left_duration)}| R:
-                                    {Math.floor(session.right_duration)}
-                                  </>
+                                <p className="font-semibold dark:text-white text-gray-800">
+                                  {`${new Date(
+                                    session.start_dt
                                   )
+                                    .toLocaleTimeString(i18n.language || "en", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })
+                                    .replace(/^0/, "")} - ${new Date(
+                                    session.end_dt
+                                  )
+                                    .toLocaleTimeString(i18n.language || "en", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })
+                                    .replace(/^0/, "")}`}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm dark:text-white text-gray-600">
+                                    {breast === "B" ? (
+                                    `L: ${Math.floor(session.left_duration)}m | R: ${Math.floor(session.right_duration)}m`
+                                  ) : breast === "L" ? (
+                                    `L: ${Math.floor(session.left_duration)}m`
+                                  ) : (
+                                    `R: ${Math.floor(session.right_duration)}m`
+                                  )}
                                 </p>
                               </div>
                             </div>
