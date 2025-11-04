@@ -259,8 +259,8 @@ export default function Home() {
                   ticks={[2, 4, 6, 8, 10, 12]}
                 />
                 {/* WHO Percentile Lines */}
-                {["P01", "P25", "P50", "P75", "P99"].map((key, index) => {
-                  const names = ["1st", "25th", "50th", "75th", "99th"];
+                {["P1", "P25", "P50", "P75", "P99"].map((key, index) => {
+                  const names = ["10th", "25th", "50th", "75th", "99th"];
                   return (
                     <Line
                       key={key}
