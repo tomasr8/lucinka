@@ -225,13 +225,13 @@ export default function Home() {
             <h2
               className={`text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100`}
             >
-              {t("Weight Percentile Over Time")}
+              {t("Weight Percentiles")}
             </h2>
             {/* Percentile plot */}
             <ResponsiveContainer width="100%" height={500}>
               <LineChart
                 data={combinedData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 5, right: 26, left: 2, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "gray" : "#e5e7eb"} />
                 <XAxis
@@ -244,8 +244,7 @@ export default function Home() {
                   }}
                   style={{ fontSize: "14px", fontWeight: "500" }}
                   type="number"
-                  ticks={Array.from({ length: 6 }, (_, i) => i)} // Ticks from 0 to 25
-                  // domain={[0, 25]}
+                  ticks={Array.from({ length: 7 }, (_, i) => i)} // Ticks from 0 to 25
                 />
                 <YAxis
                   stroke="#6b7280"
@@ -253,6 +252,7 @@ export default function Home() {
                     value: "Weight (kg)",
                     angle: -90,
                     position: "insideLeft",
+                    offset: 5,
                   }}
                   style={{ fontSize: "14px" }}
                   domain={[2, 12]}

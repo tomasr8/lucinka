@@ -566,7 +566,7 @@ export default function BreastfeedingPage() {
                     />
                     <YAxis
                       label={{
-                        value: t("Duration (hours)"),
+                        value: t("Duration (minutes)"),
                         angle: -90,
                         position: "insideLeft",
                         fill: darkMode ? "#9ca3af" : "#6b7280",
