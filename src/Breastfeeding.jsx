@@ -9,7 +9,6 @@ import {
   Play,
   Pause,
   Square,
-  ConciergeBellIcon,
 } from "lucide-react";
 import {
   XAxis,
@@ -25,13 +24,6 @@ import Header from "./Header";
 import { useData } from "./util";
 import { useTheme } from "./theme.jsx";
 
-function getDurationInMinutes(startDt, endDt) {
-  const startTime = new Date(startDt);
-  const endTime = new Date(endDt);
-  const diffMs = endTime - startTime;
-  return Math.round(diffMs / 1000 / 60);
-}
-
 export default function BreastfeedingPage() {
   const { darkMode } = useTheme();
 
@@ -45,7 +37,6 @@ export default function BreastfeedingPage() {
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
   // Timer states
   const [isTimerActive, setIsTimerActive] = useState(false);
@@ -68,8 +59,8 @@ export default function BreastfeedingPage() {
   });
 
   const [errors, setErrors] = useState({
-    date: false,
-    time: false,
+    left_duration: true,
+    right_duration: true,
   });
 
   // Timer effect
@@ -103,7 +94,11 @@ export default function BreastfeedingPage() {
   const switchBreast = () => {
     setActiveBreast(activeBreast === "left" ? "right" : "left");
   };
-
+  function addHours(date, hours) {
+    const hoursToAdd = hours * 60 * 60 * 1000;
+    date.setTime(date.getTime() + hoursToAdd);
+    return date;
+  }
   const stopAndSaveTimer = () => {
     setIsPaused(true);
     if (!isTimerActive || (leftTime === 0 && rightTime === 0)) return;
@@ -214,7 +209,10 @@ export default function BreastfeedingPage() {
   const handleInputChange = e => {
     const { name, value } = e.target;
     setNewSession(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
+    if (
+      errors[name] &&
+      (name === "left_duration" || name === "right_duration")
+    ) {
       setErrors(prev => ({ ...prev, [name]: false }));
     }
   };
@@ -243,8 +241,6 @@ export default function BreastfeedingPage() {
         parseFloat(newSession.right_duration)
     );
 
-    setSubmitting(true);
-
     fetch("/api/breastfeeding", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -266,14 +262,12 @@ export default function BreastfeedingPage() {
         });
         setErrors({ date: false, time: false });
         setIsManualModalOpen(false);
-        setSubmitting(false);
         setSuccessMessage("Session added successfully!");
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
       })
       .catch(error => {
         console.error("Error:", error);
-        setSubmitting(false);
         setSuccessMessage("Failed to add session");
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
@@ -409,11 +403,22 @@ export default function BreastfeedingPage() {
                     className={`justify-end md:text-3xl text-xl font-bold text-gray-900 dark:text-gray-100`}
                   >
                     {t("Last session")}:{" "}
-                    {`${sessions[0].end_dt.split("T")[1].split(":")[0]}:${
-                      sessions[0].end_dt.split("T")[1].split(":")[1]
+                    {`${
+                      new Date(addHours(new Date(sessions[0].end_dt), 1))
+                        .toLocaleString()
+                        .split(" ")[1]
+                        .split(":")[0]
+                    }:${
+                      new Date(addHours(new Date(sessions[0].end_dt), 1))
+                        .toLocaleString()
+                        .split(" ")[1]
+                        .split(":")[1]
                     }`}{" "}
                     <br />
-                    {t("About")} {formatRelativeTime(sessions[0].end_dt)}
+                    {t("About")}{" "}
+                    {formatRelativeTime(
+                      new Date(addHours(new Date(sessions[0].end_dt), 1))
+                    )}
                     <br />
                     {t("Side")}:{" "}
                     {dailyData[0].sessions[0].left_duration === 0
@@ -675,32 +680,42 @@ export default function BreastfeedingPage() {
                               </div>
                               <div>
                                 <p className="font-semibold dark:text-white text-gray-800">
-                                  {`${new Date(
-                                    session.start_dt
-                                  )
-                                    .toLocaleTimeString(i18n.language || "en", {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })
-                                    .replace(/^0/, "")} - ${new Date(
-                                    session.end_dt
-                                  )
-                                    .toLocaleTimeString(i18n.language || "en", {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })
-                                    .replace(/^0/, "")}`}
+                                  {`${
+                                      addHours(new Date(session.start_dt), 1)
+                                      .toLocaleString()
+                                      .split(" ")[1]
+                                      .split(":")[0]
+                                  }:${
+                                      addHours(new Date(session.start_dt), 1)
+                                      .toLocaleString()
+                                      .split(" ")[1]
+                                      .split(":")[1]
+                                  } - ${
+                                    addHours(new Date(session.end_dt), 1)
+                                      .toLocaleString()
+                                      .split(" ")[1]
+                                      .split(":")[0]
+                                  }:${
+                                    addHours(new Date(session.end_dt), 1)
+                                      .toLocaleString()
+                                      .split(" ")[1]
+                                      .split(":")[1]
+                                  }`}
                                 </p>
                               </div>
                               <div>
                                 <p className="text-sm dark:text-white text-gray-600">
-                                    {breast === "B" ? (
-                                    `L: ${Math.floor(session.left_duration)}m | R: ${Math.floor(session.right_duration)}m`
-                                  ) : breast === "L" ? (
-                                    `L: ${Math.floor(session.left_duration)}m`
-                                  ) : (
-                                    `R: ${Math.floor(session.right_duration)}m`
-                                  )}
+                                  {breast === "B"
+                                    ? `L: ${Math.floor(
+                                        session.left_duration
+                                      )}m | R: ${Math.floor(
+                                        session.right_duration
+                                      )}m`
+                                    : breast === "L"
+                                    ? `L: ${Math.floor(session.left_duration)}m`
+                                    : `R: ${Math.floor(
+                                        session.right_duration
+                                      )}m`}
                                 </p>
                               </div>
                             </div>
@@ -831,20 +846,15 @@ export default function BreastfeedingPage() {
                   <button
                     type="button"
                     onClick={handleManualEntry}
-                    disabled={submitting}
+                    disabled={errors.left_duration && errors.right_duration}
                     className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold rounded-xl hover:from-pink-600 hover:to-purple-600 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {submitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        Adding...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-5 h-5" />
-                        Add Session
-                      </>
-                    )}
+                    <>
+                      <Plus className="w-5 h-5" />
+                      {errors.left_duration && errors.right_duration
+                        ? "Add Session"
+                        : "Add Session"}
+                    </>
                   </button>
                 </div>
               </div>

@@ -29,7 +29,13 @@ export default function VisitsPage() {
     refetch,
   } = useData("visits");
   const isAdmin = user?.is_admin;
-
+  const [errors, setErrors] = useState({
+    date: true,
+    time: true,
+    doctor: true,
+    location: true,
+    type: true,
+  });
   const [newVisit, setNewVisit] = useState({
     date: "",
     time: "",
@@ -78,7 +84,6 @@ export default function VisitsPage() {
       type: newVisit.type,
       notes: newVisit.notes,
     };
-
     fetch("/api/visits", {
       method: "POST",
       headers: {
@@ -138,8 +143,10 @@ export default function VisitsPage() {
   const handleInputChange = e => {
     const { name, value } = e.target;
     setNewVisit(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: false }));
+    }
   };
-
   const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
   const monthName = currentDate.toLocaleString(i18n.language || "en", {
     month: "long",
@@ -359,8 +366,17 @@ export default function VisitsPage() {
                         required
                         value={newVisit.date}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white"
+                        className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white ${
+                          errors.date
+                            ? "border-red-500 ring-2 ring-red-200"
+                            : "border-gray-200"
+                        } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
                       />
+                      {errors.date && (
+                        <p className="text-red-500 text-xs mt-1">
+                          This field is required
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -374,8 +390,18 @@ export default function VisitsPage() {
                         required
                         value={newVisit.time}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white"
+                        className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
+                        ${
+                          errors.time
+                            ? "border-red-500 ring-2 ring-red-200"
+                            : "border-gray-200"
+                        } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
                       />
+                      {errors.time && (
+                        <p className="text-red-500 text-xs mt-1">
+                          This field is required
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -391,8 +417,18 @@ export default function VisitsPage() {
                       placeholder="e.g., Dr. Sarah Johnson"
                       value={newVisit.doctor}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white"
+                      className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
+                      ${
+                        errors.doctor
+                          ? "border-red-500 ring-2 ring-red-200"
+                          : "border-gray-200"
+                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
                     />
+                    {errors.doctor && (
+                      <p className="text-red-500 text-xs mt-1">
+                        This field is required
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -407,8 +443,18 @@ export default function VisitsPage() {
                       placeholder="e.g., General Medicine - Room 203"
                       value={newVisit.location}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white"
+                      className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
+                    ${
+                      errors.location
+                        ? "border-red-500 ring-2 ring-red-200"
+                        : "border-gray-200"
+                    } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
                     />
+                    {errors.location && (
+                      <p className="text-red-500 text-xs mt-1">
+                        This field is required
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -423,8 +469,18 @@ export default function VisitsPage() {
                       placeholder="e.g., Regular Checkup, Follow-up"
                       value={newVisit.type}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white"
+                      className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
+                    ${
+                      errors.type
+                        ? "border-red-500 ring-2 ring-red-200"
+                        : "border-gray-200"
+                    } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
                     />
+                    {errors.type && (
+                      <p className="text-red-500 text-xs mt-1">
+                        This field is required
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -453,10 +509,11 @@ export default function VisitsPage() {
                   </button>
                   <button
                     onClick={handleAddVisit}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    disabled={errors.date || errors.time || errors.doctor || errors.location || errors.type}
                   >
                     <Plus className="w-5 h-5" />
-                    Add Visit
+                    {errors ? "Add Visit" : "Add Visit"}
                   </button>
                 </div>
               </div>

@@ -18,14 +18,23 @@ export default function FormModal({ onSubmit }) {
     height: "",
     notes: "",
   });
+  const [errors, setErrors] = useState({
+    date: true
+  });
 
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name] && name === "date") {
+      setErrors(prev => ({ ...prev, [name]: false }));
+    }
   };
 
   const handleSubmit = e => {
     e.preventDefault();
+    if (errors[name] && name === "date") {
+      setErrors(prev => ({ ...prev, [name]: false }));
+    }
     // Submit form data
     const data = { ...formData };
     if (data.weight === "") delete data.weight;
@@ -126,8 +135,13 @@ export default function FormModal({ onSubmit }) {
                     required
                     value={formData.date}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white"
+                    className={`w-full px-4 py-3 border ${errors.date ? 'border-red-500' : 'border-gray-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
                   />
+                  {errors.date && (
+                    <p className="text-red-500 text-xs mt-1">
+                      This field is required
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -201,10 +215,11 @@ export default function FormModal({ onSubmit }) {
               </button>
               <button
                 onClick={handleSubmit}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                disabled={errors.date}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <Plus className="w-5 h-5" />
-                Add Entry
+                {errors ? "Add Entry" : "Add Entry"}
               </button>
             </div>
           </div>

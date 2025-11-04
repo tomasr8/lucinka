@@ -142,7 +142,7 @@ export default function Home() {
   // Create combined dataset with all unique months
   const allMonths = new Set([
     // take only the first 24 month of percentiles
-    ...percentiles.map(d => d.Month).slice(0, 25),
+    ...percentiles.map(d => d.Month).slice(0, 7),
     ...weightDataInMonths.map(d => d.month),
   ]);
 
@@ -174,7 +174,7 @@ export default function Home() {
           <h1 className="dark:text-white text-3xl font-bold text-gray-800 mb-2">
             {t("Data")}
           </h1>
-          <p className="dark:text-white text-gray-600">Lucinka's vitals</p>
+          <p className="dark:text-white text-gray-600">{t("Lucinka's vitals")}</p>
         </div>
         <div>
           {/* Stats Summary */}
@@ -220,7 +220,7 @@ export default function Home() {
 
           {/* Chart */}
           <div
-            className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-8 p-16`}
+            className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-8 p-6`}
           >
             <h2
               className={`text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100`}
@@ -244,7 +244,7 @@ export default function Home() {
                   }}
                   style={{ fontSize: "14px", fontWeight: "500" }}
                   type="number"
-                  ticks={Array.from({ length: 25 }, (_, i) => i)} // Ticks from 0 to 25
+                  ticks={Array.from({ length: 6 }, (_, i) => i)} // Ticks from 0 to 25
                   // domain={[0, 25]}
                 />
                 <YAxis
@@ -255,8 +255,8 @@ export default function Home() {
                     position: "insideLeft",
                   }}
                   style={{ fontSize: "14px" }}
-                  domain={[0, 18]}
-                  ticks={[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]}
+                  domain={[2, 12]}
+                  ticks={[2, 4, 6, 8, 10, 12]}
                 />
                 {/* WHO Percentile Lines */}
                 {["P01", "P25", "P50", "P75", "P99"].map((key, index) => {
@@ -266,7 +266,7 @@ export default function Home() {
                       key={key}
                       type="monotone"
                       dataKey={key}
-                      stroke={darkMode ? "white" : "gray"}
+                      stroke={darkMode ? "lightgray" : "gray"}
                       strokeWidth={1}
                       activeDot={false}
                       name={names[index]}
@@ -275,13 +275,13 @@ export default function Home() {
                       label={(props) => {
                       const { x, y, value, index: pointIndex } = props;
                       const point = combinedData[pointIndex];
-                      // Show label only at month 24
-                      if (point && point.month === 24 && value) {
+                      // Show label only at month 6
+                      if (point && point.month === "6" && value) {
                         return (
                           <text
-                            x={x + 8}
+                            x={x}
                             y={y}
-                            // fill={colors[index]}
+                            fill={darkMode ? "lightgray" : "gray"}
                             fontSize={12}
                             fontWeight="bold"
                             textAnchor="start"

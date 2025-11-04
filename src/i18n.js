@@ -113,8 +113,8 @@ const resources = {
         "Total right": "Totale destra",
         "Side": "Lato",
         "both": "entrambi",
-        "left": "sinistra",
-        "right": "destra",
+        "left": "sinistro",
+        "right": "destro",
     },
   },
 };
