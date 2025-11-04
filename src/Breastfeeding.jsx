@@ -28,6 +28,7 @@ export default function BreastfeedingPage() {
   const { darkMode } = useTheme();
 
   const { t, i18n } = useTranslation();
+  console.log("i18n.language:", i18n.language);
   const {
     data: { breastfeeding: sessions, user },
     loading,
@@ -319,24 +320,21 @@ export default function BreastfeedingPage() {
     const dayMap = {};
 
     sessions.forEach(session => {
-      const duration =
-        session.left_duration && session.right_duration
-          ? Math.round(session.left_duration) +
-            Math.round(session.right_duration)
-          : calculateDuration(session.start_dt, session.end_dt);
+      const leftDuration = Math.floor(session.left_duration || 0);
+      const rightDuration = Math.floor(session.right_duration || 0);
 
       // console.log(session.start_dt)
       const dateKey = new Date(session.start_dt).toISOString().split("T")[0];
       if (dayMap[dateKey]) {
-        dayMap[dateKey].total += Math.floor(duration);
-        dayMap[dateKey].leftTotal += Math.floor(session.left_duration);
-        dayMap[dateKey].rightTotal += Math.floor(session.right_duration);
+        dayMap[dateKey].total += leftDuration + rightDuration;
+        dayMap[dateKey].leftTotal += leftDuration;
+        dayMap[dateKey].rightTotal += rightDuration;
         dayMap[dateKey].sessions.push(session);
       } else {
         dayMap[dateKey] = {
-          total: Math.floor(duration),
-          leftTotal: Math.floor(session.left_duration),
-          rightTotal: Math.floor(session.right_duration),
+          total: leftDuration + rightDuration,
+          leftTotal: leftDuration,
+          rightTotal: rightDuration,
           sessions: [session],
         };
       }
@@ -620,8 +618,9 @@ export default function BreastfeedingPage() {
                           )}
                         </h3>
                         <p className="text-sm dark:text-gray-100 text-gray-500 mt-1">
-                          {day.sessions.length} {t("session")}
-                          {day.sessions.length !== 1 ? "s" : ""}
+                          {t("session", { count: day.sessions.length })}
+                          {/* {day.sessions.length} {t("session")}
+                          {day.sessions.length !== 1 ? "s" : ""} */}
                         </p>
                       </div>
                       <div className="flex grid grid-cols-3 md:gap-16">
@@ -681,12 +680,12 @@ export default function BreastfeedingPage() {
                               <div>
                                 <p className="font-semibold dark:text-white text-gray-800">
                                   {`${
-                                      addHours(new Date(session.start_dt), 1)
+                                    addHours(new Date(session.start_dt), 1)
                                       .toLocaleString()
                                       .split(" ")[1]
                                       .split(":")[0]
                                   }:${
-                                      addHours(new Date(session.start_dt), 1)
+                                    addHours(new Date(session.start_dt), 1)
                                       .toLocaleString()
                                       .split(" ")[1]
                                       .split(":")[1]
