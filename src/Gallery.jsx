@@ -7,7 +7,7 @@ import { Upload, X, Trash2, Calendar, FileText, Trash } from "lucide-react";
 
 export default function PhotoGallery() {
   const { t } = useTranslation();
-
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadForm, setUploadForm] = useState({
     file: null,
@@ -88,6 +88,14 @@ export default function PhotoGallery() {
     }
   };
 
+  const openModal = photo => {
+    setSelectedPhoto(photo);
+  };
+
+  const closeModal = () => {
+    setSelectedPhoto(null);
+  };
+
   return (
     <>
       {/* <div className="min-h-screen bg-gray-50"> */}
@@ -125,6 +133,7 @@ export default function PhotoGallery() {
               {photos.map(photo => (
                 <div
                   key={photo.id}
+                  onClick={() => openModal(photo)}
                   className="dark:bg-gray-600 bg-gray-100 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <div className="relative aspect-w-4 aspect-h-3 bg-gray-200">
@@ -157,6 +166,49 @@ export default function PhotoGallery() {
                   </div>
                 </div>
               ))}
+              {/* Modal */}
+              {selectedPhoto && (
+                <div
+                  className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+                  onClick={closeModal}
+                >
+                  <button
+                    onClick={closeModal}
+                    className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10"
+                  >
+                    <X size={40} />
+                  </button>
+
+                  <div
+                    className="relative max-w-6xl max-h-full"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {/* Large Image */}
+                    <img
+                      src={`/api/photos/${selectedPhoto.filename}`}
+                      className="max-w-full max-h-screen object-contain rounded-lg"
+                    />
+
+                    {/* Image Info */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6 rounded-b-lg">
+                      <h2 className="text-2xl font-bold text-white mb-2">
+                        {selectedPhoto.title}
+                      </h2>
+                      <div className="flex items-center gap-2 text-white text-sm mb-2">
+                        <Calendar size={16} />
+                        <span>
+                          {new Date(selectedPhoto.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {selectedPhoto.notes && (
+                        <p className="text-white text-sm">
+                          {selectedPhoto.notes}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
