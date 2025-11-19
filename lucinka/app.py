@@ -26,7 +26,8 @@ from lucinka.schemas import (
 
 
 ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
-
+DB_PATH = "db/app.db"
+db_context = None  # Store database content globally
 
 def utcnow():
     return datetime.datetime.now(datetime.UTC)

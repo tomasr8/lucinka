@@ -24,6 +24,9 @@ import Header from "./Header";
 import { useData } from "./util";
 import { useTheme } from "./theme.jsx";
 
+import AlarmSetter from "./AlarmSetter.jsx";
+import BreastfeedingPolarChart from "./PolarPlot.jsx";
+
 export default function BreastfeedingPage() {
   const { darkMode } = useTheme();
 
@@ -148,14 +151,6 @@ export default function BreastfeedingPage() {
       .toString()
       .padStart(2, "0")}`;
   };
-
-  const calculateDuration = (start_dt, end_dt) => {
-    const startTime = new Date(start_dt);
-    const endTime = new Date(end_dt);
-    const diff = (endTime - startTime) / 1000 / 60;
-    return Math.floor(diff);
-  };
-
   const formatDuration = minutes => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -434,6 +429,9 @@ export default function BreastfeedingPage() {
                 </p>
               </div>
             )}
+            <div>
+              <AlarmSetter />
+            </div>
 
             {/* Timer Section */}
             {isAdmin && (
@@ -540,50 +538,55 @@ export default function BreastfeedingPage() {
               <h2 className="text-xl font-bold dark:text-white text-gray-800 mb-4">
                 {t("Breastfeeding Overview")}
               </h2>
-              <div style={{ width: "100%", height: 400 }}>
-                <ResponsiveContainer>
-                  <BarChart
-                    data={dailyData
-                      .map(day => ({
-                        date: new Date(day.date).toLocaleDateString(
-                          i18n.language || "en",
-                          { month: "short", day: "numeric" }
-                        ),
-                        Left: Math.floor(day.leftTotal),
-                        Right: Math.floor(day.rightTotal),
-                      }))
-                      .reverse()}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke={darkMode ? "#374151" : "#e5e7eb"}
-                    />
-                    <XAxis
-                      dataKey="date"
-                      stroke={darkMode ? "#9ca3af" : "#6b7280"}
-                    />
-                    <YAxis
-                      label={{
-                        value: t("Duration (minutes)"),
-                        angle: -90,
-                        position: "insideLeft",
-                        fill: darkMode ? "#9ca3af" : "#6b7280",
-                      }}
-                    />
-                    <Tooltip
-                      cursor={{ fill: "transparent" }}
-                      contentStyle={{
-                        backgroundColor: darkMode ? "#1f2937" : "#ffffff",
-                        border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
-                        borderRadius: "0.5rem",
-                        color: darkMode ? "#f3f4f6" : "#111827",
-                      }}
-                    />
-                    <Bar dataKey="Left" stackId="a" fill="#ec4899" />
-                    <Bar dataKey="Right" stackId="a" fill="#a855f7" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-4">
+                <div style={{ width: "100%", height: 400 }}>
+                  <ResponsiveContainer>
+                    <BarChart
+                      data={dailyData
+                        .map(day => ({
+                          date: new Date(day.date).toLocaleDateString(
+                            i18n.language || "en",
+                            { month: "short", day: "numeric" }
+                          ),
+                          Left: Math.floor(day.leftTotal),
+                          Right: Math.floor(day.rightTotal),
+                        }))
+                        .reverse()}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke={darkMode ? "#374151" : "#e5e7eb"}
+                      />
+                      <XAxis
+                        dataKey="date"
+                        stroke={darkMode ? "#9ca3af" : "#6b7280"}
+                      />
+                      <YAxis
+                        label={{
+                          value: t("Duration (minutes)"),
+                          angle: -90,
+                          position: "insideLeft",
+                          fill: darkMode ? "#9ca3af" : "#6b7280",
+                        }}
+                      />
+                      <Tooltip
+                        cursor={{ fill: "transparent" }}
+                        contentStyle={{
+                          backgroundColor: darkMode ? "#1f2937" : "#ffffff",
+                          border: `1px solid ${
+                            darkMode ? "#374151" : "#e5e7eb"
+                          }`,
+                          borderRadius: "0.5rem",
+                          color: darkMode ? "#f3f4f6" : "#111827",
+                        }}
+                      />
+                      <Bar dataKey="Left" stackId="a" fill="#ec4899" />
+                      <Bar dataKey="Right" stackId="a" fill="#a855f7" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
+              <BreastfeedingPolarChart sessions={sessions} />
             </div>
 
             {/* Daily Sessions */}
