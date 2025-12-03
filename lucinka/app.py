@@ -1,11 +1,13 @@
 import datetime
+from dbm import sqlite3
 from functools import wraps
 from pathlib import Path
 
-from flask import Flask, jsonify, request, send_from_directory, session
+from flask import Flask, app, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+import requests
 from webargs.flaskparser import use_kwargs
 
 from lucinka.config import Config
@@ -25,9 +27,10 @@ from lucinka.schemas import (
 )
 
 
-ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".mov", ".avi", ".mkv"}
 DB_PATH = "db/app.db"
 db_context = None  # Store database content globally
+
 
 def utcnow():
     return datetime.datetime.now(datetime.UTC)
@@ -204,7 +207,7 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     @app.post("/api/breastfeeding")
     @admin_required
     @use_kwargs(AddBreastfeedingSchema)
-    def add_breastfeeding(start_dt: str, end_dt: str, left_duration: int = None, right_duration: int = None):
+    def add_breastfeeding(start_dt: str, end_dt: str, left_duration: int = None, right_duration: int = None, is_pumped: bool = False):
         user_id = session["user_id"]
         user = User.query.get(user_id)
         if not user:
@@ -214,6 +217,7 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
             end_dt=end_dt,
             left_duration=left_duration,
             right_duration=right_duration,
+            is_pumped=is_pumped,
             user=user,
         )
         db.session.add(breastfeeding)

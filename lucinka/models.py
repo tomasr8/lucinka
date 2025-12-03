@@ -92,11 +92,12 @@ class Breastfeeding(db.Model):
     end_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
     left_duration: Mapped[int | None] = mapped_column(db.Integer, nullable=True)
     right_duration: Mapped[int | None] = mapped_column(db.Integer, nullable=True)
+    is_pumped: Mapped[bool] = mapped_column(db.Boolean, nullable=False, default=False)
 
     user: Mapped[User] = db.relationship()
 
     def __repr__(self) -> str:
-        return f"<Breastfeeding({self.id}) user_id={self.user_id} date={self.date} start_time={self.start_time} end_time={self.end_time} breast={self.breast} left_duration={self.left_duration} right_duration={self.right_duration}>"
+        return f"<Breastfeeding({self.id}) user_id={self.user_id} date={self.date} start_time={self.start_time} end_time={self.end_time} breast={self.breast} left_duration={self.left_duration} right_duration={self.right_duration} is_pumped={self.is_pumped}>"
 
 
 class Photo(db.Model):

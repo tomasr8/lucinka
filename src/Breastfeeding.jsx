@@ -24,14 +24,12 @@ import Header from "./Header";
 import { useData } from "./util";
 import { useTheme } from "./theme.jsx";
 
-import AlarmSetter from "./AlarmSetter.jsx";
 import BreastfeedingPolarChart from "./PolarPlot.jsx";
 
 export default function BreastfeedingPage() {
   const { darkMode } = useTheme();
 
   const { t, i18n } = useTranslation();
-  console.log("i18n.language:", i18n.language);
   const {
     data: { breastfeeding: sessions, user },
     loading,
@@ -60,6 +58,7 @@ export default function BreastfeedingPage() {
     time: nowTime,
     left_duration: 0,
     right_duration: 0,
+    is_pumped: false,
   });
 
   const [errors, setErrors] = useState({
@@ -113,6 +112,7 @@ export default function BreastfeedingPage() {
       end_dt: now.toISOString(),
       left_duration: Math.floor(leftTime / 60),
       right_duration: Math.floor(rightTime / 60),
+      is_pumped: newSession.is_pumped,
     };
     fetch("/api/breastfeeding", {
       method: "POST",
@@ -245,6 +245,7 @@ export default function BreastfeedingPage() {
         end_dt: endDt,
         left_duration: parseFloat(newSession.left_duration),
         right_duration: parseFloat(newSession.right_duration),
+        is_pumped: newSession.is_pumped,
       }),
     })
       .then(response => response.json())
@@ -255,6 +256,7 @@ export default function BreastfeedingPage() {
           time: "",
           left_duration: 0,
           right_duration: 0,
+          is_pumped: false,
         });
         setErrors({ date: false, time: false });
         setIsManualModalOpen(false);
@@ -318,7 +320,6 @@ export default function BreastfeedingPage() {
       const leftDuration = Math.floor(session.left_duration || 0);
       const rightDuration = Math.floor(session.right_duration || 0);
 
-      // console.log(session.start_dt)
       const dateKey = new Date(session.start_dt).toISOString().split("T")[0];
       if (dayMap[dateKey]) {
         dayMap[dateKey].total += leftDuration + rightDuration;
@@ -339,7 +340,11 @@ export default function BreastfeedingPage() {
       .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA))
       .map(([date, data]) => ({ date, ...data }));
   };
-
+  const cancelTimer = () => {
+    resetTimer();
+    setSuccessMessage("Session cancelled successfully!");
+    setShowSuccess(true);
+  };
   const dailyData = aggregateByDay();
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -429,10 +434,6 @@ export default function BreastfeedingPage() {
                 </p>
               </div>
             )}
-            <div>
-              <AlarmSetter />
-            </div>
-
             {/* Timer Section */}
             {isAdmin && (
               <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-6">
@@ -511,6 +512,12 @@ export default function BreastfeedingPage() {
                         className="flex-1 px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-all"
                       >
                         Switch Breast
+                      </button>
+                      <button
+                        onClick={() => cancelTimer()}
+                        className="flex-1 px-6 py-3 bg-gray-500 text-white font-semibold rounded-xl hover:bg-gray-600 transition-all"
+                      >
+                        Cancel
                       </button>
                       <button
                         onClick={stopAndSaveTimer}
@@ -622,8 +629,6 @@ export default function BreastfeedingPage() {
                         </h3>
                         <p className="text-sm dark:text-gray-100 text-gray-500 mt-1">
                           {t("session", { count: day.sessions.length })}
-                          {/* {day.sessions.length} {t("session")}
-                          {day.sessions.length !== 1 ? "s" : ""} */}
                         </p>
                       </div>
                       <div className="flex grid grid-cols-3 md:gap-16">
@@ -671,10 +676,12 @@ export default function BreastfeedingPage() {
                             <div className="flex items-center gap-4">
                               <div
                                 className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${
-                                  breast === "L"
+                                  breast === "L" && !session.is_pumped
                                     ? "bg-pink-500"
-                                    : breast === "R"
+                                    : breast === "R" && !session.is_pumped
                                     ? "bg-purple-500"
+                                    : session.is_pumped
+                                    ? "bg-yellow-500"
                                     : "bg-teal-500"
                                 }`}
                               >
@@ -810,7 +817,6 @@ export default function BreastfeedingPage() {
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                       Left Breast
-                      {console.log(newSession.left_duration)}
                     </label>
                     <input
                       type="number"
@@ -833,6 +839,23 @@ export default function BreastfeedingPage() {
                       onChange={handleInputChange}
                       placeholder="minutes"
                       className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                    />
+                  </div>
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      Pumped Session
+                    </label>
+                    <input
+                      type="checkbox"
+                      name="is_pumped"
+                      checked={newSession.is_pumped}
+                      onChange={e =>
+                        setNewSession(prev => ({
+                          ...prev,
+                          is_pumped: e.target.checked,
+                        }))
+                      }
+                      className={`w-5 h-5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
                     />
                   </div>
                 </div>

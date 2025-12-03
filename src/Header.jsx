@@ -90,7 +90,7 @@ export default function Header({ isAdmin = false }) {
       </div>
       <div>
         {/* Navigation */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <button
             type="button"
             onClick={() => navigate("/")}

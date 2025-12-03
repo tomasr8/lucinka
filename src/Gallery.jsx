@@ -23,7 +23,17 @@ export default function PhotoGallery() {
     refetch,
   } = useData("photos");
   const isAdmin = user?.is_admin;
+  const isVideo = (filename) => {
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
+    const extension = filename.toLowerCase().slice(filename.lastIndexOf('.'));
+    return videoExtensions.includes(extension);
+  };
 
+  const isImage = (filename) => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+    const extension = filename.toLowerCase().slice(filename.lastIndexOf('.'));
+    return imageExtensions.includes(extension);
+  };
   // Handle file selection
   const handleFileSelect = e => {
     const file = e.target.files[0];
@@ -66,7 +76,7 @@ export default function PhotoGallery() {
         fileInputRef.current.value = "";
       }
     } catch (err) {
-      alert("Failed to upload photo: " + err.message);
+      alert("Failed to upload photo or video: " + err.message);
     } finally {
       setUploading(false);
     }
@@ -74,7 +84,7 @@ export default function PhotoGallery() {
 
   // Delete photo
   const handleDelete = async photoId => {
-    if (!confirm("Are you sure you want to delete this photo?")) return;
+    if (!confirm("Are you sure you want to delete this photo or video?")) return;
 
     try {
       const response = await fetch(`/api/photos/${photoId}`, {
@@ -115,7 +125,7 @@ export default function PhotoGallery() {
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
               >
                 <Upload size={20} />
-                {t("Upload Photo")}
+                {t("Upload Photo or Video")}
               </button>
             )}
           </div>
@@ -137,12 +147,25 @@ export default function PhotoGallery() {
                   className="dark:bg-gray-600 bg-gray-100 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <div className="relative aspect-w-4 aspect-h-3 bg-gray-200">
-                    <img
+                    {isVideo(photo.filename) ? (
+                      <video
+                        src={`/api/photos/${photo.filename}`}
+                        className="w-full h-64 object-contain p-4 dark:bg-gray-700 bg-white dark:border-gray-300"
+                        controls
+                        loading="lazy"
+                      />
+                    ) : isImage(photo.filename) ? (
+                      <img
                       src={`/api/photos/${photo.filename}`}
                       alt={photo.notes || "Photo"}
                       className="w-full h-64 object-contain p-4 dark:bg-gray-700 bg-white dark:border-gray-300"
                       loading="lazy"
                     />
+                    ) : (
+                      <div className="flex items-center justify-center w-full h-64 bg-gray-300 dark:bg-gray-700 text-gray-500">
+                        Unsupported file type
+                      </div>
+                    )}
                     {isAdmin && (
                       <button
                         onClick={() => handleDelete(photo.id)}
@@ -250,11 +273,22 @@ export default function PhotoGallery() {
                 {/* Preview */}
                 {previewUrl && (
                   <div className="mb-4">
-                    <img
-                      src={previewUrl}
-                      alt="Preview"
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
+                    {isVideo(uploadForm.file.name) ? (
+                      <video
+                        src={previewUrl}
+                        alt="Preview"
+                        className="w-full h-48 object-cover rounded-lg"
+                        controls
+                        muted
+                        loop
+                      />
+                    ) : (
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                    )}
                   </div>
                 )}
 

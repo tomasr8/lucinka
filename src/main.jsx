@@ -8,6 +8,7 @@ import Stats from "./Stats.jsx";
 import Gallery from "./Gallery.jsx";
 import VisitsPage from "./Visits.jsx";
 import BreastfeedingPage from "./Breastfeeding.jsx";
+// import More from "./More.jsx";
 import "./i18n";
 import { ThemeProvider } from "./theme.jsx";
 

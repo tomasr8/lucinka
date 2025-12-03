@@ -62,6 +62,7 @@ class GetBreastfeedingSchema(Schema):
     end_dt = fields.DateTime(dump_only=True)
     left_duration = fields.Int(dump_only=True)
     right_duration = fields.Int(dump_only=True)
+    is_pumped = fields.Bool(dump_only=True)
 
 
 class AddBreastfeedingSchema(Schema):
@@ -69,6 +70,7 @@ class AddBreastfeedingSchema(Schema):
     end_dt = fields.DateTime(required=True)
     left_duration = fields.Int(load_default=None)
     right_duration = fields.Int(load_default=None)
+    is_pumped = fields.Bool(load_default=False)
 
 
 class AddPhotoSchema(Schema):

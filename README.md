@@ -21,7 +21,7 @@ npm run dev
 ### Migrate
 1. `alembic revision -m "Description"`
 2. write migration
-3. `alembic upgrad head`
+3. `alembic upgrade head`
 
 
 ### Deploy

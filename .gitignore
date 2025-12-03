@@ -38,3 +38,6 @@ photos/
 
 *.csv
 percentile.py
+
+# Environment variables
+.env

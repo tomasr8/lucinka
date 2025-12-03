@@ -24,7 +24,7 @@ export default function BreastfeedingPolarChart({ sessions }) {
     // Group sessions by hour of day (0-23)
     const hourlyData = Array.from({ length: 24 }, (_, hour) => ({
       hour: hour,
-      hourLabel: `${hour.toString().padStart(2, "0")}:00`,
+      hourLabel: `${hour.toString()}`,
       sessions: 0,
       totalDuration: 0,
     }));
@@ -60,7 +60,7 @@ export default function BreastfeedingPolarChart({ sessions }) {
   }
 
   return (
-    <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-4">
+    <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
 
@@ -73,7 +73,6 @@ export default function BreastfeedingPolarChart({ sessions }) {
                 tick={{ fill: "#ec4899", fontSize: 12 }}
               />
               <Radar
-                name="Number of Sessions"
                 dataKey="sessions"
                 stroke="#ec4899"
                 fill="#ec4899"
