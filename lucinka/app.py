@@ -1,5 +1,4 @@
 import datetime
-from dbm import sqlite3
 from functools import wraps
 from pathlib import Path
 
@@ -7,7 +6,6 @@ from flask import Flask, app, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-import requests
 from webargs.flaskparser import use_kwargs
 
 from lucinka.config import Config
