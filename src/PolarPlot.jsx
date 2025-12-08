@@ -115,9 +115,20 @@ export default function BreastfeedingPolarChart({ sessions }) {
                   />
                 </RadarChart>
               </ResponsiveContainer>
+              {/* Some statistics: average duration, hour with min number of sessions, and max */}
+              <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-1">
+                Avg Duration: {Math.round(month.hourlyData.reduce((sum, h) => sum + h.totalDuration, 0) / Math.max(1, month.hourlyData.reduce((sum, h) => sum + h.sessions, 0)))} mins
+              </div>
+              <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-1">
+                Peak Hour: {month.hourlyData.reduce((maxHour, h) => h.sessions > month.hourlyData[maxHour].sessions ? h.hour : maxHour, 0)}h
+              </div>
+              <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-1">
+                Low Hour: {month.hourlyData.reduce((minHour, h) => h.sessions < month.hourlyData[minHour].sessions ? h.hour : minHour, 0)}h
+              </div>
               <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-2">
                 Total: {month.hourlyData.reduce((sum, h) => sum + h.sessions, 0)} sessions
               </div>
+
             </div>
           ))}
         </div>

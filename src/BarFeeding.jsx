@@ -18,7 +18,6 @@ export default function BarFeeding({ dailyData }) {
   const monthlyCharts = useMemo(() => {
     // Group daily data by month
     const monthlyGroups = {};
-
     dailyData.forEach(day => {
       const date = new Date(day.date);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -26,13 +25,16 @@ export default function BarFeeding({ dailyData }) {
         year: "numeric",
         month: "long",
       });
-
+      
       if (!monthlyGroups[monthKey]) {
         monthlyGroups[monthKey] = {
           monthKey,
           monthLabel,
           days: [],
         };
+      }
+      if (day.sessions[0].is_pumped) {
+        return; // Skip pumped days
       }
 
       monthlyGroups[monthKey].days.push({
@@ -74,19 +76,7 @@ export default function BarFeeding({ dailyData }) {
                 <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
                   {month.monthLabel}
                 </h3>
-                <div className="flex gap-4 text-sm">
-                  <span className="text-gray-600 dark:text-gray-300">
-                    <span className="inline-block w-3 h-3 bg-pink-500 rounded mr-1"></span>
-                    {t("Left")}: {month.totalLeft} {t("min")}
-                  </span>
-                  <span className="text-gray-600 dark:text-gray-300">
-                    <span className="inline-block w-3 h-3 bg-purple-500 rounded mr-1"></span>
-                    {t("Right")}: {month.totalRight} {t("min")}
-                  </span>
-                  <span className="font-semibold text-gray-700 dark:text-gray-200">
-                    {t("Total")}: {month.totalLeft + month.totalRight} {t("min")}
-                  </span>
-                </div>
+                
               </div>
 
               <div style={{ width: "100%", height: 300 }}>
@@ -131,6 +121,19 @@ export default function BarFeeding({ dailyData }) {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+                <div className="flex gap-4 text-sm mt-4 justify-center">
+                  <span className="text-gray-600 dark:text-gray-300">
+                    <span className="inline-block w-3 h-3 bg-pink-500 rounded mr-1"></span>
+                    {t("Left")}: {month.totalLeft} {t("min")}
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-300">
+                    <span className="inline-block w-3 h-3 bg-purple-500 rounded mr-1"></span>
+                    {t("Right")}: {month.totalRight} {t("min")}
+                  </span>
+                  <span className="font-semibold text-gray-700 dark:text-gray-200">
+                    {t("Total")}: {month.totalLeft + month.totalRight} {t("min")}
+                  </span>
+                </div>
             </div>
           ))}
         </div>
