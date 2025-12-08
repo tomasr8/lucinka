@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   PolarGrid,
   PolarAngleAxis,
-  PolarRadiusAxis,
   Radar,
   RadarChart,
   ResponsiveContainer,
@@ -17,36 +16,50 @@ export default function BreastfeedingPolarChart({ sessions }) {
     loading,
     refetch,
   } = useData("breastfeeding");
-  const [data, setData] = useState([]);
-  //   const [loading, setLoading] = useState(true);
+  
+  const [monthlyData, setMonthlyData] = useState([]);
 
   useEffect(() => {
-    // Group sessions by hour of day (0-23)
-    const hourlyData = Array.from({ length: 24 }, (_, hour) => ({
-      hour: hour,
-      hourLabel: `${hour.toString()}`,
-      sessions: 0,
-      totalDuration: 0,
-    }));
-
+    // Group sessions by month and hour
+    const monthlyGroups = {};
+    
     sessions.forEach(session => {
-      console.log(session);
       const date = new Date(session.start_dt);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       const hour = date.getHours();
-      hourlyData[hour].sessions += 1;
-      hourlyData[hour].totalDuration +=
+      
+      if (!monthlyGroups[monthKey]) {
+        monthlyGroups[monthKey] = {
+          monthKey,
+          monthLabel: date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),
+          hourlyData: Array.from({ length: 24 }, (_, h) => ({
+            hour: h,
+            hourLabel: `${h}h`,
+            sessions: 0,
+            totalDuration: 0,
+          }))
+        };
+      }
+      
+      monthlyGroups[monthKey].hourlyData[hour].sessions += 1;
+      monthlyGroups[monthKey].hourlyData[hour].totalDuration +=
         session.right_duration + session.left_duration;
     });
-
-    // Calculate average duration per session for each hour
-    hourlyData.forEach(item => {
-      item.avgDuration =
-        item.sessions > 0 ? Math.round(item.totalDuration / item.sessions) : 0;
-    });
-
-    setData(hourlyData);
+    
+    // Calculate average duration and sort by month
+    const processedData = Object.values(monthlyGroups)
+      .map(month => {
+        month.hourlyData.forEach(item => {
+          item.avgDuration =
+            item.sessions > 0 ? Math.round(item.totalDuration / item.sessions) : 0;
+        });
+        return month;
+      })
+      .sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+    
+    setMonthlyData(processedData);
     refetch();
-  }, []);
+  }, [sessions]);
 
   if (loading) {
     return (
@@ -60,40 +73,60 @@ export default function BreastfeedingPolarChart({ sessions }) {
   }
 
   return (
-    <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-
-        {/* Polar Chart */}
-          <ResponsiveContainer width="100%" height={500}>
-            <RadarChart data={data}>
-              <PolarGrid stroke="#e5e7eb" />
-              <PolarAngleAxis
-                dataKey="hourLabel"
-                tick={{ fill: "#ec4899", fontSize: 12 }}
-              />
-              <Radar
-                dataKey="sessions"
-                stroke="#ec4899"
-                fill="#ec4899"
-                fillOpacity={0.6}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "white",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "8px",
-                  padding: "12px",
-                }}
-                formatter={(value, name) => {
-                  if (name === "Number of Sessions") return [value, "Sessions"];
-                  return [value, name];
-                }}
-                labelFormatter={label => `Time: ${label}`}
-              />
-              <Legend />
-            </RadarChart>
-          </ResponsiveContainer>
+    <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+          Breastfeeding Sessions by Hour - Monthly View
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {monthlyData.map((month) => (
+            <div key={month.monthKey} className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2 text-center">
+                {month.monthLabel}
+              </h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <RadarChart data={month.hourlyData}>
+                  <PolarGrid stroke="#e5e7eb" />
+                  <PolarAngleAxis
+                    dataKey="hourLabel"
+                    tick={{ fill: "#ec4899", fontSize: 10 }}
+                  />
+                  <Radar
+                    dataKey="sessions"
+                    stroke="#ec4899"
+                    fill="#ec4899"
+                    fillOpacity={0.6}
+                    name="Sessions"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "white",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      padding: "8px",
+                      fontSize: "12px",
+                    }}
+                    formatter={(value, name) => {
+                      if (name === "Sessions") return [value, "Sessions"];
+                      return [value, name];
+                    }}
+                    labelFormatter={label => `Hour: ${label}`}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+              <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-2">
+                Total: {month.hourlyData.reduce((sum, h) => sum + h.sessions, 0)} sessions
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {monthlyData.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            No data available
+          </div>
+        )}
       </div>
     </div>
   );
