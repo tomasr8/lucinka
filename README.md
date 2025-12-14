@@ -31,7 +31,7 @@ docker build -t lucinka .
 
 docker save -o /tmp/lucinka-docker.tar lucinka:latest
 
-scp /tmp/lucinka-docker.tar tomas@46.62.136.60:/home/tomas/lucinka-docker.tar
+scp /tmp/lucinka-docker.tar tomas@<TOMAS IP>:/home/tomas/lucinka-docker.tar
 ```
 
 now ssh into it
