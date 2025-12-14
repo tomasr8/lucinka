@@ -9,6 +9,7 @@ import {
   Play,
   Pause,
   Square,
+  PillBottle
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Header from "./Header";
@@ -18,7 +19,6 @@ import BreastfeedingPolarChart from "./PolarPlot.jsx";
 import BarFeeding from "./BarFeeding.jsx";
 
 export default function BreastfeedingPage() {
-
   const { t, i18n } = useTranslation();
   const {
     data: { breastfeeding: sessions, user },
@@ -29,6 +29,7 @@ export default function BreastfeedingPage() {
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  // const [isBreast, setIsBreast] = useState(true);
 
   // Timer states
   const [isTimerActive, setIsTimerActive] = useState(false);
@@ -49,11 +50,14 @@ export default function BreastfeedingPage() {
     left_duration: 0,
     right_duration: 0,
     is_pumped: false,
+    is_breast: true,
+    ml_amount: 0,
   });
 
   const [errors, setErrors] = useState({
     left_duration: true,
     right_duration: true,
+    ml_amount: true,
   });
 
   // Timer effect
@@ -103,6 +107,8 @@ export default function BreastfeedingPage() {
       left_duration: Math.floor(leftTime / 60),
       right_duration: Math.floor(rightTime / 60),
       is_pumped: newSession.is_pumped,
+      is_breast: newSession.is_breast,
+      ml_amount: newSession.ml_amount,
     };
     fetch("/api/breastfeeding", {
       method: "POST",
@@ -197,7 +203,7 @@ export default function BreastfeedingPage() {
     setNewSession(prev => ({ ...prev, [name]: value }));
     if (
       errors[name] &&
-      (name === "left_duration" || name === "right_duration")
+      (name === "left_duration" || name === "right_duration" || name === "ml_amount")
     ) {
       setErrors(prev => ({ ...prev, [name]: false }));
     }
@@ -236,6 +242,8 @@ export default function BreastfeedingPage() {
         left_duration: parseFloat(newSession.left_duration),
         right_duration: parseFloat(newSession.right_duration),
         is_pumped: newSession.is_pumped,
+        is_breast: newSession.is_breast,
+        ml_amount: parseFloat(newSession.ml_amount),
       }),
     })
       .then(response => response.json())
@@ -247,6 +255,8 @@ export default function BreastfeedingPage() {
           left_duration: 0,
           right_duration: 0,
           is_pumped: false,
+          is_breast: true,
+          ml_amount: 0,
         });
         setErrors({ date: false, time: false });
         setIsManualModalOpen(false);
@@ -305,22 +315,25 @@ export default function BreastfeedingPage() {
 
   const aggregateByDay = () => {
     const dayMap = {};
-
     sessions.forEach(session => {
-      const leftDuration = Math.floor(session.left_duration || 0);
-      const rightDuration = Math.floor(session.right_duration || 0);
+      const leftDuration = !session.is_pumped ? Math.floor(session.left_duration || 0) : 0;
+      const rightDuration = !session.is_pumped ? Math.floor(session.right_duration || 0) : 0;
+      const mlAmount = !session.is_breast ? Math.floor(session.ml_amount || 0) : 0;
 
       const dateKey = new Date(session.start_dt).toISOString().split("T")[0];
       if (dayMap[dateKey]) {
         dayMap[dateKey].total += leftDuration + rightDuration;
         dayMap[dateKey].leftTotal += leftDuration;
         dayMap[dateKey].rightTotal += rightDuration;
+        dayMap[dateKey].mlTotal += mlAmount;
         dayMap[dateKey].sessions.push(session);
+
       } else {
         dayMap[dateKey] = {
           total: leftDuration + rightDuration,
           leftTotal: leftDuration,
           rightTotal: rightDuration,
+          mlTotal: mlAmount,
           sessions: [session],
         };
       }
@@ -536,7 +549,7 @@ export default function BreastfeedingPage() {
                 {t("Breastfeeding Overview")}
               </h2>
               <BarFeeding dailyData={dailyData} />
-              
+
               <BreastfeedingPolarChart sessions={sessions} />
             </div>
 
@@ -606,12 +619,11 @@ export default function BreastfeedingPage() {
                     <div className="space-y-2">
                       {day.sessions.map(session => {
                         const breast =
-                          session.right_duration === 0
+                          session.right_duration === 0 && session.ml_amount === 0
                             ? "L"
-                            : session.left_duration === 0
+                            : session.left_duration === 0 && session.ml_amount === 0
                             ? "R"
-                            : "B";
-
+                            : session.ml_amount === 0 ? "B" : <PillBottle className="w-6 h-6" />;
                         return (
                           <div
                             key={session.id}
@@ -620,13 +632,15 @@ export default function BreastfeedingPage() {
                             <div className="flex items-center gap-4">
                               <div
                                 className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${
-                                  breast === "L" && !session.is_pumped
+                                  session.is_breast
+                                  ? (breast === "L" && !session.is_pumped
                                     ? "bg-pink-500"
                                     : breast === "R" && !session.is_pumped
                                     ? "bg-purple-500"
                                     : session.is_pumped
                                     ? "bg-yellow-500"
-                                    : "bg-teal-500"
+                                    : "bg-teal-500")
+                                  : "bg-blue-500"
                                 }`}
                               >
                                 {breast}
@@ -666,9 +680,15 @@ export default function BreastfeedingPage() {
                                       )}m`
                                     : breast === "L"
                                     ? `L: ${Math.floor(session.left_duration)}m`
-                                    : `R: ${Math.floor(
+                                    : breast === "R" 
+                                    ? `R: ${Math.floor(
                                         session.right_duration
-                                      )}m`}
+                                      )}m`
+                                      : `Amount: ${Math.floor(
+                                        session.ml_amount
+                                      )}ml`
+
+                                      }
                                 </p>
                               </div>
                             </div>
@@ -733,7 +753,6 @@ export default function BreastfeedingPage() {
                       </p>
                     )}
                   </div>
-
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                       <Clock className="w-4 h-4 text-pink-600" />
@@ -757,51 +776,96 @@ export default function BreastfeedingPage() {
                       </p>
                     )}
                   </div>
-
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                      Left Breast
+                  <div className="flex items-center gap-4 mb-4">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <input
+                        type="radio"
+                        name="feeding_type"
+                        value={newSession.is_breast}
+                        checked={newSession.is_breast}
+                        onChange={() =>
+                          setNewSession(prev => ({ ...prev, is_breast: true }))
+                        }
+                        className="w-4 h-4"
+                      />
+                      Breastfeeding
                     </label>
-                    <input
-                      type="number"
-                      name="left_duration"
-                      value={newSession.left_duration}
-                      onChange={handleInputChange}
-                      placeholder="minutes"
-                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
-                    />
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <input
+                        type="radio"
+                        name="feeding_type"
+                        value={!newSession.is_breast}
+                        checked={!newSession.is_breast}
+                        onChange={() =>
+                          setNewSession(prev => ({ ...prev, is_breast: false }))
+                        }
+                        className="w-4 h-4"
+                      />
+                      Bottle Feeding
+                    </label>
                   </div>
 
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                      Right Breast
-                    </label>
-                    <input
-                      type="number"
-                      name="right_duration"
-                      value={newSession.right_duration}
-                      onChange={handleInputChange}
-                      placeholder="minutes"
-                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
-                    />
-                  </div>
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                      Pumped Session
-                    </label>
-                    <input
-                      type="checkbox"
-                      name="is_pumped"
-                      checked={newSession.is_pumped}
-                      onChange={e =>
-                        setNewSession(prev => ({
-                          ...prev,
-                          is_pumped: e.target.checked,
-                        }))
-                      }
-                      className={`w-5 h-5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
-                    />
-                  </div>
+                  {newSession.is_breast ? (
+                    <>
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                          Left Breast
+                        </label>
+                        <input
+                          type="number"
+                          name="left_duration"
+                          value={newSession.left_duration}
+                          onChange={handleInputChange}
+                          placeholder="minutes"
+                          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                        />
+                      </div>
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                          Right Breast
+                        </label>
+                        <input
+                          type="number"
+                          name="right_duration"
+                          value={newSession.right_duration}
+                          onChange={handleInputChange}
+                          placeholder="minutes"
+                          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                        />
+                      </div>
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                          Pumped Session
+                        </label>
+                        <input
+                          type="checkbox"
+                          name="is_pumped"
+                          checked={newSession.is_pumped}
+                          onChange={e =>
+                            setNewSession(prev => ({
+                              ...prev,
+                              is_pumped: e.target.checked,
+                            }))
+                          }
+                          className={`w-5 h-5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                        amount in ml
+                      </label>
+                      <input
+                        type="number"
+                        name="ml_amount"
+                        value={newSession.ml_amount}
+                        onChange={handleInputChange}
+                        placeholder="amount in ml"
+                        className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
@@ -815,12 +879,12 @@ export default function BreastfeedingPage() {
                   <button
                     type="button"
                     onClick={handleManualEntry}
-                    disabled={errors.left_duration && errors.right_duration}
+                    disabled={errors.left_duration && errors.right_duration && errors.ml_amount}
                     className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold rounded-xl hover:from-pink-600 hover:to-purple-600 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <>
                       <Plus className="w-5 h-5" />
-                      {errors.left_duration && errors.right_duration
+                      {errors.left_duration && errors.right_duration && errors.ml_amount
                         ? "Add Session"
                         : "Add Session"}
                     </>

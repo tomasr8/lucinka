@@ -205,7 +205,15 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     @app.post("/api/breastfeeding")
     @admin_required
     @use_kwargs(AddBreastfeedingSchema)
-    def add_breastfeeding(start_dt: str, end_dt: str, left_duration: int = None, right_duration: int = None, is_pumped: bool = False):
+    def add_breastfeeding(
+        start_dt: str,
+        end_dt: str,
+        left_duration: int = None,
+        right_duration: int = None,
+        is_pumped: bool = False,
+        is_breast: bool = True,
+        ml_amount: int = 0,
+    ):
         user_id = session["user_id"]
         user = User.query.get(user_id)
         if not user:
@@ -216,6 +224,8 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
             left_duration=left_duration,
             right_duration=right_duration,
             is_pumped=is_pumped,
+            is_breast=is_breast,
+            ml_amount=ml_amount,
             user=user,
         )
         db.session.add(breastfeeding)

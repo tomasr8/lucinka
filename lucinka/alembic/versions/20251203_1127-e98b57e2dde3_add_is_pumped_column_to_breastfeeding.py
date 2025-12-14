@@ -17,12 +17,12 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade() -> None:
+def upgrade():
     op.add_column(
         "breastfeeding",
         sa.Column("is_pumped", sa.Boolean(), nullable=False, server_default=sa.false()),
     )
 
 
-def downgrade() -> None:
+def downgrade():
     op.drop_column("breastfeeding", "is_pumped")
