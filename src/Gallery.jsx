@@ -1,11 +1,15 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router";
+
 import Header from "./Header";
 import { useData } from "./util";
 
 import { Upload, X, Trash2, Calendar, FileText, Trash } from "lucide-react";
 
 export default function PhotoGallery() {
+  const navigate = useNavigate();
+  const { photoId } = useParams();
   const { t } = useTranslation();
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -23,15 +27,31 @@ export default function PhotoGallery() {
     refetch,
   } = useData("photos");
   const isAdmin = user?.is_admin;
-  const isVideo = (filename) => {
-    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
-    const extension = filename.toLowerCase().slice(filename.lastIndexOf('.'));
+  const isVideo = filename => {
+    const videoExtensions = [
+      ".mp4",
+      ".webm",
+      ".ogg",
+      ".mov",
+      ".avi",
+      ".mkv",
+      ".m4v",
+    ];
+    const extension = filename.toLowerCase().slice(filename.lastIndexOf("."));
     return videoExtensions.includes(extension);
   };
 
-  const isImage = (filename) => {
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
-    const extension = filename.toLowerCase().slice(filename.lastIndexOf('.'));
+  const isImage = filename => {
+    const imageExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".bmp",
+    ];
+    const extension = filename.toLowerCase().slice(filename.lastIndexOf("."));
     return imageExtensions.includes(extension);
   };
   // Handle file selection
@@ -84,7 +104,8 @@ export default function PhotoGallery() {
 
   // Delete photo
   const handleDelete = async photoId => {
-    if (!confirm("Are you sure you want to delete this photo or video?")) return;
+    if (!confirm("Are you sure you want to delete this photo or video?"))
+      return;
 
     try {
       const response = await fetch(`/api/photos/${photoId}`, {
@@ -98,13 +119,19 @@ export default function PhotoGallery() {
     }
   };
 
-  const openModal = photo => {
-    setSelectedPhoto(photo);
-  };
+  const openModal = photo => navigate(`/gallery/${photo.id}`);
+  const closeModal = () => navigate(-1);
 
-  const closeModal = () => {
-    setSelectedPhoto(null);
-  };
+  useEffect(() => {
+    if (photoId && photos) {
+      const photo = photos.find(p => p.id.toString() === photoId);
+      if (photo) {
+        setSelectedPhoto(photo);
+      }
+    } else {
+      setSelectedPhoto(null);
+    }
+  }, [photoId, photos]);
 
   return (
     <>
@@ -156,11 +183,11 @@ export default function PhotoGallery() {
                       />
                     ) : isImage(photo.filename) ? (
                       <img
-                      src={`/api/photos/${photo.filename}`}
-                      alt={photo.notes || "Photo"}
-                      className="w-full h-64 object-contain p-4 dark:bg-gray-700 bg-white dark:border-gray-300"
-                      loading="lazy"
-                    />
+                        src={`/api/photos/${photo.filename}`}
+                        alt={photo.notes || "Photo"}
+                        className="w-full h-64 object-contain p-4 dark:bg-gray-700 bg-white dark:border-gray-300"
+                        loading="lazy"
+                      />
                     ) : (
                       <div className="flex items-center justify-center w-full h-64 bg-gray-300 dark:bg-gray-700 text-gray-500">
                         Unsupported file type
