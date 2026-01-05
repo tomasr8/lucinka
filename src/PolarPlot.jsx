@@ -54,7 +54,7 @@ export default function BreastfeedingPolarChart({ sessions }) {
         session.right_duration + session.left_duration;
     });
     
-    // Calculate average duration and sort by month
+    // Calculate average duration and sort by month (newest first)
     const processedData = Object.values(monthlyGroups)
       .map(month => {
         month.hourlyData.forEach(item => {
@@ -63,7 +63,7 @@ export default function BreastfeedingPolarChart({ sessions }) {
         });
         return month;
       })
-      .sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+      .sort((a, b) => b.monthKey.localeCompare(a.monthKey));
     
     setMonthlyData(processedData);
     refetch();
