@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { User, Calendar } from "lucide-react";
 import { Moon, Sun, HouseHeart } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const avatarColors = [
   "from-blue-400 to-blue-600 dark:from-blue-500 dark:to-blue-700",
@@ -15,6 +16,7 @@ const avatarColors = [
 ];
 
 const UserLoginStats = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(
     document.documentElement.classList.contains("dark")
@@ -112,7 +114,7 @@ const UserLoginStats = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              User Login Statistics
+              {t("User Login Statistics")}
             </h1>
           </div>
           <div className="flex items-center gap-4">
@@ -149,7 +151,7 @@ const UserLoginStats = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Total Users
+                  {t("Total Users")}
                 </p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
                   {loginData.length}
@@ -165,7 +167,7 @@ const UserLoginStats = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Today's Logins
+                  {t("Today's Logins")}
                 </p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
                   {loginData.length}
@@ -182,10 +184,10 @@ const UserLoginStats = () => {
               <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                    Username
+                    {t("Username")}
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                    Login Date & Time
+                    {t("Login Date & Time")}
                   </th>
                 </tr>
               </thead>
@@ -211,7 +213,7 @@ const UserLoginStats = () => {
                             {user.username}
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
-                            ID: {user.id}
+                            {t("ID: ")}{user.id}
                           </div>
                         </div>
                       </div>
@@ -237,8 +239,8 @@ const UserLoginStats = () => {
           <div className="bg-gray-50 dark:bg-gray-900 px-6 py-3 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-700 dark:text-gray-300">
-                Showing <span className="font-medium">{loginData.length}</span>{" "}
-                login records
+                {t("Showing")} <span className="font-medium">{loginData.length}</span>{" "}
+                {t("login records")}
               </div>
             </div>
           </div>

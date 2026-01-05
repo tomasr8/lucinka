@@ -238,7 +238,7 @@ export default function Home() {
                   dataKey="month"
                   stroke="#6b7280"
                   label={{
-                    value: "Age (months)",
+                    value: t("Age (months)"),
                     position: "insideBottom",
                     offset: -2,
                   }}
@@ -269,7 +269,7 @@ export default function Home() {
                       stroke={darkMode ? "lightgray" : "gray"}
                       strokeWidth={1}
                       activeDot={false}
-                      name={names[index]}
+                      name={t(names[index])}
                       dot={false}
                       connectNulls
                       label={(props) => {
@@ -287,7 +287,7 @@ export default function Home() {
                             textAnchor="start"
                             dominantBaseline="middle"
                           >
-                            {names[index]}
+                            {t(names[index])}
                           </text>
                         );
                       }
@@ -303,7 +303,7 @@ export default function Home() {
                   dataKey="actualWeight"
                   stroke="#8b5cf6"
                   strokeWidth={2}
-                  name="Actual Weight"
+                  name={t("Actual Weight")}
                   dot={{ fill: "#8b5cf6", r: 3, strokeWidth: 1 }}
                   activeDot={{ r: 3, strokeWidth: 3 }}
                   connectNulls={false}

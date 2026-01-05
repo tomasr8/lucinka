@@ -338,10 +338,10 @@ export default function VisitsPage() {
                 <div className="flex items-center justify-between p-6 border-b border-gray-200">
                   <div>
                     <h2 className="text-2xl font-bold text-gray-800">
-                      Add New Visit
+                      {t("Add New Visit")}
                     </h2>
                     <p className="text-gray-500 text-sm mt-1">
-                      Schedule a new medical appointment
+                      {t("Schedule a new medical appointment")}
                     </p>
                   </div>
                   <button
@@ -358,7 +358,7 @@ export default function VisitsPage() {
                     <div>
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                         <Calendar className="w-4 h-4 text-teal-600" />
-                        Date
+                        {t("Date")}
                       </label>
                       <input
                         type="date"
@@ -374,7 +374,7 @@ export default function VisitsPage() {
                       />
                       {errors.date && (
                         <p className="text-red-500 text-xs mt-1">
-                          This field is required
+                          {t("This field is required")}
                         </p>
                       )}
                     </div>
@@ -382,7 +382,7 @@ export default function VisitsPage() {
                     <div>
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                         <Clock className="w-4 h-4 text-teal-600" />
-                        Time
+                        {t("Time")}
                       </label>
                       <input
                         type="time"
@@ -399,7 +399,7 @@ export default function VisitsPage() {
                       />
                       {errors.time && (
                         <p className="text-red-500 text-xs mt-1">
-                          This field is required
+                          {t("This field is required")}
                         </p>
                       )}
                     </div>
@@ -408,13 +408,13 @@ export default function VisitsPage() {
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                       <User className="w-4 h-4 text-teal-600" />
-                      Doctor Name
+                      {t("Doctor Name")}
                     </label>
                     <input
                       type="text"
                       name="doctor"
                       required
-                      placeholder="e.g., Dr. Sarah Johnson"
+                      placeholder={t("e.g., Dr. Sarah Johnson")}
                       value={newVisit.doctor}
                       onChange={handleInputChange}
                       className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
@@ -426,7 +426,7 @@ export default function VisitsPage() {
                     />
                     {errors.doctor && (
                       <p className="text-red-500 text-xs mt-1">
-                        This field is required
+                        {t("This field is required")}
                       </p>
                     )}
                   </div>
@@ -434,13 +434,13 @@ export default function VisitsPage() {
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                       <MapPin className="w-4 h-4 text-teal-600" />
-                      Location
+                      {t("Location")}
                     </label>
                     <input
                       type="text"
                       name="location"
                       required
-                      placeholder="e.g., General Medicine - Room 203"
+                      placeholder={t("e.g., General Medicine - Room 203")}
                       value={newVisit.location}
                       onChange={handleInputChange}
                       className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
@@ -452,7 +452,7 @@ export default function VisitsPage() {
                     />
                     {errors.location && (
                       <p className="text-red-500 text-xs mt-1">
-                        This field is required
+                        {t("This field is required")}
                       </p>
                     )}
                   </div>
@@ -460,13 +460,13 @@ export default function VisitsPage() {
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                       <FileText className="w-4 h-4 text-teal-600" />
-                      Visit Type
+                      {t("Visit Type")}
                     </label>
                     <input
                       type="text"
                       name="type"
                       required
-                      placeholder="e.g., Regular Checkup, Follow-up"
+                      placeholder={t("e.g., Regular Checkup, Follow-up")}
                       value={newVisit.type}
                       onChange={handleInputChange}
                       className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
@@ -478,7 +478,7 @@ export default function VisitsPage() {
                     />
                     {errors.type && (
                       <p className="text-red-500 text-xs mt-1">
-                        This field is required
+                        {t("This field is required")}
                       </p>
                     )}
                   </div>
@@ -486,12 +486,12 @@ export default function VisitsPage() {
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                       <FileText className="w-4 h-4 text-teal-600" />
-                      Notes
+                      {t("Notes")}
                     </label>
                     <textarea
                       name="notes"
                       rows="3"
-                      placeholder="Add any additional notes..."
+                      placeholder={t("Add any additional notes...")}
                       value={newVisit.notes}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white resize-none"
@@ -505,7 +505,7 @@ export default function VisitsPage() {
                     onClick={() => setIsAddModalOpen(false)}
                     className="flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
                   <button
                     onClick={handleAddVisit}
@@ -513,7 +513,7 @@ export default function VisitsPage() {
                     disabled={errors.date || errors.time || errors.doctor || errors.location || errors.type}
                   >
                     <Plus className="w-5 h-5" />
-                    {errors ? "Add Visit" : "Add Visit"}
+                    {t("Add Visit")}
                   </button>
                 </div>
               </div>
@@ -560,8 +560,8 @@ export default function VisitsPage() {
                         }`}
                       >
                         {selectedVisit.status === "completed"
-                          ? "Completed"
-                          : "Upcoming"}
+                          ? t("Completed")
+                          : t("Upcoming")}
                       </p>
                     </div>
                   </div>
@@ -578,7 +578,7 @@ export default function VisitsPage() {
                   <div className="flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-500">Date</p>
+                      <p className="text-sm text-gray-500">{t("Date")}</p>
                       <p className="font-semibold text-gray-800">
                         {new Date(selectedVisit.date).toLocaleDateString(
                           "en-US",
@@ -596,7 +596,7 @@ export default function VisitsPage() {
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-500">Time</p>
+                      <p className="text-sm text-gray-500">{t("Time")}</p>
                       <p className="font-semibold text-gray-800">
                         {selectedVisit.time}
                       </p>
@@ -606,7 +606,7 @@ export default function VisitsPage() {
                   <div className="flex items-center gap-3">
                     <User className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-500">Doctor</p>
+                      <p className="text-sm text-gray-500">{t("Doctor")}</p>
                       <p className="font-semibold text-gray-800">
                         {selectedVisit.doctor}
                       </p>
@@ -616,7 +616,7 @@ export default function VisitsPage() {
                   <div className="flex items-center gap-3">
                     <MapPin className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-500">Location</p>
+                      <p className="text-sm text-gray-500">{t("Location")}</p>
                       <p className="font-semibold text-gray-800">
                         {selectedVisit.location}
                       </p>
@@ -626,7 +626,7 @@ export default function VisitsPage() {
                   <div className="flex items-start gap-3">
                     <FileText className="w-5 h-5 text-gray-400 mt-1" />
                     <div>
-                      <p className="text-sm text-gray-500">Notes</p>
+                      <p className="text-sm text-gray-500">{t("Notes")}</p>
                       <p className="text-gray-800 mt-1">
                         {selectedVisit.notes}
                       </p>
@@ -642,14 +642,14 @@ export default function VisitsPage() {
                       className="flex-1 px-6 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-all flex items-center justify-center gap-2"
                     >
                       <Trash2 className="w-5 h-5" />
-                      Delete
+                      {t("Delete")}
                     </button>
                   )}
                   <button
                     onClick={() => setSelectedVisit(null)}
                     className="flex-1 px-6 py-3 bg-teal-500 text-white font-semibold rounded-xl hover:bg-teal-600 transition-all"
                   >
-                    Close
+                    {t("Close")}
                   </button>
                 </div>
               </div>

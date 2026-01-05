@@ -8,9 +8,11 @@ import {
   User,
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 // Login Page Component
 export default function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -37,14 +39,14 @@ export default function LoginPage() {
       } else {
         setMessage({
           type: "error",
-          text: data.error || "Login failed",
+          text: data.error || t("Login failed"),
         });
       }
     } catch (error) {
       console.log(error);
       setMessage({
         type: "error",
-        text: "Connection error. Is the backend running?",
+        text: t("Connection error. Is the backend running?"),
       });
     } finally {
       setLoading(false);
@@ -58,7 +60,7 @@ export default function LoginPage() {
           <User className="w-12 h-12 text-purple-500" />
         </div>
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Login
+          {t("Login")}
         </h2>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -69,7 +71,7 @@ export default function LoginPage() {
               autoComplete="username"
               value={username}
               onChange={e => setUsername(e.target.value)}
-              placeholder="Username"
+              placeholder={t("Username")}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
             />
           </div>
@@ -81,7 +83,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="Password"
+              placeholder={t("Password")}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
             />
           </div>
@@ -94,10 +96,10 @@ export default function LoginPage() {
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Logging in...
+                {t("Logging in...")}
               </>
             ) : (
-              "Login"
+              t("Login")
             )}
           </button>
         </form>

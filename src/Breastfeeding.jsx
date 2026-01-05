@@ -438,7 +438,7 @@ export default function BreastfeedingPage() {
             {isAdmin && (
               <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-6">
                 <h2 className="text-xl font-bold dark:text-white text-gray-800 mb-4">
-                  Active Session
+                  {t("Active Session")}
                 </h2>
 
                 {/* Breast Selection Buttons */}
@@ -449,14 +449,14 @@ export default function BreastfeedingPage() {
                       className="p-8 bg-gradient-to-br from-pink-400 to-pink-500 text-white rounded-xl hover:from-pink-500 hover:to-pink-600 transition-all shadow-md hover:shadow-lg"
                     >
                       <div className="text-4xl font-bold mb-2">L</div>
-                      <div className="text-sm">Left Breast</div>
+                      <div className="text-sm">{t("Left Breast")}</div>
                     </button>
                     <button
                       onClick={() => startTimer("right")}
                       className="p-8 bg-gradient-to-br from-purple-400 to-purple-500 text-white rounded-xl hover:from-purple-500 hover:to-purple-600 transition-all shadow-md hover:shadow-lg"
                     >
                       <div className="text-4xl font-bold mb-2">R</div>
-                      <div className="text-sm">Right Breast</div>
+                      <div className="text-sm">{t("Right Breast")}</div>
                     </button>
                   </div>
                 )}
@@ -473,7 +473,7 @@ export default function BreastfeedingPage() {
                         }`}
                       >
                         <div className="text-sm text-gray-600 mb-1">
-                          Left Breast
+                          {t("Left Breast")}
                         </div>
                         <div className="text-3xl font-bold text-gray-800">
                           {formatTime(leftTime)}
@@ -487,7 +487,7 @@ export default function BreastfeedingPage() {
                         }`}
                       >
                         <div className="text-sm text-gray-600 mb-1">
-                          Right Breast
+                          {t("Right Breast")}
                         </div>
                         <div className="text-3xl font-bold text-gray-800">
                           {formatTime(rightTime)}
@@ -505,26 +505,26 @@ export default function BreastfeedingPage() {
                         ) : (
                           <Pause className="w-5 h-5" />
                         )}
-                        {isPaused ? "Resume" : "Pause"}
+                        {isPaused ? t("Resume") : t("Pause")}
                       </button>
                       <button
                         onClick={switchBreast}
                         className="flex-1 px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-all"
                       >
-                        Switch Breast
+                        {t("Switch Breast")}
                       </button>
                       <button
                         onClick={() => cancelTimer()}
                         className="flex-1 px-6 py-3 bg-gray-500 text-white font-semibold rounded-xl hover:bg-gray-600 transition-all"
                       >
-                        Cancel
+                        {t("Cancel")}
                       </button>
                       <button
                         onClick={stopAndSaveTimer}
                         className="flex-1 px-6 py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition-all flex items-center justify-center gap-2"
                       >
                         <Square className="w-5 h-5" />
-                        Stop & Save
+                        {t("Stop & Save")}
                       </button>
                     </div>
                   </div>
@@ -556,10 +556,10 @@ export default function BreastfeedingPage() {
                 <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-8 text-center">
                   <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="dark:text-gray-500 text-gray-500 text-lg">
-                    No sessions logged yet
+                    {t("No sessions logged yet")}
                   </p>
                   <p className="dark:text-gray-400 text-gray-400 text-sm mt-2">
-                    Start a timer or add manual entry
+                    {t("Start a timer or add manual entry")}
                   </p>
                 </div>
               ) : (
@@ -707,10 +707,10 @@ export default function BreastfeedingPage() {
               >
                 <div className="p-6 border-b border-gray-200">
                   <h2 className="text-2xl font-bold text-gray-800">
-                    Manual Entry
+                    {t("Manual Entry")}
                   </h2>
                   <p className="text-gray-500 text-sm mt-1">
-                    Enter session manually
+                    {t("Enter session manually")}
                   </p>
                 </div>
 
@@ -718,7 +718,7 @@ export default function BreastfeedingPage() {
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                       <Calendar className="w-4 h-4 text-pink-600" />
-                      Date <span className="text-red-500">*</span>
+                      {t("Date")} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
@@ -734,14 +734,14 @@ export default function BreastfeedingPage() {
                     />
                     {errors.date && (
                       <p className="text-red-500 text-xs mt-1">
-                        This field is required
+                        {t("This field is required")}
                       </p>
                     )}
                   </div>
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                       <Clock className="w-4 h-4 text-pink-600" />
-                      Start Time <span className="text-red-500">*</span>
+                      {t("Start Time")} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="time"
@@ -757,7 +757,7 @@ export default function BreastfeedingPage() {
                     />
                     {errors.time && (
                       <p className="text-red-500 text-xs mt-1">
-                        This field is required
+                        {t("This field is required")}
                       </p>
                     )}
                   </div>
@@ -773,7 +773,7 @@ export default function BreastfeedingPage() {
                         }
                         className="w-4 h-4"
                       />
-                      Breastfeeding
+                      {t("Breastfeeding")}
                     </label>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                       <input
@@ -786,7 +786,7 @@ export default function BreastfeedingPage() {
                         }
                         className="w-4 h-4"
                       />
-                      Bottle Feeding
+                      {t("Bottle Feeding")}
                     </label>
                   </div>
 
@@ -794,33 +794,33 @@ export default function BreastfeedingPage() {
                     <>
                       <div>
                         <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                          Left Breast
+                          {t("Left Breast")}
                         </label>
                         <input
                           type="number"
                           name="left_duration"
                           value={newSession.left_duration}
                           onChange={handleInputChange}
-                          placeholder="minutes"
+                          placeholder={t("min")}
                           className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
                         />
                       </div>
                       <div>
                         <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                          Right Breast
+                          {t("Right Breast")}
                         </label>
                         <input
                           type="number"
                           name="right_duration"
                           value={newSession.right_duration}
                           onChange={handleInputChange}
-                          placeholder="minutes"
+                          placeholder={t("min")}
                           className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
                         />
                       </div>
                       <div>
                         <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                          Pumped Session
+                          {t("Pumped Session")}
                         </label>
                         <input
                           type="checkbox"
@@ -839,14 +839,14 @@ export default function BreastfeedingPage() {
                   ) : (
                     <div>
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        amount in ml
+                        {t("amount in ml")}
                       </label>
                       <input
                         type="number"
                         name="ml_amount"
                         value={newSession.ml_amount}
                         onChange={handleInputChange}
-                        placeholder="amount in ml"
+                        placeholder={t("amount in ml")}
                         className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
                       />
                     </div>
@@ -859,7 +859,7 @@ export default function BreastfeedingPage() {
                     onClick={() => setIsManualModalOpen(false)}
                     className="flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
                   <button
                     type="button"
@@ -869,9 +869,7 @@ export default function BreastfeedingPage() {
                   >
                     <>
                       <Plus className="w-5 h-5" />
-                      {errors.left_duration && errors.right_duration && errors.ml_amount
-                        ? "Add Session"
-                        : "Add Session"}
+                      {t("Add Session")}
                     </>
                   </button>
                 </div>

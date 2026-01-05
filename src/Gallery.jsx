@@ -96,7 +96,7 @@ export default function PhotoGallery() {
         fileInputRef.current.value = "";
       }
     } catch (err) {
-      alert("Failed to upload photo or video: " + err.message);
+      alert(t("Failed to upload photo or video: ") + err.message);
     } finally {
       setUploading(false);
     }
@@ -104,7 +104,7 @@ export default function PhotoGallery() {
 
   // Delete photo
   const handleDelete = async photoId => {
-    if (!confirm("Are you sure you want to delete this photo or video?"))
+    if (!confirm(t("Are you sure you want to delete this photo or video?")))
       return;
 
     try {
@@ -115,7 +115,7 @@ export default function PhotoGallery() {
       if (!response.ok) throw new Error("Delete failed");
       await refetch();
     } catch (err) {
-      alert("Failed to delete photo: " + err.message);
+      alert(t("Failed to delete photo: ") + err.message);
     }
   };
 
@@ -163,7 +163,7 @@ export default function PhotoGallery() {
             </div>
           ) : photos.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-gray-600 text-lg mb-4">{t("No photos yet")}</p>
+              <p className="text-gray-600 text-lg mb-4 dark:text-gray-400">{t("No photos yet")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -190,7 +190,7 @@ export default function PhotoGallery() {
                       />
                     ) : (
                       <div className="flex items-center justify-center w-full h-64 bg-gray-300 dark:bg-gray-700 text-gray-500">
-                        Unsupported file type
+                        {t("Unsupported file type")}
                       </div>
                     )}
                     {isAdmin && (
@@ -268,7 +268,7 @@ export default function PhotoGallery() {
             <div className="bg-white rounded-lg max-w-md w-full p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Upload Photo
+                  {t("Upload Photo")}
                 </h2>
                 <button
                   onClick={() => {
@@ -285,7 +285,7 @@ export default function PhotoGallery() {
                 {/* File Input */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Photo
+                    {t("Photo")}
                   </label>
                   <input
                     ref={fileInputRef}
@@ -322,7 +322,7 @@ export default function PhotoGallery() {
                 {/* Date Input */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date
+                    {t("Date")}
                   </label>
                   <input
                     type="date"
@@ -338,7 +338,7 @@ export default function PhotoGallery() {
                 {/* Notes Input */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Notes
+                    {t("Notes")}
                   </label>
                   <textarea
                     value={uploadForm.notes}
@@ -350,7 +350,7 @@ export default function PhotoGallery() {
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows="3"
-                    placeholder="Add a note about this photo..."
+                    placeholder={t("Add a note about this photo...")}
                   />
                 </div>
 
@@ -364,14 +364,14 @@ export default function PhotoGallery() {
                     }}
                     className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
                   <button
                     type="submit"
                     disabled={uploading || !uploadForm.file}
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
-                    {uploading ? "Uploading..." : "Upload"}
+                    {uploading ? t("Uploading...") : t("Upload")}
                   </button>
                 </div>
               </form>

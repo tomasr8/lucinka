@@ -8,8 +8,10 @@ import {
   X,
   CheckCircle,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function FormModal({ onSubmit }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState({
@@ -81,8 +83,8 @@ export default function FormModal({ onSubmit }) {
           <div className="bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3">
             <CheckCircle className="w-6 h-6" />
             <div>
-              <p className="font-semibold">Success!</p>
-              <p className="text-sm">Health entry added successfully</p>
+              <p className="font-semibold">{t("Success!")}</p>
+              <p className="text-sm">{t("Health entry added successfully")}</p>
             </div>
           </div>
         </div>
@@ -103,10 +105,10 @@ export default function FormModal({ onSubmit }) {
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div>
                 <h2 className="text-2xl font-bold text-gray-800">
-                  Health Entry
+                  {t("Health Entry")}
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">
-                  Track your daily health metrics
+                  {t("Track your daily health metrics")}
                 </p>
               </div>
               <button
@@ -126,7 +128,7 @@ export default function FormModal({ onSubmit }) {
                     className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
                   >
                     <Calendar className="w-4 h-4 text-teal-600" />
-                    Date
+                    {t("Date")}
                   </label>
                   <input
                     type="date"
@@ -139,7 +141,7 @@ export default function FormModal({ onSubmit }) {
                   />
                   {errors.date && (
                     <p className="text-red-500 text-xs mt-1">
-                      This field is required
+                      {t("This field is required")}
                     </p>
                   )}
                 </div>
@@ -150,14 +152,14 @@ export default function FormModal({ onSubmit }) {
                     className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
                   >
                     <Weight className="w-4 h-4 text-teal-600" />
-                    Weight (kg)
+                    {t("Weight (kg)")}
                   </label>
                   <input
                     type="number"
                     step="0.1"
                     id="weight"
                     name="weight"
-                    placeholder="Enter your weight"
+                    placeholder={t("Enter your weight")}
                     value={formData.weight}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white"
@@ -170,14 +172,14 @@ export default function FormModal({ onSubmit }) {
                     className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
                   >
                     <Ruler className="w-4 h-4 text-teal-600" />
-                    Height (cm)
+                    {t("Height (cm)")}
                   </label>
                   <input
                     type="number"
                     step="0.1"
                     id="height"
                     name="height"
-                    placeholder="Enter your height"
+                    placeholder={t("Enter your height")}
                     value={formData.height}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white"
@@ -190,13 +192,13 @@ export default function FormModal({ onSubmit }) {
                     className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
                   >
                     <FileText className="w-4 h-4 text-teal-600" />
-                    Notes
+                    {t("Notes")}
                   </label>
                   <textarea
                     id="notes"
                     name="notes"
                     rows="4"
-                    placeholder="Add any additional notes..."
+                    placeholder={t("Add any additional notes...")}
                     value={formData.notes}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white resize-none"
@@ -211,7 +213,7 @@ export default function FormModal({ onSubmit }) {
                 onClick={closeModal}
                 className="flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all"
               >
-                Cancel
+                {t("Cancel")}
               </button>
               <button
                 onClick={handleSubmit}
@@ -219,7 +221,7 @@ export default function FormModal({ onSubmit }) {
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <Plus className="w-5 h-5" />
-                {errors ? "Add Entry" : "Add Entry"}
+                {t("Add Entry")}
               </button>
             </div>
           </div>
