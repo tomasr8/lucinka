@@ -80,71 +80,111 @@ export default function BreastfeedingPolarChart({ sessions }) {
     );
   }
 
+  // Get current month and other months
+  const currentMonth = monthlyData.length > 0 ? monthlyData[0] : null;
+  const otherMonths = monthlyData.slice(1);
+
+  const renderMonthChart = (month, isCurrentMonth = false) => (
+    <div
+      key={month.monthKey}
+      className={`bg-gray-50 dark:bg-gray-700 rounded-xl p-3 md:p-4 ${
+        isCurrentMonth ? 'border-2 border-pink-500' : ''
+      }`}
+    >
+      <h3 className={`text-base md:text-lg font-semibold ${
+        isCurrentMonth
+          ? 'text-pink-600 dark:text-pink-400'
+          : 'text-gray-700 dark:text-gray-200'
+      } mb-2 text-center`}>
+        {month.monthLabel} {isCurrentMonth && '(Current)'}
+      </h3>
+      <ResponsiveContainer width="100%" height={250} className="md:h-[300px]">
+        <RadarChart data={month.hourlyData}>
+          <PolarGrid stroke="#e5e7eb" />
+          <PolarAngleAxis
+            dataKey="hourLabel"
+            tick={{ fill: "#ec4899", fontSize: 9 }}
+            className="md:text-[10px]"
+          />
+          <Radar
+            dataKey="sessions"
+            stroke="#ec4899"
+            fill="#ec4899"
+            fillOpacity={0.6}
+            name="Sessions"
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "white",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              padding: "8px",
+              fontSize: "11px",
+            }}
+            formatter={(value, name) => {
+              if (name === "Sessions") return [value, "Sessions"];
+              return [value, name];
+            }}
+            labelFormatter={label => `Hour: ${label}`}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+      {/* Statistics */}
+      <div className="text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 mt-1">
+        Avg Duration: {Math.round(month.hourlyData.reduce((sum, h) => sum + h.totalDuration, 0) / Math.max(1, month.hourlyData.reduce((sum, h) => sum + h.sessions, 0)))} mins
+      </div>
+      <div className="text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 mt-1">
+        Peak Hour: {month.hourlyData.reduce((maxHour, h) => h.sessions > month.hourlyData[maxHour].sessions ? h.hour : maxHour, 0)}h
+      </div>
+      <div className="text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 mt-1">
+        Low Hour: {month.hourlyData.reduce((minHour, h) => h.sessions < month.hourlyData[minHour].sessions ? h.hour : minHour, 0)}h
+      </div>
+      <div className="text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 mt-2">
+        Total: {month.hourlyData.reduce((sum, h) => sum + h.sessions, 0)} sessions
+      </div>
+    </div>
+  );
+
   return (
-    <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6">
+    <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white mb-4 md:mb-6">
           Breastfeeding Sessions by Hour - Monthly View
         </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {monthlyData.map((month) => (
-            <div key={month.monthKey} className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
-              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2 text-center">
-                {month.monthLabel}
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <RadarChart data={month.hourlyData}>
-                  <PolarGrid stroke="#e5e7eb" />
-                  <PolarAngleAxis
-                    dataKey="hourLabel"
-                    tick={{ fill: "#ec4899", fontSize: 10 }}
-                  />
-                  <Radar
-                    dataKey="sessions"
-                    stroke="#ec4899"
-                    fill="#ec4899"
-                    fillOpacity={0.6}
-                    name="Sessions"
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "white",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      padding: "8px",
-                      fontSize: "12px",
-                    }}
-                    formatter={(value, name) => {
-                      if (name === "Sessions") return [value, "Sessions"];
-                      return [value, name];
-                    }}
-                    labelFormatter={label => `Hour: ${label}`}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
-              {/* Some statistics: average duration, hour with min number of sessions, and max */}
-              <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-1">
-                Avg Duration: {Math.round(month.hourlyData.reduce((sum, h) => sum + h.totalDuration, 0) / Math.max(1, month.hourlyData.reduce((sum, h) => sum + h.sessions, 0)))} mins
-              </div>
-              <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-1">
-                Peak Hour: {month.hourlyData.reduce((maxHour, h) => h.sessions > month.hourlyData[maxHour].sessions ? h.hour : maxHour, 0)}h
-              </div>
-              <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-1">
-                Low Hour: {month.hourlyData.reduce((minHour, h) => h.sessions < month.hourlyData[minHour].sessions ? h.hour : minHour, 0)}h
-              </div>
-              <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-2">
-                Total: {month.hourlyData.reduce((sum, h) => sum + h.sessions, 0)} sessions
-              </div>
 
-            </div>
-          ))}
-        </div>
-        
-        {monthlyData.length === 0 && (
+        {monthlyData.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             No data available
           </div>
+        ) : (
+          <>
+            {/* Current Month - Centered at Top */}
+            {currentMonth && (
+              <div className="mb-6 md:mb-8">
+                <div className="w-full md:max-w-md md:mx-auto">
+                  {renderMonthChart(currentMonth, true)}
+                </div>
+              </div>
+            )}
+
+            {/* Other Months - Horizontal Scrollable */}
+            {otherMonths.length > 0 && (
+              <div>
+                <h3 className="text-base md:text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 md:mb-4">
+                  Previous Months
+                </h3>
+                <div className="overflow-x-auto snap-x snap-mandatory -mx-4 md:mx-0">
+                  <div className="flex gap-4 md:gap-6 pb-4 px-4 md:px-0">
+                    {otherMonths.map((month) => (
+                      <div key={month.monthKey} className="w-full md:w-[350px] flex-shrink-0 snap-center">
+                        {renderMonthChart(month, false)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
