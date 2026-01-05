@@ -92,6 +92,13 @@ export default function BreastfeedingPage() {
     setActiveBreast(activeBreast === "left" ? "right" : "left");
   };
 
+  // Helper function to adjust timezone for displaying old data
+  const addHours = (date, hours) => {
+    const hoursToAdd = hours * 60 * 60 * 1000;
+    date.setTime(date.getTime() + hoursToAdd);
+    return date;
+  };
+
   const stopAndSaveTimer = () => {
     setIsPaused(true);
     if (!isTimerActive || (leftTime === 0 && rightTime === 0)) return;
@@ -400,7 +407,7 @@ export default function BreastfeedingPage() {
                     className={`justify-end md:text-3xl text-xl font-bold text-gray-900 dark:text-gray-100`}
                   >
                     {t("Last session")}:{" "}
-                    {new Date(sessions[0].end_dt).toLocaleTimeString([], {
+                    {addHours(new Date(sessions[0].end_dt), 1).toLocaleTimeString([], {
                       hour: '2-digit',
                       minute: '2-digit',
                       hour12: false
@@ -408,7 +415,7 @@ export default function BreastfeedingPage() {
                     <br />
                     {t("About")}{" "}
                     {formatRelativeTime(
-                      new Date(sessions[0].end_dt)
+                      addHours(new Date(sessions[0].end_dt), 1)
                     )}
                     <br />
                     {t("Side")}:{" "}
@@ -637,11 +644,11 @@ export default function BreastfeedingPage() {
                               </div>
                               <div>
                                 <p className="font-semibold dark:text-white text-gray-800">
-                                  {`${new Date(session.start_dt).toLocaleTimeString([], {
+                                  {`${addHours(new Date(session.start_dt), 1).toLocaleTimeString([], {
                                     hour: '2-digit',
                                     minute: '2-digit',
                                     hour12: false
-                                  })} - ${new Date(session.end_dt).toLocaleTimeString([], {
+                                  })} - ${addHours(new Date(session.end_dt), 1).toLocaleTimeString([], {
                                     hour: '2-digit',
                                     minute: '2-digit',
                                     hour12: false
