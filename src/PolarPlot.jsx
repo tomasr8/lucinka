@@ -22,8 +22,9 @@ export default function BreastfeedingPolarChart({ sessions }) {
   useEffect(() => {
     // Group sessions by month and hour
     const monthlyGroups = {};
-    
+
     sessions.forEach(session => {
+      // Create date object which automatically converts to local timezone
       const date = new Date(session.start_dt);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       const hour = date.getHours();

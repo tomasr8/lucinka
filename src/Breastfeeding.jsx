@@ -91,11 +91,7 @@ export default function BreastfeedingPage() {
   const switchBreast = () => {
     setActiveBreast(activeBreast === "left" ? "right" : "left");
   };
-  function addHours(date, hours) {
-    const hoursToAdd = hours * 60 * 60 * 1000;
-    date.setTime(date.getTime() + hoursToAdd);
-    return date;
-  }
+
   const stopAndSaveTimer = () => {
     setIsPaused(true);
     if (!isTimerActive || (leftTime === 0 && rightTime === 0)) return;
@@ -404,21 +400,15 @@ export default function BreastfeedingPage() {
                     className={`justify-end md:text-3xl text-xl font-bold text-gray-900 dark:text-gray-100`}
                   >
                     {t("Last session")}:{" "}
-                    {`${
-                      new Date(addHours(new Date(sessions[0].end_dt), 1))
-                        .toLocaleString()
-                        .split(" ")[1]
-                        .split(":")[0]
-                    }:${
-                      new Date(addHours(new Date(sessions[0].end_dt), 1))
-                        .toLocaleString()
-                        .split(" ")[1]
-                        .split(":")[1]
-                    }`}{" "}
+                    {new Date(sessions[0].end_dt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    })}{" "}
                     <br />
                     {t("About")}{" "}
                     {formatRelativeTime(
-                      new Date(addHours(new Date(sessions[0].end_dt), 1))
+                      new Date(sessions[0].end_dt)
                     )}
                     <br />
                     {t("Side")}:{" "}
@@ -647,27 +637,15 @@ export default function BreastfeedingPage() {
                               </div>
                               <div>
                                 <p className="font-semibold dark:text-white text-gray-800">
-                                  {`${
-                                    addHours(new Date(session.start_dt), 1)
-                                      .toLocaleString()
-                                      .split(" ")[1]
-                                      .split(":")[0]
-                                  }:${
-                                    addHours(new Date(session.start_dt), 1)
-                                      .toLocaleString()
-                                      .split(" ")[1]
-                                      .split(":")[1]
-                                  } - ${
-                                    addHours(new Date(session.end_dt), 1)
-                                      .toLocaleString()
-                                      .split(" ")[1]
-                                      .split(":")[0]
-                                  }:${
-                                    addHours(new Date(session.end_dt), 1)
-                                      .toLocaleString()
-                                      .split(" ")[1]
-                                      .split(":")[1]
-                                  }`}
+                                  {`${new Date(session.start_dt).toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                  })} - ${new Date(session.end_dt).toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                  })}`}
                                 </p>
                               </div>
                               <div>
