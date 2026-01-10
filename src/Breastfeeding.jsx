@@ -17,6 +17,7 @@ import { useData } from "./util";
 
 import BreastfeedingPolarChart from "./PolarPlot.jsx";
 import BarFeeding from "./BarFeeding.jsx";
+import ParallelTimelinePlot from "./ParallelTimelinePlot.jsx";
 
 export default function BreastfeedingPage() {
   const { t, i18n } = useTranslation();
@@ -352,6 +353,13 @@ export default function BreastfeedingPage() {
     setShowSuccess(true);
   };
   const dailyData = aggregateByDay();
+
+  // Filter out pumped sessions for all displays and plots
+  const nonPumpedSessions = sessions.filter(session => !session.is_pumped);
+
+  // Get last non-pumped session for the card display
+  const lastNonPumpedSession = nonPumpedSessions[0];
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
@@ -402,30 +410,32 @@ export default function BreastfeedingPage() {
                   </p>
                 </div>
                 <div></div>
-                <div className="flex justify-center dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-2">
-                  <p
-                    className={`justify-end md:text-3xl text-xl font-bold text-gray-900 dark:text-gray-100`}
-                  >
-                    {t("Last session")}:{" "}
-                    {addHours(new Date(sessions[0].end_dt), 1).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
-                    })}{" "}
-                    <br />
-                    {t("About")}{" "}
-                    {formatRelativeTime(
-                      addHours(new Date(sessions[0].end_dt), 1)
-                    )}
-                    <br />
-                    {t("Side")}:{" "}
-                    {dailyData[0].sessions[0].left_duration === 0
-                      ? t("right")
-                      : dailyData[0].sessions[0].right_duration === 0
-                      ? t("left")
-                      : t("both")}
-                  </p>
-                </div>
+                {lastNonPumpedSession && (
+                  <div className="flex justify-center dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 mb-2">
+                    <p
+                      className={`justify-end md:text-3xl text-xl font-bold text-gray-900 dark:text-gray-100`}
+                    >
+                      {t("Last session")}:{" "}
+                      {addHours(new Date(lastNonPumpedSession.end_dt), 1).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                      })}{" "}
+                      <br />
+                      {t("About")}{" "}
+                      {formatRelativeTime(
+                        addHours(new Date(lastNonPumpedSession.end_dt), 1)
+                      )}
+                      <br />
+                      {t("Side")}:{" "}
+                      {lastNonPumpedSession.left_duration === 0
+                        ? t("right")
+                        : lastNonPumpedSession.right_duration === 0
+                        ? t("left")
+                        : t("both")}
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-12">
@@ -547,7 +557,9 @@ export default function BreastfeedingPage() {
               </h2>
               <BarFeeding dailyData={dailyData} />
 
-              <BreastfeedingPolarChart sessions={sessions} />
+              <BreastfeedingPolarChart sessions={nonPumpedSessions} />
+
+              <ParallelTimelinePlot sessions={nonPumpedSessions} />
             </div>
 
             {/* Daily Sessions */}
@@ -563,7 +575,7 @@ export default function BreastfeedingPage() {
                   </p>
                 </div>
               ) : (
-                dailyData.map(day => (
+                (isAdmin ? dailyData : dailyData.filter((day, index) => index === 0)).map(day => (
                   <div
                     key={day.date}
                     className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-6 h-116 overflow-y-scroll"

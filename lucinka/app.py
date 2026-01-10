@@ -9,12 +9,14 @@ from flask_limiter.util import get_remote_address
 from webargs.flaskparser import use_kwargs
 
 from lucinka.config import Config
-from lucinka.models import Breastfeeding, DataEntry, LoginRecord, Photo, User, Visit, db
+from lucinka.models import Activity, Breastfeeding, DataEntry, LoginRecord, Photo, User, Visit, db
 from lucinka.schemas import (
+    AddActivitySchema,
     AddBreastfeedingSchema,
     AddDataEntrySchema,
     AddPhotoSchema,
     AddVisitSchema,
+    GetActivitySchema,
     GetBreastfeedingSchema,
     GetDataEntrySchema,
     GetLoginRecordSchema,
@@ -22,6 +24,7 @@ from lucinka.schemas import (
     GetUserSchema,
     GetVisitSchema,
     LoginSchema,
+    UpdateActivitySchema,
 )
 
 
@@ -239,6 +242,58 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         if not breastfeeding:
             return jsonify({"error": "Breastfeeding record not found"}), 404
         db.session.delete(breastfeeding)
+        db.session.commit()
+        return jsonify({}), 204
+
+    @app.get("/api/activities")
+    @login_required
+    def get_activities():
+        activities = Activity.query.order_by(Activity.start_dt.desc()).all()
+        return jsonify(GetActivitySchema(many=True).dump(activities))
+
+    @app.post("/api/activities")
+    @admin_required
+    @use_kwargs(AddActivitySchema)
+    def add_activity(
+        activity_type: str,
+        start_dt: datetime.datetime,
+        end_dt: datetime.datetime = None,
+        notes: str = None,
+    ):
+        user_id = session["user_id"]
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        activity = Activity(
+            user_id=user_id,
+            activity_type=activity_type,
+            start_dt=start_dt,
+            end_dt=end_dt,
+            notes=notes,
+        )
+        db.session.add(activity)
+        db.session.commit()
+        return jsonify({}), 201
+
+    @app.patch("/api/activities/<int:activity_id>")
+    @admin_required
+    @use_kwargs(UpdateActivitySchema)
+    def update_activity(activity_id: int, end_dt: datetime.datetime):
+        activity = Activity.query.get(activity_id)
+        if not activity:
+            return jsonify({"error": "Activity not found"}), 404
+        activity.end_dt = end_dt
+        db.session.commit()
+        return jsonify({}), 200
+
+    @app.delete("/api/activities/<int:activity_id>")
+    @admin_required
+    def delete_activity(activity_id: int):
+        activity = Activity.query.get(activity_id)
+        if not activity:
+            return jsonify({"error": "Activity not found"}), 404
+        db.session.delete(activity)
         db.session.commit()
         return jsonify({}), 204
 

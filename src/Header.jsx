@@ -8,6 +8,7 @@ import {
   Milk,
   BookImage,
   LogOut,
+  Activity,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { setLocale } from "./i18n";
@@ -122,6 +123,18 @@ export default function Header({ isAdmin = false }) {
           >
             <Milk />
             {t("Breastfeeding")}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/activities")}
+            className={`${
+              location.pathname === "/activities"
+                ? activeStyle
+                : defaultStyle
+            } ${commonStyle}`}
+          >
+            <Activity />
+            {t("Activities")}
           </button>
           <button
             type="button"

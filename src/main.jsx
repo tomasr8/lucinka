@@ -8,6 +8,7 @@ import Stats from "./Stats.jsx";
 import Gallery from "./Gallery.jsx";
 import VisitsPage from "./Visits.jsx";
 import BreastfeedingPage from "./Breastfeeding.jsx";
+import ActivitiesPage from "./Activities.jsx";
 // import More from "./More.jsx";
 import "./i18n";
 import { ThemeProvider } from "./theme.jsx";
@@ -23,6 +24,7 @@ function App() {
           <Route path="/gallery/:photoId?" element={<Gallery />} />
           <Route path="/visits" element={<VisitsPage />} />
           <Route path="/breastfeeding" element={<BreastfeedingPage />} />
+          <Route path="/activities" element={<ActivitiesPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

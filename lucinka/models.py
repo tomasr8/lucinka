@@ -120,3 +120,20 @@ class Photo(db.Model):
 
     def __repr__(self) -> str:
         return f"<Photo({self.id}) date={self.date} notes={self.notes} created_dt={self.created_dt} user_id={self.user_id}>"
+
+
+class Activity(db.Model):
+    __tablename__ = "activities"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"), nullable=False)
+    activity_type: Mapped[str] = mapped_column(db.Text, nullable=False)  # 'sleeping', 'tummy_time', 'walking', 'eating'
+    start_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
+    end_dt: Mapped[datetime | None] = mapped_column(db.DateTime, nullable=True)
+    created_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=db.func.now())
+    notes: Mapped[str | None] = mapped_column(db.Text, nullable=True)
+
+    user: Mapped[User] = db.relationship()
+
+    def __repr__(self) -> str:
+        return f"<Activity({self.id}) user_id={self.user_id} type={self.activity_type} start={self.start_dt} end={self.end_dt}>"

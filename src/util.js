@@ -7,6 +7,7 @@ const dataMap = {
   visits: "/api/visits",
   breastfeeding: "/api/breastfeeding",
   photos: "/api/photos",
+  activities: "/api/activities",
 };
 
 export function useData(...args) {

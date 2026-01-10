@@ -72,7 +72,8 @@ export default function Home() {
   const chartWeightData = sortedEntries
     .filter(entry => !!entry.weight)
     .map(entry => ({
-      date: new Date(entry.date).toLocaleDateString(language, {
+      date: new Date(entry.date).getTime(), // Use timestamp for proper spacing
+      dateLabel: new Date(entry.date).toLocaleDateString(language, {
         month: "short",
         day: "numeric",
       }),
@@ -83,7 +84,8 @@ export default function Home() {
   const chartHeightData = sortedEntries
     .filter(entry => !!entry.height)
     .map(entry => ({
-      date: new Date(entry.date).toLocaleDateString(language, {
+      date: new Date(entry.date).getTime(), // Use timestamp for proper spacing
+      dateLabel: new Date(entry.date).toLocaleDateString(language, {
         month: "short",
         day: "numeric",
       }),
@@ -327,7 +329,20 @@ export default function Home() {
                 strokeDasharray="3 3"
                 stroke={darkMode ? "#374151" : "#e5e7eb"}
               />
-              <XAxis dataKey="date" stroke={darkMode ? "#9ca3af" : "#6b7280"} />
+              <XAxis
+                dataKey="date"
+                type="number"
+                domain={['dataMin', 'dataMax']}
+                stroke={darkMode ? "#9ca3af" : "#6b7280"}
+                tickFormatter={(timestamp) => {
+                  const date = new Date(timestamp);
+                  return date.toLocaleDateString(language, {
+                    month: "short",
+                    day: "numeric",
+                  });
+                }}
+                scale="time"
+              />
               <YAxis
                 stroke={darkMode ? "#9ca3af" : "#6b7280"}
                 domain={[yAxisMin, yAxisMax]}
@@ -346,7 +361,15 @@ export default function Home() {
                   borderRadius: "0.5rem",
                   color: darkMode ? "#f3f4f6" : "#111827",
                 }}
-                formatter={value => value.toFixed(2)}
+                labelFormatter={(timestamp) => {
+                  const date = new Date(timestamp);
+                  return date.toLocaleDateString(language, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  });
+                }}
+                formatter={(value) => [value.toFixed(2) + " kg", t("Weight (kg)")]}
               />
               {/* <Legend  /> */}
               <Line
@@ -378,7 +401,17 @@ export default function Home() {
                 />
                 <XAxis
                   dataKey="date"
+                  type="number"
+                  domain={['dataMin', 'dataMax']}
                   stroke={darkMode ? "#9ca3af" : "#6b7280"}
+                  tickFormatter={(timestamp) => {
+                    const date = new Date(timestamp);
+                    return date.toLocaleDateString(language, {
+                      month: "short",
+                      day: "numeric",
+                    });
+                  }}
+                  scale="time"
                 />
                 <YAxis
                   stroke={darkMode ? "#9ca3af" : "#6b7280"}
@@ -398,7 +431,15 @@ export default function Home() {
                     borderRadius: "0.5rem",
                     color: darkMode ? "#f3f4f6" : "#111827",
                   }}
-                  formatter={value => value.toFixed(1)}
+                  labelFormatter={(timestamp) => {
+                    const date = new Date(timestamp);
+                    return date.toLocaleDateString(language, {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    });
+                  }}
+                  formatter={(value) => [value.toFixed(1) + " cm", t("Height (cm)")]}
                 />
                 {/* <Legend  /> */}
                 <Line

@@ -82,6 +82,25 @@ class AddPhotoSchema(Schema):
     notes = fields.Str(load_default="")
 
 
+class GetActivitySchema(Schema):
+    id = fields.Int(dump_only=True)
+    activity_type = fields.Str(dump_only=True)
+    start_dt = fields.DateTime(dump_only=True)
+    end_dt = fields.DateTime(dump_only=True, allow_none=True)
+    notes = fields.Str(dump_only=True, allow_none=True)
+
+
+class AddActivitySchema(Schema):
+    activity_type = fields.Str(required=True)
+    start_dt = fields.DateTime(required=True)
+    end_dt = fields.DateTime(load_default=None)
+    notes = fields.Str(load_default=None)
+
+
+class UpdateActivitySchema(Schema):
+    end_dt = fields.DateTime(required=True)
+
+
 class GetPhotoSchema(Schema):
     id = fields.Int(dump_only=True)
     filename = fields.Method("get_filename", dump_only=True)
