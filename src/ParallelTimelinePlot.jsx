@@ -55,6 +55,13 @@ export default function ParallelTimelinePlot({ sessions }) {
       });
     });
 
+    // Sort sessions within each day by time
+    Object.values(sessionsByMonthDay).forEach(month => {
+      Object.keys(month).forEach(dayKey => {
+        month[dayKey].sort((a, b) => a.time - b.time);
+      });
+    });
+
     // Process each month
     const processedData = Object.entries(sessionsByMonthDay).map(([monthKey, days]) => {
       // Get all days sorted chronologically
