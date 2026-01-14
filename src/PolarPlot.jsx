@@ -25,16 +25,9 @@ export default function BreastfeedingPolarChart({ sessions }) {
     // Group sessions by month and hour
     const monthlyGroups = {};
 
-    // Helper function to adjust timezone for displaying old data
-    const addHours = (date, hours) => {
-      const hoursToAdd = hours * 60 * 60 * 1000;
-      date.setTime(date.getTime() + hoursToAdd);
-      return date;
-    };
-
     sessions.forEach(session => {
-      // Create date object and adjust for timezone offset in old data
-      const date = addHours(new Date(session.start_dt), 1);
+      // Create date object
+      const date = new Date(session.start_dt);
       const monthKey = `${date.getFullYear()}-${String(
         date.getMonth() + 1
       ).padStart(2, "0")}`;

@@ -18,16 +18,50 @@ const ACTIVITY_TYPES = {
   sleeping: { label: "Sleeping", color: "#3b82f6", icon: "😴" },
   tummy_time: { label: "Tummy Time", color: "#10b981", icon: "🤸" },
   walking: { label: "Walking", color: "#f59e0b", icon: "🚶" },
+  running: { label: "Running", color: "#8b5cf6", icon: "🏃" },
+  swimming: { label: "Swimming", color: "#06b6d4", icon: "🏊" },
+};
+
+// Special types that come from other data sources (not activities table)
+const DERIVED_ACTIVITY_TYPES = {
   eating: { label: "Eating", color: "#ec4899", icon: "🍼" },
+  visit: { label: "Doctor Visit", color: "#f97316", icon: "🏥" },
+};
+
+// Random icons pool for custom activity types
+const RANDOM_ICONS = ["🎯", "⭐", "🎨", "🎭", "🎪", "🎬", "🎸", "🎲", "🎳", "🎮", "🏀", "⚽", "🎾", "🏐", "🎱"];
+
+// Helper function to get activity info (handles custom types)
+// Note: This needs to be updated to accept customActivityTypes as a parameter
+const getActivityInfoBase = (activityType, customActivityTypes = {}) => {
+  // Check regular activity types
+  if (ACTIVITY_TYPES[activityType]) {
+    return ACTIVITY_TYPES[activityType];
+  }
+  // Check derived activity types (eating, visit)
+  if (DERIVED_ACTIVITY_TYPES[activityType]) {
+    return DERIVED_ACTIVITY_TYPES[activityType];
+  }
+  // Check custom activity types
+  if (customActivityTypes[activityType]) {
+    return customActivityTypes[activityType];
+  }
+  // For unknown types, generate a consistent random icon based on the type name
+  const iconIndex = activityType.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % RANDOM_ICONS.length;
+  return {
+    label: activityType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+    color: "#6b7280",
+    icon: RANDOM_ICONS[iconIndex],
+  };
 };
 
 export default function ActivitiesPage() {
   const { t, i18n } = useTranslation();
   const {
-    data: { activities = [], breastfeeding = [], user },
+    data: { activities = [], breastfeeding = [], visits = [], user },
     loading,
     refetch,
-  } = useData("activities", "breastfeeding");
+  } = useData("activities", "breastfeeding", "visits");
   const isAdmin = user?.is_admin;
 
   const [showSuccess, setShowSuccess] = useState(false);
@@ -43,6 +77,81 @@ export default function ActivitiesPage() {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   });
+  const [showAddActivityType, setShowAddActivityType] = useState(false);
+  const [newActivityType, setNewActivityType] = useState({
+    name: "",
+    icon: "🎯",
+    color: "#6b7280",
+  });
+  const [customActivityTypes, setCustomActivityTypes] = useState(() => {
+    // Load custom activity types from localStorage
+    const saved = localStorage.getItem('customActivityTypes');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  // Wrapper function that uses the current customActivityTypes
+  const getActivityInfo = (activityType) => {
+    return getActivityInfoBase(activityType, customActivityTypes);
+  };
+
+  // Merge all activity types for display
+  const allDefinedActivityTypes = {
+    ...ACTIVITY_TYPES,
+    ...customActivityTypes,
+  };
+
+  const handleAddActivityType = (e) => {
+    e.preventDefault();
+
+    if (!newActivityType.name) {
+      setSuccessMessage("Please enter an activity name");
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+      return;
+    }
+
+    // Convert name to key format (lowercase with underscores)
+    const key = newActivityType.name.toLowerCase().replace(/\s+/g, '_');
+
+    // Check if it already exists
+    if (ACTIVITY_TYPES[key] || DERIVED_ACTIVITY_TYPES[key] || customActivityTypes[key]) {
+      setSuccessMessage("This activity type already exists");
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+      return;
+    }
+
+    const updated = {
+      ...customActivityTypes,
+      [key]: {
+        label: newActivityType.name,
+        icon: newActivityType.icon,
+        color: newActivityType.color,
+      },
+    };
+
+    setCustomActivityTypes(updated);
+    localStorage.setItem('customActivityTypes', JSON.stringify(updated));
+
+    setSuccessMessage("Activity type added successfully!");
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+
+    setShowAddActivityType(false);
+    setNewActivityType({ name: "", icon: "🎯", color: "#6b7280" });
+  };
+
+  const handleDeleteCustomActivityType = (key) => {
+    const updated = { ...customActivityTypes };
+    delete updated[key];
+
+    setCustomActivityTypes(updated);
+    localStorage.setItem('customActivityTypes', JSON.stringify(updated));
+
+    setSuccessMessage("Activity type deleted successfully!");
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+  };
 
   const logActivityStart = async (activityType) => {
     const now = new Date();
@@ -60,7 +169,7 @@ export default function ActivitiesPage() {
 
       if (res.ok) {
         refetch();
-        setSuccessMessage(`${ACTIVITY_TYPES[activityType].label} started!`);
+        setSuccessMessage(`${getActivityInfo(activityType).label} started!`);
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
       }
@@ -162,14 +271,7 @@ export default function ActivitiesPage() {
     }));
   };
 
-  // Helper function to adjust timezone for displaying old data
-  const addHours = (date, hours) => {
-    const hoursToAdd = hours * 60 * 60 * 1000;
-    date.setTime(date.getTime() + hoursToAdd);
-    return date;
-  };
-
-  // Combine activities and eating sessions (from breastfeeding data)
+  // Combine activities, eating sessions (from breastfeeding data), and visits
   const combinedActivities = [
     ...activities,
     ...breastfeeding
@@ -181,6 +283,20 @@ export default function ActivitiesPage() {
         end_dt: session.end_dt,
         from_breastfeeding: true,
       })),
+    ...visits.map((visit) => {
+      // Parse the visit date (which includes time)
+      const visitDate = new Date(visit.date);
+      // Set end time to 1 hour after start for visualization purposes
+      const endDate = new Date(visitDate.getTime() + 60 * 60 * 1000);
+      return {
+        id: `visit-${visit.id}`,
+        activity_type: "visit",
+        start_dt: visit.date,
+        end_dt: endDate.toISOString(),
+        from_visit: true,
+        notes: `${visit.type} - ${visit.doctor} at ${visit.location}${visit.notes ? ': ' + visit.notes : ''}`,
+      };
+    }),
   ].sort((a, b) => new Date(b.start_dt) - new Date(a.start_dt));
 
   // Get ongoing activities (only from activities, not eating)
@@ -189,102 +305,202 @@ export default function ActivitiesPage() {
   // Prepare data for the horizontal stacked bar chart
   const prepareChartData = () => {
     const dayMap = {};
+    const allActivityTypes = new Set();
 
     combinedActivities.forEach((activity) => {
       // Only include activities with both start and end times in the chart
       if (!activity.end_dt) return;
 
-      const startDate = addHours(new Date(activity.start_dt), 1);
-      const endDate = addHours(new Date(activity.end_dt), 1);
-      const dayKey = startDate.toISOString().split("T")[0];
+      const startDate = new Date(activity.start_dt);
+      const endDate = new Date(activity.end_dt);
 
-      // Filter by selected month
+      // Track all activity types
+      allActivityTypes.add(activity.activity_type);
+
+      // Check if activity spans multiple days
+      const startDayKey = startDate.toISOString().split("T")[0];
+      const endDayKey = endDate.toISOString().split("T")[0];
+
       const [year, month] = selectedMonth.split('-');
-      if (startDate.getFullYear() !== parseInt(year) || startDate.getMonth() + 1 !== parseInt(month)) {
-        return;
+
+      if (startDayKey === endDayKey) {
+        // Activity is within a single day
+        if (startDate.getFullYear() !== parseInt(year) || startDate.getMonth() + 1 !== parseInt(month)) {
+          return;
+        }
+
+        if (!dayMap[startDayKey]) {
+          dayMap[startDayKey] = {
+            date: startDayKey,
+            displayDate: startDate.toLocaleDateString(i18n.language || "en", {
+              month: "short",
+              day: "numeric",
+            }),
+            fullDate: startDate.toLocaleDateString(i18n.language || "en", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+            activities: [],
+          };
+        }
+
+        const startMinutes = startDate.getHours() * 60 + startDate.getMinutes();
+        const endMinutes = endDate.getHours() * 60 + endDate.getMinutes();
+        const durationMinutes = Math.max(endMinutes - startMinutes, 1);
+
+        dayMap[startDayKey].activities.push({
+          type: activity.activity_type,
+          start: startMinutes,
+          duration: durationMinutes,
+          startTime: startDate,
+          endTime: endDate,
+        });
+      } else {
+        // Activity spans multiple days - split it
+
+        // First day: from start time to midnight
+        if (startDate.getFullYear() === parseInt(year) && startDate.getMonth() + 1 === parseInt(month)) {
+          if (!dayMap[startDayKey]) {
+            dayMap[startDayKey] = {
+              date: startDayKey,
+              displayDate: startDate.toLocaleDateString(i18n.language || "en", {
+                month: "short",
+                day: "numeric",
+              }),
+              fullDate: startDate.toLocaleDateString(i18n.language || "en", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
+              activities: [],
+            };
+          }
+
+          const startMinutes = startDate.getHours() * 60 + startDate.getMinutes();
+          const midnightMinutes = 24 * 60;
+          const durationMinutes = midnightMinutes - startMinutes;
+
+          const midnight = new Date(startDate);
+          midnight.setHours(23, 59, 59, 999);
+
+          dayMap[startDayKey].activities.push({
+            type: activity.activity_type,
+            start: startMinutes,
+            duration: durationMinutes,
+            startTime: startDate,
+            endTime: midnight,
+          });
+        }
+
+        // Second day: from midnight to end time
+        if (endDate.getFullYear() === parseInt(year) && endDate.getMonth() + 1 === parseInt(month)) {
+          if (!dayMap[endDayKey]) {
+            dayMap[endDayKey] = {
+              date: endDayKey,
+              displayDate: endDate.toLocaleDateString(i18n.language || "en", {
+                month: "short",
+                day: "numeric",
+              }),
+              fullDate: endDate.toLocaleDateString(i18n.language || "en", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
+              activities: [],
+            };
+          }
+
+          const endMinutes = endDate.getHours() * 60 + endDate.getMinutes();
+          const durationMinutes = Math.max(endMinutes, 1);
+
+          const dayStart = new Date(endDate);
+          dayStart.setHours(0, 0, 0, 0);
+
+          dayMap[endDayKey].activities.push({
+            type: activity.activity_type,
+            start: 0,
+            duration: durationMinutes,
+            startTime: dayStart,
+            endTime: endDate,
+          });
+        }
       }
-
-      if (!dayMap[dayKey]) {
-        dayMap[dayKey] = {
-          date: dayKey,
-          displayDate: startDate.toLocaleDateString(i18n.language || "en", {
-            month: "short",
-            day: "numeric",
-          }),
-          fullDate: startDate.toLocaleDateString(i18n.language || "en", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-          activities: [],
-        };
-      }
-
-      const startMinutes = startDate.getHours() * 60 + startDate.getMinutes();
-      const endMinutes = endDate.getHours() * 60 + endDate.getMinutes();
-      let durationMinutes = endMinutes - startMinutes;
-
-      // Handle activities that span midnight
-      if (durationMinutes < 0) {
-        durationMinutes = (24 * 60) - startMinutes + endMinutes;
-      }
-
-      // Ensure minimum duration for visibility
-      if (durationMinutes < 1) {
-        durationMinutes = 1;
-      }
-
-      dayMap[dayKey].activities.push({
-        type: activity.activity_type,
-        start: startMinutes,
-        duration: durationMinutes,
-        startTime: startDate,
-        endTime: endDate,
-      });
     });
 
     // Sort by date descending (most recent first)
-    return Object.values(dayMap)
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
+    return {
+      chartData: Object.values(dayMap).sort((a, b) => new Date(b.date) - new Date(a.date)),
+      allActivityTypes: Array.from(allActivityTypes),
+    };
   };
 
-  const chartData = prepareChartData();
+  const { chartData, allActivityTypes } = prepareChartData();
 
   // Calculate statistics for the displayed period
-  const calculateStatistics = () => {
+  const calculateStatistics = (dataToAnalyze, excludeVisits = true) => {
     const stats = {
       totalActivities: 0,
       byType: {},
       totalDuration: 0,
     };
 
-    Object.keys(ACTIVITY_TYPES).forEach(type => {
+    // Initialize stats for all activity types found in the data
+    allActivityTypes.forEach(type => {
+      if (excludeVisits && type === 'visit') return;
       stats.byType[type] = { count: 0, duration: 0 };
     });
 
-    chartData.forEach(day => {
+    dataToAnalyze.forEach(day => {
       day.activities.forEach(activity => {
+        // Skip doctor visits if excludeVisits is true
+        if (excludeVisits && activity.type === 'visit') return;
+
         stats.totalActivities++;
         stats.totalDuration += activity.duration;
-        if (stats.byType[activity.type]) {
-          stats.byType[activity.type].count++;
-          stats.byType[activity.type].duration += activity.duration;
+        if (!stats.byType[activity.type]) {
+          stats.byType[activity.type] = { count: 0, duration: 0 };
         }
+        stats.byType[activity.type].count++;
+        stats.byType[activity.type].duration += activity.duration;
       });
     });
 
     return stats;
   };
 
-  const statistics = calculateStatistics();
+  const statistics = calculateStatistics(chartData);
+
+  // Calculate today's statistics
+  const todayStats = (() => {
+    const today = new Date().toISOString().split("T")[0];
+    const todayData = chartData.filter(day => day.date === today);
+    return calculateStatistics(todayData);
+  })();
+
+  // Calculate current week's statistics
+  const weekStats = (() => {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const weekData = chartData.filter(day => {
+      const dayDate = new Date(day.date);
+      return dayDate >= startOfWeek && dayDate <= today;
+    });
+    return calculateStatistics(weekData);
+  })();
 
   // Get available months from activities
   const getAvailableMonths = () => {
     const months = new Set();
     combinedActivities.forEach(activity => {
       if (!activity.end_dt) return;
-      const startDate = addHours(new Date(activity.start_dt), 1);
+      const startDate = new Date(activity.start_dt);
       const monthKey = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
       months.add(monthKey);
     });
@@ -298,7 +514,7 @@ export default function ActivitiesPage() {
     const dayMap = {};
 
     combinedActivities.forEach((activity) => {
-      const startDate = addHours(new Date(activity.start_dt), 1);
+      const startDate = new Date(activity.start_dt);
       const dayKey = startDate.toISOString().split("T")[0];
 
       // For non-admin users, only show activities from selected month
@@ -387,25 +603,155 @@ export default function ActivitiesPage() {
         {/* Start Activity Buttons */}
         {isAdmin && (
           <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-4 md:p-6 mb-4 md:mb-6">
-            <h2 className="text-lg md:text-xl font-bold dark:text-white text-gray-800 mb-4">
-              {t("Log Activity Start")}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg md:text-xl font-bold dark:text-white text-gray-800">
+                {t("Log Activity Start")}
+              </h2>
+              <button
+                onClick={() => setShowAddActivityType(true)}
+                className="flex items-center gap-2 px-3 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                {t("Add Type")}
+              </button>
+            </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {Object.entries(ACTIVITY_TYPES)
-                .filter(([key]) => key !== "eating") // Exclude eating
-                .map(([key, value]) => (
-                  <button
-                    key={key}
-                    onClick={() => logActivityStart(key)}
-                    className="p-6 bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg flex flex-col items-center gap-2"
-                  >
-                    <Play className="w-6 h-6" />
-                    <div className="text-4xl">{value.icon}</div>
-                    <div className="font-semibold">{t(value.label)}</div>
-                  </button>
-                ))}
+              {Object.entries(allDefinedActivityTypes).map(([key, value]) => (
+                <button
+                  key={key}
+                  onClick={() => logActivityStart(key)}
+                  className="p-6 bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg flex flex-col items-center gap-2"
+                >
+                  <Play className="w-6 h-6" />
+                  <div className="text-4xl">{value.icon}</div>
+                  <div className="font-semibold">{t(value.label)}</div>
+                </button>
+              ))}
             </div>
+          </div>
+        )}
+
+        {/* Add Activity Type Modal */}
+        {isAdmin && showAddActivityType && (
+          <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-4 md:p-6 mb-4 md:mb-6">
+            <h2 className="text-xl font-bold dark:text-white text-gray-800 mb-4">
+              {t("Add New Activity Type")}
+            </h2>
+
+            <form onSubmit={handleAddActivityType} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">
+                  {t("Activity Name")}
+                </label>
+                <input
+                  type="text"
+                  value={newActivityType.name}
+                  onChange={(e) =>
+                    setNewActivityType({ ...newActivityType, name: e.target.value })
+                  }
+                  placeholder={t("e.g., Playing, Reading, Bathing")}
+                  className="w-full p-3 border dark:bg-gray-700 dark:border-gray-600 dark:text-white border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">
+                  {t("Icon (Emoji)")}
+                </label>
+                <input
+                  type="text"
+                  value={newActivityType.icon}
+                  onChange={(e) =>
+                    setNewActivityType({ ...newActivityType, icon: e.target.value })
+                  }
+                  placeholder="🎯"
+                  maxLength={2}
+                  className="w-full p-3 border dark:bg-gray-700 dark:border-gray-600 dark:text-white border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-2">
+                  {t("Color")}
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="color"
+                    value={newActivityType.color}
+                    onChange={(e) =>
+                      setNewActivityType({ ...newActivityType, color: e.target.value })
+                    }
+                    className="h-12 w-20 border dark:border-gray-600 border-gray-300 rounded-lg cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={newActivityType.color}
+                    onChange={(e) =>
+                      setNewActivityType({ ...newActivityType, color: e.target.value })
+                    }
+                    placeholder="#6b7280"
+                    className="flex-1 p-3 border dark:bg-gray-700 dark:border-gray-600 dark:text-white border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 px-6 rounded-lg font-semibold transition-all shadow-lg"
+                >
+                  {t("Add Activity Type")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddActivityType(false);
+                    setNewActivityType({ name: "", icon: "🎯", color: "#6b7280" });
+                  }}
+                  className="px-6 py-3 border dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  {t("Cancel")}
+                </button>
+              </div>
+            </form>
+
+            {/* List existing custom activity types */}
+            {Object.keys(customActivityTypes).length > 0 && (
+              <div className="mt-6 pt-6 border-t dark:border-gray-700 border-gray-200">
+                <h3 className="text-lg font-semibold dark:text-white text-gray-800 mb-3">
+                  {t("Custom Activity Types")}
+                </h3>
+                <div className="space-y-2">
+                  {Object.entries(customActivityTypes).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex items-center justify-between p-3 dark:bg-gray-700 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
+                          style={{ backgroundColor: value.color }}
+                        >
+                          {value.icon}
+                        </div>
+                        <span className="font-medium dark:text-white text-gray-800">
+                          {value.label}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteCustomActivityType(key)}
+                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -418,8 +764,8 @@ export default function ActivitiesPage() {
 
             <div className="space-y-3">
               {ongoingActivities.map((activity) => {
-                const startDate = addHours(new Date(activity.start_dt), 1);
-                const activityInfo = ACTIVITY_TYPES[activity.activity_type];
+                const startDate = new Date(activity.start_dt);
+                const activityInfo = getActivityInfo(activity.activity_type);
 
                 return (
                   <div
@@ -429,13 +775,13 @@ export default function ActivitiesPage() {
                     <div className="flex items-center gap-4">
                       <div
                         className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
-                        style={{ backgroundColor: activityInfo?.color }}
+                        style={{ backgroundColor: activityInfo.color }}
                       >
-                        {activityInfo?.icon}
+                        {activityInfo.icon}
                       </div>
                       <div>
                         <p className="font-semibold dark:text-white text-gray-800">
-                          {t(activityInfo?.label || activity.activity_type)}
+                          {t(activityInfo.label)}
                         </p>
                         <p className="text-sm dark:text-gray-300 text-gray-600">
                           {t("Started at")}{" "}
@@ -490,42 +836,166 @@ export default function ActivitiesPage() {
               </select>
             </div>
 
-            {/* Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="dark:bg-gray-700 bg-gray-50 rounded-lg p-4">
-                <p className="text-sm dark:text-gray-400 text-gray-600">{t("Total Activities")}</p>
-                <p className="text-2xl font-bold dark:text-white text-gray-800">{statistics.totalActivities}</p>
-              </div>
-              <div className="dark:bg-gray-700 bg-gray-50 rounded-lg p-4">
-                <p className="text-sm dark:text-gray-400 text-gray-600">{t("Total Time")}</p>
-                <p className="text-2xl font-bold dark:text-white text-gray-800">
-                  {Math.round(statistics.totalDuration / 60)}h
-                </p>
-              </div>
-              <div className="dark:bg-gray-700 bg-gray-50 rounded-lg p-4">
-                <p className="text-sm dark:text-gray-400 text-gray-600">{t("Days")}</p>
-                <p className="text-2xl font-bold dark:text-white text-gray-800">{chartData.length}</p>
-              </div>
-              <div className="dark:bg-gray-700 bg-gray-50 rounded-lg p-4">
-                <p className="text-sm dark:text-gray-400 text-gray-600">{t("Avg per Day")}</p>
-                <p className="text-2xl font-bold dark:text-white text-gray-800">
-                  {chartData.length > 0 ? Math.round(statistics.totalActivities / chartData.length) : 0}
-                </p>
+            {/* Statistics - Per Activity Comparison */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold dark:text-white text-gray-800 mb-3">
+                {t("Statistics by Activity")}
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="dark:bg-gray-700 bg-gray-100">
+                      <th className="text-left p-3 dark:text-white text-gray-800 font-semibold">
+                        {t("Activity")}
+                      </th>
+                      <th className="text-center p-3 dark:text-white text-gray-800 font-semibold">
+                        {t("Today")}
+                      </th>
+                      <th className="text-center p-3 dark:text-white text-gray-800 font-semibold">
+                        {t("This Week")}
+                      </th>
+                      <th className="text-center p-3 dark:text-white text-gray-800 font-semibold">
+                        {t("Selected Month")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allActivityTypes
+                      .filter(type => type !== 'visit')
+                      .map((type) => {
+                        const todayType = todayStats.byType[type] || { count: 0, duration: 0 };
+                        const weekType = weekStats.byType[type] || { count: 0, duration: 0 };
+                        const monthType = statistics.byType[type] || { count: 0, duration: 0 };
+
+                        // Skip if no data for this activity type
+                        if (todayType.count === 0 && weekType.count === 0 && monthType.count === 0) {
+                          return null;
+                        }
+
+                        const activityInfo = getActivityInfo(type);
+
+                        return (
+                          <tr
+                            key={type}
+                            className="border-b dark:border-gray-700 border-gray-200 dark:hover:bg-gray-750 hover:bg-gray-50"
+                          >
+                            <td className="p-3">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className="w-8 h-8 rounded-full flex items-center justify-center text-lg flex-shrink-0"
+                                  style={{ backgroundColor: activityInfo.color }}
+                                >
+                                  {activityInfo.icon}
+                                </div>
+                                <span className="font-semibold dark:text-white text-gray-800">
+                                  {t(activityInfo.label)}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="p-3 text-center">
+                              <div className="dark:text-white text-gray-800">
+                                <div className="font-bold text-lg">
+                                  {todayType.count > 0 ? (
+                                    <>
+                                      {Math.floor(todayType.duration / 60)}h {Math.round(todayType.duration % 60)}m
+                                    </>
+                                  ) : (
+                                    <span className="dark:text-gray-500 text-gray-400">-</span>
+                                  )}
+                                </div>
+                                {todayType.count > 0 && (
+                                  <div className="text-xs dark:text-gray-400 text-gray-600">
+                                    {todayType.count}x
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-3 text-center">
+                              <div className="dark:text-white text-gray-800">
+                                <div className="font-bold text-lg">
+                                  {weekType.count > 0 ? (
+                                    <>
+                                      {Math.floor(weekType.duration / 60)}h {Math.round(weekType.duration % 60)}m
+                                    </>
+                                  ) : (
+                                    <span className="dark:text-gray-500 text-gray-400">-</span>
+                                  )}
+                                </div>
+                                {weekType.count > 0 && (
+                                  <div className="text-xs dark:text-gray-400 text-gray-600">
+                                    {weekType.count}x
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-3 text-center">
+                              <div className="dark:text-white text-gray-800">
+                                <div className="font-bold text-lg">
+                                  {monthType.count > 0 ? (
+                                    <>
+                                      {Math.floor(monthType.duration / 60)}h {Math.round(monthType.duration % 60)}m
+                                    </>
+                                  ) : (
+                                    <span className="dark:text-gray-500 text-gray-400">-</span>
+                                  )}
+                                </div>
+                                {monthType.count > 0 && (
+                                  <div className="text-xs dark:text-gray-400 text-gray-600">
+                                    {monthType.count}x • {Math.round(monthType.duration / 60 / chartData.length * 10) / 10}h/day
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                  <tfoot>
+                    <tr className="dark:bg-gray-700 bg-gray-100 font-bold">
+                      <td className="p-3 dark:text-white text-gray-800">{t("Total")}</td>
+                      <td className="p-3 text-center dark:text-white text-gray-800">
+                        <div className="text-lg">
+                          {Math.floor(todayStats.totalDuration / 60)}h {Math.round(todayStats.totalDuration % 60)}m
+                        </div>
+                        <div className="text-xs dark:text-gray-400 text-gray-600 font-normal">
+                          {todayStats.totalActivities} {t("activities")}
+                        </div>
+                      </td>
+                      <td className="p-3 text-center dark:text-white text-gray-800">
+                        <div className="text-lg">
+                          {Math.floor(weekStats.totalDuration / 60)}h {Math.round(weekStats.totalDuration % 60)}m
+                        </div>
+                        <div className="text-xs dark:text-gray-400 text-gray-600 font-normal">
+                          {weekStats.totalActivities} {t("activities")}
+                        </div>
+                      </td>
+                      <td className="p-3 text-center dark:text-white text-gray-800">
+                        <div className="text-lg">
+                          {Math.floor(statistics.totalDuration / 60)}h {Math.round(statistics.totalDuration % 60)}m
+                        </div>
+                        <div className="text-xs dark:text-gray-400 text-gray-600 font-normal">
+                          {statistics.totalActivities} {t("activities")}
+                        </div>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
               </div>
             </div>
 
             {/* Legend */}
             <div className="flex flex-wrap gap-4 mb-6 justify-center">
-              {Object.entries(ACTIVITY_TYPES).map(([key, value]) => {
-                const typeStats = statistics.byType[key];
+              {allActivityTypes.map((type) => {
+                const typeStats = statistics.byType[type] || { count: 0 };
+                const activityInfo = getActivityInfo(type);
                 return (
-                  <div key={key} className="flex items-center gap-2">
+                  <div key={type} className="flex items-center gap-2">
                     <div
                       className="w-4 h-4 rounded"
-                      style={{ backgroundColor: value.color }}
+                      style={{ backgroundColor: activityInfo.color }}
                     />
                     <span className="text-sm dark:text-gray-300 text-gray-700">
-                      {value.icon} {t(value.label)} ({typeStats.count})
+                      {activityInfo.icon} {t(activityInfo.label)} ({typeStats.count})
                     </span>
                   </div>
                 );
@@ -598,7 +1068,8 @@ export default function ActivitiesPage() {
                         // Convert minutes to pixels (800px = 1440 minutes = 24 hours)
                         const startX = 100 + (activity.start / 1440) * 800;
                         const barWidth = Math.max((activity.duration / 1440) * 800, 3);
-                        const color = ACTIVITY_TYPES[activity.type]?.color || "#6b7280";
+                        const activityInfo = getActivityInfo(activity.type);
+                        const color = activityInfo.color;
 
                         return (
                           <rect
@@ -614,7 +1085,7 @@ export default function ActivitiesPage() {
                             rx={2}
                           >
                             <title>
-                              {ACTIVITY_TYPES[activity.type]?.label || activity.type}
+                              {activityInfo.label}
                               {"\n"}
                               {activity.startTime.toLocaleTimeString([], {
                                 hour: "2-digit",
@@ -656,13 +1127,11 @@ export default function ActivitiesPage() {
                   }
                   className="w-full p-3 border dark:bg-gray-700 dark:border-gray-600 dark:text-white border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 >
-                  {Object.entries(ACTIVITY_TYPES)
-                    .filter(([key]) => key !== "eating")
-                    .map(([key, value]) => (
-                      <option key={key} value={key}>
-                        {value.icon} {t(value.label)}
-                      </option>
-                    ))}
+                  {Object.entries(allDefinedActivityTypes).map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {value.icon} {t(value.label)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -771,11 +1240,11 @@ export default function ActivitiesPage() {
                   {expandedDays[day.date] && (
                     <div className="border-t dark:border-gray-700 border-gray-200 p-4 space-y-2">
                       {day.activities.map((activity) => {
-                        const startDate = addHours(new Date(activity.start_dt), 1);
+                        const startDate = new Date(activity.start_dt);
                         const endDate = activity.end_dt
-                          ? addHours(new Date(activity.end_dt), 1)
+                          ? new Date(activity.end_dt)
                           : null;
-                        const activityInfo = ACTIVITY_TYPES[activity.activity_type];
+                        const activityInfo = getActivityInfo(activity.activity_type);
 
                         return (
                           <div
@@ -785,13 +1254,13 @@ export default function ActivitiesPage() {
                             <div className="flex items-center gap-3">
                               <div
                                 className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
-                                style={{ backgroundColor: activityInfo?.color }}
+                                style={{ backgroundColor: activityInfo.color }}
                               >
-                                {activityInfo?.icon}
+                                {activityInfo.icon}
                               </div>
-                              <div>
+                              <div className="flex-1">
                                 <p className="font-semibold dark:text-white text-gray-800 text-sm">
-                                  {t(activityInfo?.label || activity.activity_type)}
+                                  {t(activityInfo.label)}
                                 </p>
                                 <p className="text-xs dark:text-gray-400 text-gray-600">
                                   {startDate.toLocaleTimeString([], {
@@ -809,9 +1278,14 @@ export default function ActivitiesPage() {
                                   )}
                                   {!endDate && ` (${t("In progress")})`}
                                 </p>
+                                {activity.notes && (
+                                  <p className="text-xs dark:text-gray-500 text-gray-500 mt-1 italic">
+                                    {activity.notes}
+                                  </p>
+                                )}
                               </div>
                             </div>
-                            {isAdmin && !activity.from_breastfeeding && (
+                            {isAdmin && !activity.from_breastfeeding && !activity.from_visit && (
                               <button
                                 onClick={() => handleDeleteActivity(activity.id)}
                                 className="p-2 dark:text-red-400 text-red-500 dark:hover:bg-red-900/20 hover:bg-red-50 rounded-lg transition-colors"

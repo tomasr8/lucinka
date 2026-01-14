@@ -16,18 +16,11 @@ export default function ParallelTimelinePlot({ sessions }) {
     // Group sessions by month and organize by day
     const monthlyGroups = {};
 
-    // Helper function to adjust timezone for displaying old data
-    const addHours = (date, hours) => {
-      const hoursToAdd = hours * 60 * 60 * 1000;
-      date.setTime(date.getTime() + hoursToAdd);
-      return date;
-    };
-
     // First, organize sessions by month and day
     const sessionsByMonthDay = {};
 
     sessions.forEach(session => {
-      const startDate = addHours(new Date(session.start_dt), 1);
+      const startDate = new Date(session.start_dt);
       const monthKey = `${startDate.getFullYear()}-${String(
         startDate.getMonth() + 1
       ).padStart(2, "0")}`;
