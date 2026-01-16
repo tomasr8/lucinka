@@ -94,6 +94,8 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     @app.get("/visits")
     @app.get("/breastfeeding")
     @app.get("/gallery")
+    @app.get("/activities")
+
     def index():
         return send_from_directory(app.static_folder, "index.html")
 

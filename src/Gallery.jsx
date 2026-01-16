@@ -12,10 +12,14 @@ export default function PhotoGallery() {
   const { photoId } = useParams();
   const { t } = useTranslation();
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const getLocalDateKey = (date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadForm, setUploadForm] = useState({
     file: null,
-    date: new Date().toISOString().split("T")[0],
+    date: getLocalDateKey(new Date()),
     notes: "",
   });
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -86,7 +90,7 @@ export default function PhotoGallery() {
       // Reset form
       setUploadForm({
         file: null,
-        date: new Date().toISOString().split("T")[0],
+        date: getLocalDateKey(new Date()),
         notes: "",
       });
       setPreviewUrl(null);

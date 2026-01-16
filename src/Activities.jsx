@@ -302,6 +302,11 @@ export default function ActivitiesPage() {
   // Get ongoing activities (only from activities, not eating)
   const ongoingActivities = activities.filter((activity) => !activity.end_dt);
 
+  // Helper to get local date key (YYYY-MM-DD) from a Date object
+  const getLocalDateKey = (date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+
   // Prepare data for the horizontal stacked bar chart
   const prepareChartData = () => {
     const dayMap = {};
@@ -317,9 +322,9 @@ export default function ActivitiesPage() {
       // Track all activity types
       allActivityTypes.add(activity.activity_type);
 
-      // Check if activity spans multiple days
-      const startDayKey = startDate.toISOString().split("T")[0];
-      const endDayKey = endDate.toISOString().split("T")[0];
+      // Check if activity spans multiple days (using local time)
+      const startDayKey = getLocalDateKey(startDate);
+      const endDayKey = getLocalDateKey(endDate);
 
       const [year, month] = selectedMonth.split('-');
 
@@ -476,21 +481,23 @@ export default function ActivitiesPage() {
 
   // Calculate today's statistics
   const todayStats = (() => {
-    const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const todayData = chartData.filter(day => day.date === today);
     return calculateStatistics(todayData);
   })();
 
   // Calculate current week's statistics
   const weekStats = (() => {
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
-    startOfWeek.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+    const startOfWeekStr = `${startOfWeek.getFullYear()}-${String(startOfWeek.getMonth() + 1).padStart(2, '0')}-${String(startOfWeek.getDate()).padStart(2, '0')}`;
 
     const weekData = chartData.filter(day => {
-      const dayDate = new Date(day.date);
-      return dayDate >= startOfWeek && dayDate <= today;
+      return day.date >= startOfWeekStr && day.date <= today;
     });
     return calculateStatistics(weekData);
   })();
@@ -515,7 +522,7 @@ export default function ActivitiesPage() {
 
     combinedActivities.forEach((activity) => {
       const startDate = new Date(activity.start_dt);
-      const dayKey = startDate.toISOString().split("T")[0];
+      const dayKey = getLocalDateKey(startDate);
 
       // For non-admin users, only show activities from selected month
       if (!isAdmin) {

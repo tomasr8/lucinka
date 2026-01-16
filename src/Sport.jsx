@@ -176,9 +176,8 @@ export default function SportTracker() {
   const openForm = () => {
     setShowForm(true);
     const now = new Date();
-    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
+    // Format as local datetime for the input field (YYYY-MM-DDTHH:MM)
+    const localDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     setFormData({ type: '', description: '', photo: null, startTime: localDateTime, endTime: '' });
   };
 

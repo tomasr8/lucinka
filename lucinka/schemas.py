@@ -7,6 +7,18 @@ def utcnow():
     return datetime.datetime.now(datetime.UTC)
 
 
+class UTCDateTime(fields.DateTime):
+    """DateTime field that ensures UTC timezone indicator is included in output."""
+
+    def _serialize(self, value, attr, obj, **kwargs):
+        if value is None:
+            return None
+        # Ensure the datetime is formatted with 'Z' suffix to indicate UTC
+        if isinstance(value, datetime.datetime):
+            return value.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+        return super()._serialize(value, attr, obj, **kwargs)
+
+
 class GetUserSchema(Schema):
     id = fields.Int(dump_only=True)
     username = fields.Str(dump_only=True)
@@ -21,7 +33,7 @@ class LoginSchema(Schema):
 class GetLoginRecordSchema(Schema):
     id = fields.Int(dump_only=True)
     user_id = fields.Int(dump_only=True)
-    login_dt = fields.DateTime(dump_only=True)
+    login_dt = UTCDateTime(dump_only=True)
 
 
 class GetDataEntrySchema(Schema):
@@ -41,7 +53,7 @@ class AddDataEntrySchema(Schema):
 
 class GetVisitSchema(Schema):
     id = fields.Int(dump_only=True)
-    date = fields.DateTime(dump_only=True)
+    date = UTCDateTime(dump_only=True)
     doctor = fields.Str(dump_only=True)
     location = fields.Str(dump_only=True)
     type = fields.Str(dump_only=True)
@@ -58,8 +70,8 @@ class AddVisitSchema(Schema):
 
 class GetBreastfeedingSchema(Schema):
     id = fields.Int(dump_only=True)
-    start_dt = fields.DateTime(dump_only=True)
-    end_dt = fields.DateTime(dump_only=True)
+    start_dt = UTCDateTime(dump_only=True)
+    end_dt = UTCDateTime(dump_only=True)
     left_duration = fields.Int(dump_only=True)
     right_duration = fields.Int(dump_only=True)
     is_pumped = fields.Bool(dump_only=True)
@@ -85,8 +97,8 @@ class AddPhotoSchema(Schema):
 class GetActivitySchema(Schema):
     id = fields.Int(dump_only=True)
     activity_type = fields.Str(dump_only=True)
-    start_dt = fields.DateTime(dump_only=True)
-    end_dt = fields.DateTime(dump_only=True, allow_none=True)
+    start_dt = UTCDateTime(dump_only=True)
+    end_dt = UTCDateTime(dump_only=True, allow_none=True)
     notes = fields.Str(dump_only=True, allow_none=True)
 
 
@@ -104,7 +116,7 @@ class UpdateActivitySchema(Schema):
 class GetPhotoSchema(Schema):
     id = fields.Int(dump_only=True)
     filename = fields.Method("get_filename", dump_only=True)
-    date = fields.DateTime(dump_only=True)
+    date = UTCDateTime(dump_only=True)
     notes = fields.Str(dump_only=True)
 
     def get_filename(self, obj):

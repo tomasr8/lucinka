@@ -24,7 +24,7 @@ export default function ParallelTimelinePlot({ sessions }) {
       const monthKey = `${startDate.getFullYear()}-${String(
         startDate.getMonth() + 1
       ).padStart(2, "0")}`;
-      const dayKey = startDate.toDateString();
+      const dayKey = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
 
       if (!sessionsByMonthDay[monthKey]) {
         sessionsByMonthDay[monthKey] = {};

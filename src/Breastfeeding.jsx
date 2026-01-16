@@ -42,8 +42,8 @@ export default function BreastfeedingPage() {
 
   // Manual entry states
   const now = new Date();
-  const nowDate = now.toISOString().split("T")[0];
-  const nowTime = `${now.getHours()}:${now.getMinutes()}`;
+  const nowDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
   const [newSession, setNewSession] = useState({
     date: nowDate,
@@ -234,8 +234,8 @@ export default function BreastfeedingPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        start_dt: startDt,
-        end_dt: endDt,
+        start_dt: startDt.toISOString(),
+        end_dt: endDt.toISOString(),
         left_duration: parseFloat(newSession.left_duration),
         right_duration: parseFloat(newSession.right_duration),
         is_pumped: newSession.is_pumped,
@@ -317,7 +317,8 @@ export default function BreastfeedingPage() {
       const rightDuration = !session.is_pumped ? Math.floor(session.right_duration || 0) : 0;
       const mlAmount = !session.is_breast ? Math.floor(session.ml_amount || 0) : 0;
 
-      const dateKey = new Date(session.start_dt).toISOString().split("T")[0];
+      const sessionDate = new Date(session.start_dt);
+      const dateKey = `${sessionDate.getFullYear()}-${String(sessionDate.getMonth() + 1).padStart(2, '0')}-${String(sessionDate.getDate()).padStart(2, '0')}`;
       if (dayMap[dateKey]) {
         dayMap[dateKey].total += leftDuration + rightDuration;
         dayMap[dateKey].leftTotal += leftDuration;

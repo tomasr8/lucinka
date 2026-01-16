@@ -46,9 +46,16 @@ export default function VisitsPage() {
     status: "upcoming",
   });
 
+  const getLocalDateKey = (date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+
   const getVisitsForDate = date => {
-    const dateStr = date.toISOString().split("T")[0];
-    return visits.filter(visit => visit.date.split("T")[0] === dateStr);
+    const dateStr = getLocalDateKey(date);
+    return visits.filter(visit => {
+      const visitDate = new Date(visit.date);
+      return getLocalDateKey(visitDate) === dateStr;
+    });
   };
 
   const getDaysInMonth = date => {
@@ -153,7 +160,7 @@ export default function VisitsPage() {
     year: "numeric",
   });
   const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
+  const todayStr = getLocalDateKey(today);
   const renderCalendarDays = () => {
     const days = [];
 
@@ -167,9 +174,9 @@ export default function VisitsPage() {
       const date = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        day + 1
+        day
       );
-      const dateStr = date.toISOString().split("T")[0];
+      const dateStr = getLocalDateKey(date);
       const dayVisits = getVisitsForDate(date);
       const isToday = dateStr === todayStr;
       const hasVisits = dayVisits.length > 0;
