@@ -708,21 +708,21 @@ export default function BreastfeedingPage() {
               onClick={() => setIsManualModalOpen(false)}
             >
               <div
-                className="bg-white rounded-2xl shadow-2xl max-w-md w-full"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full"
                 onClick={e => e.stopPropagation()}
               >
-                <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-800">
+                <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                     {t("Manual Entry")}
                   </h2>
-                  <p className="text-gray-500 text-sm mt-1">
+                  <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                     {t("Enter session manually")}
                   </p>
                 </div>
 
                 <div className="p-6 space-y-4">
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       <Calendar className="w-4 h-4 text-pink-600" />
                       {t("Date")} <span className="text-red-500">*</span>
                     </label>
@@ -735,8 +735,8 @@ export default function BreastfeedingPage() {
                       className={`w-full px-4 py-3 border ${
                         errors.date
                           ? "border-red-500 ring-2 ring-red-200"
-                          : "border-gray-200"
-                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                          : "border-gray-200 dark:border-gray-600"
+                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100`}
                     />
                     {errors.date && (
                       <p className="text-red-500 text-xs mt-1">
@@ -745,7 +745,7 @@ export default function BreastfeedingPage() {
                     )}
                   </div>
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       <Clock className="w-4 h-4 text-pink-600" />
                       {t("Start Time")} <span className="text-red-500">*</span>
                     </label>
@@ -758,8 +758,8 @@ export default function BreastfeedingPage() {
                       className={`w-full px-4 py-3 border ${
                         errors.time
                           ? "border-red-500 ring-2 ring-red-200"
-                          : "border-gray-200"
-                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                          : "border-gray-200 dark:border-gray-600"
+                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100`}
                     />
                     {errors.time && (
                       <p className="text-red-500 text-xs mt-1">
@@ -768,7 +768,7 @@ export default function BreastfeedingPage() {
                     )}
                   </div>
                   <div className="flex items-center gap-4 mb-4">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                       <input
                         type="radio"
                         name="feeding_type"
@@ -781,7 +781,7 @@ export default function BreastfeedingPage() {
                       />
                       {t("Breastfeeding")}
                     </label>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                       <input
                         type="radio"
                         name="feeding_type"
@@ -799,7 +799,7 @@ export default function BreastfeedingPage() {
                   {newSession.is_breast ? (
                     <>
                       <div>
-                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                           {t("Left Breast")}
                         </label>
                         <input
@@ -808,11 +808,11 @@ export default function BreastfeedingPage() {
                           value={newSession.left_duration}
                           onChange={handleInputChange}
                           placeholder={t("min")}
-                          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                          className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                         />
                       </div>
                       <div>
-                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                           {t("Right Breast")}
                         </label>
                         <input
@@ -821,11 +821,11 @@ export default function BreastfeedingPage() {
                           value={newSession.right_duration}
                           onChange={handleInputChange}
                           placeholder={t("min")}
-                          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                          className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                         />
                       </div>
                       <div>
-                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                           {t("Pumped Session")}
                         </label>
                         <input
@@ -838,13 +838,13 @@ export default function BreastfeedingPage() {
                               is_pumped: e.target.checked,
                             }))
                           }
-                          className={`w-5 h-5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                          className="w-5 h-5 accent-pink-500"
                         />
                       </div>
                     </>
                   ) : (
                     <div>
-                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                         {t("amount in ml")}
                       </label>
                       <input
@@ -853,17 +853,17 @@ export default function BreastfeedingPage() {
                         value={newSession.ml_amount}
                         onChange={handleInputChange}
                         placeholder={t("amount in ml")}
-                        className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                        className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                       />
                     </div>
                   )}
                 </div>
 
-                <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-b-2xl">
                   <button
                     type="button"
                     onClick={() => setIsManualModalOpen(false)}
-                    className="flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all"
+                    className="flex-1 px-6 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-all"
                   >
                     {t("Cancel")}
                   </button>

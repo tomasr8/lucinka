@@ -98,24 +98,24 @@ export default function FormModal({ onSubmit }) {
         >
           {/* Modal Content */}
           <div
-            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                   {t("Health Entry")}
                 </h2>
-                <p className="text-gray-500 text-sm mt-1">
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                   {t("Track your daily health metrics")}
                 </p>
               </div>
               <button
                 onClick={closeModal}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <X className="w-6 h-6 text-gray-500" />
+                <X className="w-6 h-6 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
@@ -125,7 +125,7 @@ export default function FormModal({ onSubmit }) {
                 <div>
                   <label
                     htmlFor="date"
-                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                   >
                     <Calendar className="w-4 h-4 text-teal-600" />
                     {t("Date")}
@@ -137,7 +137,7 @@ export default function FormModal({ onSubmit }) {
                     required
                     value={formData.date}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 border ${errors.date ? 'border-red-500' : 'border-gray-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                    className={`w-full px-4 py-3 border ${errors.date ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'} rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100`}
                   />
                   {errors.date && (
                     <p className="text-red-500 text-xs mt-1">
@@ -149,7 +149,7 @@ export default function FormModal({ onSubmit }) {
                 <div>
                   <label
                     htmlFor="weight"
-                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                   >
                     <Weight className="w-4 h-4 text-teal-600" />
                     {t("Weight (kg)")}
@@ -162,14 +162,14 @@ export default function FormModal({ onSubmit }) {
                     placeholder={t("Enter your weight")}
                     value={formData.weight}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white"
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="height"
-                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                   >
                     <Ruler className="w-4 h-4 text-teal-600" />
                     {t("Height (cm)")}
@@ -182,14 +182,14 @@ export default function FormModal({ onSubmit }) {
                     placeholder={t("Enter your height")}
                     value={formData.height}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white"
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="notes"
-                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                   >
                     <FileText className="w-4 h-4 text-teal-600" />
                     {t("Notes")}
@@ -201,17 +201,17 @@ export default function FormModal({ onSubmit }) {
                     placeholder={t("Add any additional notes...")}
                     value={formData.notes}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white resize-none"
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 resize-none"
                   ></textarea>
                 </div>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+            <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-b-2xl">
               <button
                 onClick={closeModal}
-                className="flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all"
+                className="flex-1 px-6 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-all"
               >
                 {t("Cancel")}
               </button>

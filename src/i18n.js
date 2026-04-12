@@ -127,6 +127,7 @@ const resources = {
       "Loading activities...": "Loading activities...",
       // Home
       "Weight Percentiles": "Weight Percentiles",
+      "Height Percentiles": "Height Percentiles",
       "Age (months)": "Age (months)",
       "10th": "10th",
       "25th": "25th",
@@ -134,6 +135,7 @@ const resources = {
       "75th": "75th",
       "99th": "99th",
       "Actual Weight": "Actual Weight",
+      "Actual Height": "Actual Height",
       // Activities
       "Activities": "Activities",
       "Track daily activities": "Track daily activities",
@@ -352,6 +354,7 @@ const resources = {
       "Loading activities...": "Načítání aktivit...",
       // Home
       "Weight Percentiles": "Percentily váhy",
+      "Height Percentiles": "Percentily výšky",
       "Age (months)": "Věk (měsíce)",
       "10th": "10.",
       "25th": "25.",
@@ -359,6 +362,7 @@ const resources = {
       "75th": "75.",
       "99th": "99.",
       "Actual Weight": "Aktuální váha",
+      "Actual Height": "Aktuální výška",
       // Activities
       "Activities": "Aktivity",
       "Track daily activities": "Sledujte denní aktivity",
@@ -576,6 +580,7 @@ const resources = {
       "Loading activities...": "Caricamento attività...",
       // Home
       "Weight Percentiles": "Percentili del Peso",
+      "Height Percentiles": "Percentili dell'Altezza",
       "Age (months)": "Età (mesi)",
       "10th": "10°",
       "25th": "25°",
@@ -583,6 +588,7 @@ const resources = {
       "75th": "75°",
       "99th": "99°",
       "Actual Weight": "Peso Effettivo",
+      "Actual Height": "Altezza Effettiva",
       // Activities
       "Activities": "Attività",
       "Track daily activities": "Traccia le attività quotidiane",

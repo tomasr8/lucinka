@@ -54,6 +54,8 @@ export default function PhotoGallery() {
       ".webp",
       ".svg",
       ".bmp",
+      ".heic",
+      ".heif",
     ];
     const extension = filename.toLowerCase().slice(filename.lastIndexOf("."));
     return imageExtensions.includes(extension);
@@ -237,11 +239,21 @@ export default function PhotoGallery() {
                     className="relative max-w-6xl max-h-full"
                     onClick={e => e.stopPropagation()}
                   >
-                    {/* Large Image */}
-                    <img
-                      src={`/api/photos/${selectedPhoto.filename}`}
-                      className="max-w-full max-h-screen object-contain rounded-lg"
-                    />
+                    {/* Large Image / Video */}
+                    {isVideo(selectedPhoto.filename) ? (
+                      <video
+                        src={`/api/photos/${selectedPhoto.filename}`}
+                        className="max-w-full max-h-screen rounded-lg"
+                        controls
+                        autoPlay
+                        loop
+                      />
+                    ) : (
+                      <img
+                        src={`/api/photos/${selectedPhoto.filename}`}
+                        className="max-w-full max-h-screen object-contain rounded-lg"
+                      />
+                    )}
 
                     {/* Image Info */}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6 rounded-b-lg">
@@ -269,17 +281,17 @@ export default function PhotoGallery() {
         {/* Upload Modal */}
         {showUploadModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {t("Upload Photo")}
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {t("Upload Photo or Video")}
                 </h2>
                 <button
                   onClick={() => {
                     setShowUploadModal(false);
                     setPreviewUrl(null);
                   }}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                 >
                   <X size={24} />
                 </button>
@@ -288,15 +300,15 @@ export default function PhotoGallery() {
               <form onSubmit={handleUpload}>
                 {/* File Input */}
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("Photo")}
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {t("Photo or Video")}
                   </label>
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*,.heic,.heif"
                     onChange={handleFileSelect}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     required
                   />
                 </div>
@@ -325,7 +337,7 @@ export default function PhotoGallery() {
 
                 {/* Date Input */}
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {t("Date")}
                   </label>
                   <input
@@ -334,14 +346,14 @@ export default function PhotoGallery() {
                     onChange={e =>
                       setUploadForm(prev => ({ ...prev, date: e.target.value }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     required
                   />
                 </div>
 
                 {/* Notes Input */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {t("Notes")}
                   </label>
                   <textarea
@@ -352,7 +364,7 @@ export default function PhotoGallery() {
                         notes: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     rows="3"
                     placeholder={t("Add a note about this photo...")}
                   />
@@ -366,7 +378,7 @@ export default function PhotoGallery() {
                       setShowUploadModal(false);
                       setPreviewUrl(null);
                     }}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
                     {t("Cancel")}
                   </button>

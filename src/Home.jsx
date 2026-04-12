@@ -1,13 +1,4 @@
 import { useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import { CirclePlus, Trash } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import FormModal from "./Form.jsx";
@@ -15,6 +6,9 @@ import Header from "./Header.jsx";
 import { useTheme } from "./theme.jsx";
 import { useData } from "./util";
 import percentiles from "./percentiles.json";
+import heightPercentiles from "./height_percentiles.json";
+import PercentileGraph from "./PercentileGraph.jsx";
+
 export default function Home() {
   const { t, i18n } = useTranslation();
   const language = i18n.language || "en";
@@ -69,30 +63,6 @@ export default function Home() {
   );
 
   // Find closest percentile data
-  const chartWeightData = sortedEntries
-    .filter(entry => !!entry.weight)
-    .map(entry => ({
-      date: new Date(entry.date).getTime(), // Use timestamp for proper spacing
-      dateLabel: new Date(entry.date).toLocaleDateString(language, {
-        month: "short",
-        day: "numeric",
-      }),
-      weight: entry.weight,
-      fullDate: entry.date,
-    }));
-
-  const chartHeightData = sortedEntries
-    .filter(entry => !!entry.height)
-    .map(entry => ({
-      date: new Date(entry.date).getTime(), // Use timestamp for proper spacing
-      dateLabel: new Date(entry.date).toLocaleDateString(language, {
-        month: "short",
-        day: "numeric",
-      }),
-      height: entry.height,
-      fullDate: entry.date,
-    }));
-
   let weightChange = "N/A";
   const filteredEntries = sortedEntries.filter(entry => !!entry.weight);
   if (filteredEntries.length > 1) {
@@ -112,21 +82,6 @@ export default function Home() {
     lastWeightChange = `${sign}${diff.toFixed(0)}g`;
   }
 
-  // Calculate Y-axis range with padding
-  const weights = sortedEntries.filter(e => !!e.weight).map(e => e.weight);
-  const minWeight = Math.min(...weights);
-  const maxWeight = Math.max(...weights);
-  const padding = (maxWeight - minWeight) * 0.2 || 0.5; // 20% padding or 0.5kg minimum
-  const yAxisMin = Math.max(0, minWeight - padding);
-  const yAxisMax = maxWeight + padding;
-
-  const heights = sortedEntries.filter(e => !!e.height).map(e => e.height);
-  const minHeight = Math.min(...heights);
-  const maxHeight = Math.max(...heights);
-  const heightPadding = (maxHeight - minHeight) * 0.2 || 1; // 20% padding or 1cm minimum
-  const yAxisMinHeight = Math.max(0, minHeight - heightPadding);
-  const yAxisMaxHeight = maxHeight + heightPadding;
-
   const weightDataInMonths = sortedEntries.map(item => {
     const birthDate = new Date("2025-10-10");
     const currentDate = new Date(item.date);
@@ -144,11 +99,11 @@ export default function Home() {
   // Create combined dataset with all unique months
   const allMonths = new Set([
     // take only the first 24 month of percentiles
-    ...percentiles.map(d => d.Month).slice(0, 7),
+    ...percentiles.map(d => d.Month).slice(0, 13),
     ...weightDataInMonths.map(d => d.month),
   ]);
 
-  const combinedData = Array.from(allMonths)
+  const combinedWeightData = Array.from(allMonths)
     .sort((a, b) => a - b)
     .map(month => {
       const percentile = percentiles.find(d => d.Month === month);
@@ -164,6 +119,42 @@ export default function Home() {
           P99: percentile.P99,
         }),
         ...(weight && { actualWeight: weight.weight }),
+      };
+    });
+
+  const heightDataInMonths = sortedEntries
+    .filter(entry => !!entry.height)
+    .map(item => {
+      const birthDate = new Date("2025-10-10");
+      const currentDate = new Date(item.date);
+      const diffTime = currentDate - birthDate;
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+      return {
+        month: parseFloat((diffDays / 30.44).toFixed(1)),
+        height: item.height,
+      };
+    });
+
+  const allHeightMonths = new Set([
+    ...heightPercentiles.map(d => d.Month).slice(0, 13),
+    ...heightDataInMonths.map(d => d.month),
+  ]);
+
+  const combinedHeightData = Array.from(allHeightMonths)
+    .sort((a, b) => a - b)
+    .map(month => {
+      const percentile = heightPercentiles.find(d => d.Month === month);
+      const heightEntry = heightDataInMonths.find(d => d.month === month);
+      return {
+        month: month,
+        ...(percentile && {
+          P1: percentile.P1,
+          P25: percentile.P25,
+          P50: percentile.P50,
+          P75: percentile.P75,
+          P99: percentile.P99,
+        }),
+        ...(heightEntry && { actualHeight: heightEntry.height }),
       };
     });
 
@@ -220,239 +211,33 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Chart */}
-          <div
-            className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-8 p-6`}
-          >
-            <h2
-              className={`text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100`}
-            >
-              {t("Weight Percentiles")}
-            </h2>
-            {/* Percentile plot */}
-            <ResponsiveContainer width="100%" height={500}>
-              <LineChart
-                data={combinedData}
-                margin={{ top: 5, right: 26, left: 2, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "gray" : "#e5e7eb"} />
-                <XAxis
-                  dataKey="month"
-                  stroke="#6b7280"
-                  label={{
-                    value: t("Age (months)"),
-                    position: "insideBottom",
-                    offset: -2,
-                  }}
-                  style={{ fontSize: "14px", fontWeight: "500" }}
-                  type="number"
-                  ticks={Array.from({ length: 7 }, (_, i) => i)} // Ticks from 0 to 25
-                />
-                <YAxis
-                  stroke="#6b7280"
-                  label={{
-                    value: "Weight (kg)",
-                    angle: -90,
-                    position: "insideLeft",
-                    offset: 5,
-                  }}
-                  style={{ fontSize: "14px" }}
-                  domain={[2, 12]}
-                  ticks={[2, 4, 6, 8, 10, 12]}
-                />
-                {/* WHO Percentile Lines */}
-                {["P1", "P25", "P50", "P75", "P99"].map((key, index) => {
-                  const names = ["10th", "25th", "50th", "75th", "99th"];
-                  return (
-                    <Line
-                      key={key}
-                      type="monotone"
-                      dataKey={key}
-                      stroke={darkMode ? "lightgray" : "gray"}
-                      strokeWidth={1}
-                      activeDot={false}
-                      name={t(names[index])}
-                      dot={false}
-                      connectNulls
-                      label={(props) => {
-                      const { x, y, value, index: pointIndex } = props;
-                      const point = combinedData[pointIndex];
-                      // Show label only at month 6
-                      if (point && point.month === "6" && value) {
-                        return (
-                          <text
-                            x={x}
-                            y={y}
-                            fill={darkMode ? "lightgray" : "gray"}
-                            fontSize={12}
-                            fontWeight="bold"
-                            textAnchor="start"
-                            dominantBaseline="middle"
-                          >
-                            {t(names[index])}
-                          </text>
-                        );
-                      }
-                      return null;
-                    }}
-                    />
-                  );
-                })}
+          {/* Weight Percentile Chart */}
+          <PercentileGraph
+            title={t("Weight Percentiles")}
+            combinedData={combinedWeightData}
+            actualDataKey="actualWeight"
+            yAxisLabel="Weight (kg)"
+            yDomain={[2, 12]}
+            yTicks={[2, 4, 6, 8, 10, 12]}
+            xTicks={Array.from({ length: 13 }, (_, i) => i)}
+            actualColor="#8b5cf6"
+            actualName={t("Actual Weight")}
+            labelAtMonth="12"
+          />
 
-                {/* Actual Weight Line */}
-                <Line
-                  type="monotone"
-                  dataKey="actualWeight"
-                  stroke="#8b5cf6"
-                  strokeWidth={2}
-                  name={t("Actual Weight")}
-                  dot={{ fill: "#8b5cf6", r: 3, strokeWidth: 1 }}
-                  activeDot={{ r: 3, strokeWidth: 3 }}
-                  connectNulls={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Chart */}
-          <div
-            className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8`}
-          >
-          <h2
-            className={`text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100`}
-          >
-            {t("Weight Over Time")}
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartWeightData}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke={darkMode ? "#374151" : "#e5e7eb"}
-              />
-              <XAxis
-                dataKey="date"
-                type="number"
-                domain={['dataMin', 'dataMax']}
-                stroke={darkMode ? "#9ca3af" : "#6b7280"}
-                tickFormatter={(timestamp) => {
-                  const date = new Date(timestamp);
-                  return date.toLocaleDateString(language, {
-                    month: "short",
-                    day: "numeric",
-                  });
-                }}
-                scale="time"
-              />
-              <YAxis
-                stroke={darkMode ? "#9ca3af" : "#6b7280"}
-                domain={[yAxisMin, yAxisMax]}
-                label={{
-                  value: t("Weight (kg)"),
-                  angle: -90,
-                  position: "insideLeft",
-                  fill: darkMode ? "#9ca3af" : "#6b7280",
-                }}
-                tickFormatter={value => value.toFixed(2)}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: darkMode ? "#1f2937" : "#ffffff",
-                  border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
-                  borderRadius: "0.5rem",
-                  color: darkMode ? "#f3f4f6" : "#111827",
-                }}
-                labelFormatter={(timestamp) => {
-                  const date = new Date(timestamp);
-                  return date.toLocaleDateString(language, {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  });
-                }}
-                formatter={(value) => [value.toFixed(2) + " kg", t("Weight (kg)")]}
-              />
-              {/* <Legend  /> */}
-              <Line
-                type="monotone"
-                dataKey="weight"
-                stroke="#8b5cf6"
-                strokeWidth={2}
-                dot={{ fill: "#8b5cf6", r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-          </div>
-
-          {/* Chart */}
-          <div
-            className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8`}
-          >
-            <h2
-              className={`text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100`}
-            >
-              {t("Height Over Time")}
-            </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartHeightData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={darkMode ? "#374151" : "#e5e7eb"}
-                />
-                <XAxis
-                  dataKey="date"
-                  type="number"
-                  domain={['dataMin', 'dataMax']}
-                  stroke={darkMode ? "#9ca3af" : "#6b7280"}
-                  tickFormatter={(timestamp) => {
-                    const date = new Date(timestamp);
-                    return date.toLocaleDateString(language, {
-                      month: "short",
-                      day: "numeric",
-                    });
-                  }}
-                  scale="time"
-                />
-                <YAxis
-                  stroke={darkMode ? "#9ca3af" : "#6b7280"}
-                  domain={[yAxisMinHeight, yAxisMaxHeight]}
-                  label={{
-                    value: t("Height (cm)"),
-                    angle: -90,
-                    position: "insideLeft",
-                    fill: darkMode ? "#9ca3af" : "#6b7280",
-                  }}
-                  tickFormatter={value => value.toFixed(1)}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: darkMode ? "#1f2937" : "#ffffff",
-                    border: `1px solid ${darkMode ? "#374151" : "#e5e7eb"}`,
-                    borderRadius: "0.5rem",
-                    color: darkMode ? "#f3f4f6" : "#111827",
-                  }}
-                  labelFormatter={(timestamp) => {
-                    const date = new Date(timestamp);
-                    return date.toLocaleDateString(language, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    });
-                  }}
-                  formatter={(value) => [value.toFixed(1) + " cm", t("Height (cm)")]}
-                />
-                {/* <Legend  /> */}
-                <Line
-                  type="monotone"
-                  dataKey="height"
-                  stroke="#fed12f"
-                  strokeWidth={2}
-                  dot={{ fill: "#fed12f", r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          {/* Height Percentile Chart */}
+          <PercentileGraph
+            title={t("Height Percentiles")}
+            combinedData={combinedHeightData}
+            actualDataKey="actualHeight"
+            yAxisLabel="Height (cm)"
+            yDomain={[44, 96]}
+            yTicks={[45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95]}
+            xTicks={Array.from({ length: 13 }, (_, i) => i)}
+            actualColor="#f59e0b"
+            actualName={t("Actual Height")}
+            labelAtMonth="12"
+          />
 
           {/* Entries List */}
           <div

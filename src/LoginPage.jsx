@@ -3,8 +3,6 @@ import {
   AlertCircle,
   CheckCircle,
   Loader2,
-  LogOut,
-  Home,
   User,
 } from "lucide-react";
 import { useNavigate } from "react-router";
@@ -54,12 +52,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-indigo-600 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 w-full max-w-md">
         <div className="flex items-center justify-center mb-6">
           <User className="w-12 h-12 text-purple-500" />
         </div>
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+        <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">
           {t("Login")}
         </h2>
 
@@ -72,7 +70,7 @@ export default function LoginPage() {
               value={username}
               onChange={e => setUsername(e.target.value)}
               placeholder={t("Username")}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
             />
           </div>
 
@@ -84,7 +82,7 @@ export default function LoginPage() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder={t("Password")}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
             />
           </div>
 
@@ -108,8 +106,8 @@ export default function LoginPage() {
           <div
             className={`mt-4 p-3 rounded-lg flex items-center gap-2 ${
               message.type === "error"
-                ? "bg-red-50 text-red-700"
-                : "bg-green-50 text-green-700"
+                ? "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400"
+                : "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400"
             }`}
           >
             {message.type === "error" ? (

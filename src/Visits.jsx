@@ -338,24 +338,24 @@ export default function VisitsPage() {
               onClick={() => setIsAddModalOpen(false)}
             >
               <div
-                className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
                 onClick={e => e.stopPropagation()}
               >
                 {/* Modal Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-800">
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                       {t("Add New Visit")}
                     </h2>
-                    <p className="text-gray-500 text-sm mt-1">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                       {t("Schedule a new medical appointment")}
                     </p>
                   </div>
                   <button
                     onClick={() => setIsAddModalOpen(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
-                    <X className="w-6 h-6 text-gray-500" />
+                    <X className="w-6 h-6 text-gray-500 dark:text-gray-400" />
                   </button>
                 </div>
 
@@ -363,7 +363,7 @@ export default function VisitsPage() {
                 <div className="p-6 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                         <Calendar className="w-4 h-4 text-teal-600" />
                         {t("Date")}
                       </label>
@@ -373,11 +373,9 @@ export default function VisitsPage() {
                         required
                         value={newVisit.date}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white ${
-                          errors.date
-                            ? "border-red-500 ring-2 ring-red-200"
-                            : "border-gray-200"
-                        } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                        className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 ${
+                          errors.date ? "border-red-500 ring-2 ring-red-200" : "border-gray-200 dark:border-gray-600"
+                        }`}
                       />
                       {errors.date && (
                         <p className="text-red-500 text-xs mt-1">
@@ -387,7 +385,7 @@ export default function VisitsPage() {
                     </div>
 
                     <div>
-                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                         <Clock className="w-4 h-4 text-teal-600" />
                         {t("Time")}
                       </label>
@@ -397,12 +395,9 @@ export default function VisitsPage() {
                         required
                         value={newVisit.time}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
-                        ${
-                          errors.time
-                            ? "border-red-500 ring-2 ring-red-200"
-                            : "border-gray-200"
-                        } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                        className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 ${
+                          errors.time ? "border-red-500 ring-2 ring-red-200" : "border-gray-200 dark:border-gray-600"
+                        }`}
                       />
                       {errors.time && (
                         <p className="text-red-500 text-xs mt-1">
@@ -413,7 +408,7 @@ export default function VisitsPage() {
                   </div>
 
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       <User className="w-4 h-4 text-teal-600" />
                       {t("Doctor Name")}
                     </label>
@@ -424,12 +419,9 @@ export default function VisitsPage() {
                       placeholder={t("e.g., Dr. Sarah Johnson")}
                       value={newVisit.doctor}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
-                      ${
-                        errors.doctor
-                          ? "border-red-500 ring-2 ring-red-200"
-                          : "border-gray-200"
-                      } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 ${
+                        errors.doctor ? "border-red-500 ring-2 ring-red-200" : "border-gray-200 dark:border-gray-600"
+                      }`}
                     />
                     {errors.doctor && (
                       <p className="text-red-500 text-xs mt-1">
@@ -439,7 +431,7 @@ export default function VisitsPage() {
                   </div>
 
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       <MapPin className="w-4 h-4 text-teal-600" />
                       {t("Location")}
                     </label>
@@ -450,12 +442,9 @@ export default function VisitsPage() {
                       placeholder={t("e.g., General Medicine - Room 203")}
                       value={newVisit.location}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
-                    ${
-                      errors.location
-                        ? "border-red-500 ring-2 ring-red-200"
-                        : "border-gray-200"
-                    } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 ${
+                        errors.location ? "border-red-500 ring-2 ring-red-200" : "border-gray-200 dark:border-gray-600"
+                      }`}
                     />
                     {errors.location && (
                       <p className="text-red-500 text-xs mt-1">
@@ -465,7 +454,7 @@ export default function VisitsPage() {
                   </div>
 
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       <FileText className="w-4 h-4 text-teal-600" />
                       {t("Visit Type")}
                     </label>
@@ -476,12 +465,9 @@ export default function VisitsPage() {
                       placeholder={t("e.g., Regular Checkup, Follow-up")}
                       value={newVisit.type}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white
-                    ${
-                      errors.type
-                        ? "border-red-500 ring-2 ring-red-200"
-                        : "border-gray-200"
-                    } rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white`}
+                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 ${
+                        errors.type ? "border-red-500 ring-2 ring-red-200" : "border-gray-200 dark:border-gray-600"
+                      }`}
                     />
                     {errors.type && (
                       <p className="text-red-500 text-xs mt-1">
@@ -491,7 +477,7 @@ export default function VisitsPage() {
                   </div>
 
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       <FileText className="w-4 h-4 text-teal-600" />
                       {t("Notes")}
                     </label>
@@ -501,16 +487,16 @@ export default function VisitsPage() {
                       placeholder={t("Add any additional notes...")}
                       value={newVisit.notes}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 hover:bg-white resize-none"
+                      className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-700 hover:bg-white dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 resize-none"
                     ></textarea>
                   </div>
                 </div>
 
                 {/* Modal Footer */}
-                <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-b-2xl">
                   <button
                     onClick={() => setIsAddModalOpen(false)}
-                    className="flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all"
+                    className="flex-1 px-6 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-all"
                   >
                     {t("Cancel")}
                   </button>
@@ -534,36 +520,36 @@ export default function VisitsPage() {
               onClick={() => setSelectedVisit(null)}
             >
               <div
-                className="bg-white rounded-2xl shadow-2xl max-w-lg w-full"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full"
                 onClick={e => e.stopPropagation()}
               >
                 {/* Modal Header */}
-                <div className="flex items-start justify-between p-6 border-b border-gray-200">
+                <div className="flex items-start justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-start gap-3">
                     <div
                       className={`p-3 rounded-lg ${
                         selectedVisit.status === "completed"
-                          ? "bg-gray-100"
-                          : "bg-teal-100"
+                          ? "bg-gray-100 dark:bg-gray-700"
+                          : "bg-teal-100 dark:bg-teal-900/30"
                       }`}
                     >
                       <Calendar
                         className={`w-6 h-6 ${
                           selectedVisit.status === "completed"
-                            ? "text-gray-600"
-                            : "text-teal-600"
+                            ? "text-gray-600 dark:text-gray-300"
+                            : "text-teal-600 dark:text-teal-400"
                         }`}
                       />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-800">
+                      <h3 className="text-xl font-bold text-gray-800 dark:text-white">
                         {selectedVisit.type}
                       </h3>
                       <p
                         className={`text-sm mt-1 px-3 py-1 rounded-full inline-block ${
                           selectedVisit.status === "completed"
-                            ? "bg-gray-100 text-gray-700"
-                            : "bg-teal-100 text-teal-700"
+                            ? "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                            : "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400"
                         }`}
                       >
                         {selectedVisit.status === "completed"
@@ -574,19 +560,19 @@ export default function VisitsPage() {
                   </div>
                   <button
                     onClick={() => setSelectedVisit(null)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   </button>
                 </div>
 
                 {/* Modal Body */}
                 <div className="p-6 space-y-4">
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-gray-400" />
+                    <Calendar className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                     <div>
-                      <p className="text-sm text-gray-500">{t("Date")}</p>
-                      <p className="font-semibold text-gray-800">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("Date")}</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-100">
                         {new Date(selectedVisit.date).toLocaleDateString(
                           "en-US",
                           {
@@ -601,40 +587,40 @@ export default function VisitsPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-gray-400" />
+                    <Clock className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                     <div>
-                      <p className="text-sm text-gray-500">{t("Time")}</p>
-                      <p className="font-semibold text-gray-800">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("Time")}</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-100">
                         {selectedVisit.time}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <User className="w-5 h-5 text-gray-400" />
+                    <User className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                     <div>
-                      <p className="text-sm text-gray-500">{t("Doctor")}</p>
-                      <p className="font-semibold text-gray-800">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("Doctor")}</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-100">
                         {selectedVisit.doctor}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-gray-400" />
+                    <MapPin className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                     <div>
-                      <p className="text-sm text-gray-500">{t("Location")}</p>
-                      <p className="font-semibold text-gray-800">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("Location")}</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-100">
                         {selectedVisit.location}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <FileText className="w-5 h-5 text-gray-400 mt-1" />
+                    <FileText className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-1" />
                     <div>
-                      <p className="text-sm text-gray-500">{t("Notes")}</p>
-                      <p className="text-gray-800 mt-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{t("Notes")}</p>
+                      <p className="text-gray-800 dark:text-gray-100 mt-1">
                         {selectedVisit.notes}
                       </p>
                     </div>
@@ -642,7 +628,7 @@ export default function VisitsPage() {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-b-2xl">
                   {isAdmin && (
                     <button
                       onClick={() => handleDeleteVisit(selectedVisit.id)}
