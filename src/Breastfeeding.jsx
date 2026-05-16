@@ -47,7 +47,7 @@ export default function BreastfeedingPage() {
     const foods = new Set();
     sessions.forEach(s => {
       if (s.is_solid && s.solid_food && s.solid_food.trim()) {
-        foods.add(s.solid_food.trim());
+        foods.add(s.solid_food.trim().toLowerCase());
       }
     });
     return [...foods].sort();
@@ -55,7 +55,7 @@ export default function BreastfeedingPage() {
 
   const foodStatusMap = useMemo(() => {
     const map = {};
-    foodStatuses.forEach(fs => { map[fs.food_name] = fs.status; });
+    foodStatuses.forEach(fs => { map[fs.food_name.toLowerCase()] = fs.status; });
     return map;
   }, [foodStatuses]);
 
@@ -899,8 +899,8 @@ export default function BreastfeedingPage() {
                           onKeyDown={e => {
                             if (e.key === "Enter") {
                               e.preventDefault();
-                              const food = solidFoodInput.trim();
-                              if (food && !solidFoodList.includes(food) && !solidFoods.includes(food)) {
+                              const food = solidFoodInput.trim().toLowerCase();
+                              if (food) {
                                 setSolidFoodList(prev => [...prev, food]);
                                 setSolidFoodInput("");
                               }
@@ -913,7 +913,7 @@ export default function BreastfeedingPage() {
                           type="button"
                           onClick={() => {
                             const food = solidFoodInput.trim();
-                            if (food && !solidFoodList.includes(food) && !solidFoods.includes(food)) {
+                            if (food) {
                               setSolidFoodList(prev => [...prev, food]);
                               setSolidFoodInput("");
                             }
@@ -923,11 +923,7 @@ export default function BreastfeedingPage() {
                           <Plus className="w-5 h-5" />
                         </button>
                       </div>
-                      {solidFoodInput.trim() !== "" && (solidFoodList.includes(solidFoodInput.trim()) || solidFoods.includes(solidFoodInput.trim())) && (
-                        <p className="text-red-500 dark:text-red-400 text-xs mt-1">
-                          {t("This food was already added")}
-                        </p>
-                      )}
+
                       {solidFoodList.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-3">
                           {solidFoodList.map(food => (

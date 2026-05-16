@@ -36,6 +36,7 @@ ENV DIARY_FOLDER=/app/diary
 
 RUN addgroup --gid 1000 lucinkagroup
 RUN adduser --disabled-password --no-create-home -G lucinkagroup --uid 1000 lucinka
+RUN chown -R lucinka:lucinkagroup /app/db /app/photos /app/diary
 USER lucinka
 
 EXPOSE 5000
