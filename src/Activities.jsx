@@ -639,11 +639,11 @@ export default function ActivitiesPage() {
                 <button
                   key={key}
                   onClick={() => logActivityStart(key)}
-                  className="p-6 bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg flex flex-col items-center gap-2"
+                  className="p-3 md:p-6 bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg flex flex-col items-center gap-1 md:gap-2"
                 >
-                  <Play className="w-6 h-6" />
-                  <div className="text-4xl">{value.icon}</div>
-                  <div className="font-semibold">{t(value.label)}</div>
+                  <Play className="w-5 h-5 md:w-6 md:h-6" />
+                  <div className="text-3xl md:text-4xl">{value.icon}</div>
+                  <div className="font-semibold text-sm md:text-base text-center">{t(value.label)}</div>
                 </button>
               ))}
             </div>
@@ -855,17 +855,17 @@ export default function ActivitiesPage() {
             </div>
 
             {/* Legend */}
-            <div className="flex flex-wrap gap-4 mb-6 justify-center">
+            <div className="flex flex-wrap gap-2 md:gap-4 mb-4 justify-center">
               {allActivityTypes.map((type) => {
                 const typeStats = statistics.byType[type] || { count: 0 };
                 const activityInfo = getActivityInfo(type);
                 return (
-                  <div key={type} className="flex items-center gap-2">
+                  <div key={type} className="flex items-center gap-1.5">
                     <div
-                      className="w-4 h-4 rounded"
+                      className="w-3 h-3 md:w-4 md:h-4 rounded flex-shrink-0"
                       style={{ backgroundColor: activityInfo.color }}
                     />
-                    <span className="text-sm dark:text-gray-300 text-gray-700">
+                    <span className="text-xs md:text-sm dark:text-gray-300 text-gray-700">
                       {activityInfo.icon} {t(activityInfo.label)} ({typeStats.count})
                     </span>
                   </div>

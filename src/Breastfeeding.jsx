@@ -534,66 +534,62 @@ export default function BreastfeedingPage() {
                 {/* Active Timer Display */}
                 {isTimerActive && (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <div
-                        className={`p-6 rounded-xl ${
+                        className={`p-3 md:p-5 rounded-xl ${
                           activeBreast === "left"
                             ? "bg-pink-100 border-2 border-pink-500"
                             : "bg-gray-100"
                         }`}
                       >
-                        <div className="text-sm text-gray-600 mb-1">
+                        <div className="text-xs md:text-sm text-gray-600 mb-1">
                           {t("Left Breast")}
                         </div>
-                        <div className="text-3xl font-bold text-gray-800">
+                        <div className="text-2xl md:text-3xl font-bold text-gray-800">
                           {formatTime(leftTime)}
                         </div>
                       </div>
                       <div
-                        className={`p-6 rounded-xl ${
+                        className={`p-3 md:p-5 rounded-xl ${
                           activeBreast === "right"
                             ? "bg-purple-100 border-2 border-purple-500"
                             : "bg-gray-100"
                         }`}
                       >
-                        <div className="text-sm text-gray-600 mb-1">
+                        <div className="text-xs md:text-sm text-gray-600 mb-1">
                           {t("Right Breast")}
                         </div>
-                        <div className="text-3xl font-bold text-gray-800">
+                        <div className="text-2xl md:text-3xl font-bold text-gray-800">
                           {formatTime(rightTime)}
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid flex gap-2 md:grid-cols-3 grid-cols-1">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                       <button
                         onClick={pauseTimer}
-                        className="flex-1 px-6 py-3 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-600 transition-all flex items-center justify-center gap-2"
+                        className="px-3 py-2 md:py-3 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-600 transition-all flex items-center justify-center gap-1 text-sm"
                       >
-                        {isPaused ? (
-                          <Play className="w-5 h-5" />
-                        ) : (
-                          <Pause className="w-5 h-5" />
-                        )}
+                        {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
                         {isPaused ? t("Resume") : t("Pause")}
                       </button>
                       <button
                         onClick={switchBreast}
-                        className="flex-1 px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-all"
+                        className="px-3 py-2 md:py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-all text-sm"
                       >
                         {t("Switch Breast")}
                       </button>
                       <button
                         onClick={() => cancelTimer()}
-                        className="flex-1 px-6 py-3 bg-gray-500 text-white font-semibold rounded-xl hover:bg-gray-600 transition-all"
+                        className="px-3 py-2 md:py-3 bg-gray-500 text-white font-semibold rounded-xl hover:bg-gray-600 transition-all text-sm"
                       >
                         {t("Cancel")}
                       </button>
                       <button
                         onClick={stopAndSaveTimer}
-                        className="flex-1 px-6 py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition-all flex items-center justify-center gap-2"
+                        className="px-3 py-2 md:py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition-all flex items-center justify-center gap-1 text-sm"
                       >
-                        <Square className="w-5 h-5" />
+                        <Square className="w-4 h-4" />
                         {t("Stop & Save")}
                       </button>
                     </div>
@@ -621,7 +617,7 @@ export default function BreastfeedingPage() {
                 <h2 className="text-xl font-bold dark:text-white text-gray-800 mb-4">
                   {t("Food Journal")}
                 </h2>
-                <div className="grid grid-cols-3 gap-3 md:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
                     { key: "undecided", label: t("Undecided"), color: "bg-gray-400", ring: "border-gray-300 dark:border-gray-600" },
                     { key: "ok",        label: t("OK"),         color: "bg-green-500", ring: "border-green-300 dark:border-green-700" },
@@ -850,7 +846,7 @@ export default function BreastfeedingPage() {
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 mb-4 flex-wrap">
+                  <div className="grid grid-cols-3 gap-2 mb-4">
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                       <input
                         type="radio"
@@ -950,7 +946,7 @@ export default function BreastfeedingPage() {
                       )}
                     </div>
                   ) : newSession.is_breast ? (
-                    <div className="flex items-center gap-6 flex-wrap">
+                    <div className="grid grid-cols-3 gap-2">
                       <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">
                         <input
                           type="radio"
