@@ -39,6 +39,10 @@ class Config:
         self.UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER") or default_upload_folder
         self.UPLOAD_FOLDER = Path(self.UPLOAD_FOLDER)
 
+        default_diary_folder = basedir / "diary"
+        self.DIARY_FOLDER = os.environ.get("DIARY_FOLDER") or default_diary_folder
+        self.DIARY_FOLDER = Path(self.DIARY_FOLDER)
+
         if testing:
             self.TESTING = True
             self.SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"

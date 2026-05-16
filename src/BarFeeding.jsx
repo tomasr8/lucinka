@@ -16,7 +16,6 @@ export default function BarFeeding({ dailyData }) {
   const { darkMode } = useTheme();
 
   const monthlyCharts = useMemo(() => {
-    // Group daily data by month
     const monthlyGroups = {};
     dailyData.forEach(day => {
       const date = new Date(day.date);
@@ -25,41 +24,37 @@ export default function BarFeeding({ dailyData }) {
         year: "numeric",
         month: "long",
       });
-      
+
       if (!monthlyGroups[monthKey]) {
-        monthlyGroups[monthKey] = {
-          monthKey,
-          monthLabel,
-          days: [],
-        };
+        monthlyGroups[monthKey] = { monthKey, monthLabel, days: [] };
       }
-      if (day.sessions[0].is_pumped) {
-        return; // Skip pumped days
-      }
+
+      const feedCount = day.sessions.filter(s => !s.is_pumped && !s.is_solid).length;
+      const solidCount = day.sessions.filter(s => !!s.is_solid).length;
+
+      if (feedCount === 0 && solidCount === 0) return;
 
       monthlyGroups[monthKey].days.push({
         date: date.toLocaleDateString(i18n.language || "en", {
           month: "short",
           day: "numeric",
         }),
-        Left: Math.floor(day.leftTotal),
-        Right: Math.floor(day.rightTotal),
+        FeedCount: feedCount,
+        SolidCount: solidCount,
         fullDate: date,
       });
     });
 
-    // Sort months and days within each month
     return Object.values(monthlyGroups)
       .sort((a, b) => b.monthKey.localeCompare(a.monthKey))
       .map(month => ({
         ...month,
         days: month.days.sort((a, b) => a.fullDate - b.fullDate),
-        totalLeft: month.days.reduce((sum, day) => sum + day.Left, 0),
-        totalRight: month.days.reduce((sum, day) => sum + day.Right, 0),
+        totalFeedCount: month.days.reduce((sum, day) => sum + day.FeedCount, 0),
+        totalSolidCount: month.days.reduce((sum, day) => sum + day.SolidCount, 0),
       }));
   }, [dailyData, i18n.language]);
 
-  // Get current month and other months
   const currentMonth = monthlyCharts.length > 0 ? monthlyCharts[0] : null;
   const otherMonths = monthlyCharts.slice(1);
 
@@ -82,7 +77,7 @@ export default function BarFeeding({ dailyData }) {
 
       <div style={{ width: "100%", height: 250 }} className="md:h-[300px]">
         <ResponsiveContainer>
-          <BarChart data={month.days}>
+          <BarChart data={month.days} barGap={2}>
             <CartesianGrid
               strokeDasharray="3 3"
               stroke={darkMode ? "#374151" : "#e5e7eb"}
@@ -94,19 +89,18 @@ export default function BarFeeding({ dailyData }) {
               angle={-45}
               textAnchor="end"
               height={70}
-              className="md:text-xs"
             />
             <YAxis
               stroke={darkMode ? "#9ca3af" : "#6b7280"}
               tick={{ fontSize: 10 }}
+              allowDecimals={false}
               label={{
-                value: t("Duration (minutes)"),
+                value: t("Sessions"),
                 angle: -90,
                 position: "insideLeft",
                 fill: darkMode ? "#9ca3af" : "#6b7280",
                 style: { fontSize: '11px' }
               }}
-              className="md:text-xs"
             />
             <Tooltip
               cursor={{ fill: "transparent" }}
@@ -117,27 +111,24 @@ export default function BarFeeding({ dailyData }) {
                 color: darkMode ? "#f3f4f6" : "#111827",
                 fontSize: "11px",
               }}
-              formatter={(value, name) => [
-                `${value} ${t("min")}`,
-                t(name),
-              ]}
+              formatter={(value, name) => [value, t(name)]}
             />
-            <Bar dataKey="Left" stackId="a" fill="#ec4899" />
-            <Bar dataKey="Right" stackId="a" fill="#a855f7" />
+            <Bar dataKey="FeedCount" name="Feedings" fill="#ec4899" />
+            <Bar dataKey="SolidCount" name="Solid Food" fill="#22c55e" />
           </BarChart>
         </ResponsiveContainer>
       </div>
       <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm mt-3 md:mt-4 justify-center">
         <span className="text-gray-600 dark:text-gray-300">
           <span className="inline-block w-3 h-3 bg-pink-500 rounded mr-1"></span>
-          {t("Left")}: {month.totalLeft} {t("min")}
+          {t("Feedings")}: {month.totalFeedCount}
         </span>
         <span className="text-gray-600 dark:text-gray-300">
-          <span className="inline-block w-3 h-3 bg-purple-500 rounded mr-1"></span>
-          {t("Right")}: {month.totalRight} {t("min")}
+          <span className="inline-block w-3 h-3 bg-green-500 rounded mr-1"></span>
+          {t("Solid Food")}: {month.totalSolidCount}
         </span>
         <span className="font-semibold text-gray-700 dark:text-gray-200">
-          {t("Total")}: {month.totalLeft + month.totalRight} {t("min")}
+          {t("Total")}: {month.totalFeedCount + month.totalSolidCount}
         </span>
       </div>
     </div>
@@ -147,7 +138,7 @@ export default function BarFeeding({ dailyData }) {
     <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white mb-4 md:mb-6">
-          {t("Daily Feeding Duration - Monthly View")}
+          {t("Daily Feeding - Monthly View")}
         </h2>
 
         {monthlyCharts.length === 0 ? (
@@ -156,7 +147,6 @@ export default function BarFeeding({ dailyData }) {
           </div>
         ) : (
           <>
-            {/* Current Month - Centered at Top */}
             {currentMonth && (
               <div className="mb-6 md:mb-8">
                 <div className="w-full md:max-w-4xl md:mx-auto">
@@ -165,7 +155,6 @@ export default function BarFeeding({ dailyData }) {
               </div>
             )}
 
-            {/* Other Months - Horizontal Scrollable */}
             {otherMonths.length > 0 && (
               <div>
                 <h3 className="text-base md:text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 md:mb-4">

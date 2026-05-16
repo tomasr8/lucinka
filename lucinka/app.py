@@ -9,7 +9,7 @@ from flask_limiter.util import get_remote_address
 from webargs.flaskparser import use_kwargs
 
 from lucinka.config import Config
-from lucinka.models import Activity, Breastfeeding, DataEntry, LoginRecord, Photo, User, Visit, db
+from lucinka.models import Activity, Breastfeeding, DataEntry, DiaryEntry, DiaryMedia, FoodStatus, LoginRecord, Photo, User, Visit, db
 from lucinka.schemas import (
     AddActivitySchema,
     AddBreastfeedingSchema,
@@ -19,18 +19,35 @@ from lucinka.schemas import (
     GetActivitySchema,
     GetBreastfeedingSchema,
     GetDataEntrySchema,
+    GetDiaryEntrySchema,
+    GetFoodStatusSchema,
     GetLoginRecordSchema,
     GetPhotoSchema,
     GetUserSchema,
     GetVisitSchema,
     LoginSchema,
+    SetFoodStatusSchema,
     UpdateActivitySchema,
+    UpsertDiaryEntrySchema,
 )
 
 
-ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".mp4", ".mov", ".avi", ".mkv"}
+ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".heic", ".heif", ".mp4", ".mov", ".avi", ".mkv", ".webm", ".m4v"}
+DIARY_PHOTO_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".heic", ".heif"}
+DIARY_VIDEO_EXT = {".mp4", ".mov", ".avi", ".mkv"}
+DIARY_AUDIO_EXT = {".mp3", ".m4a", ".wav", ".ogg", ".aac", ".opus"}
+DIARY_ALLOWED_EXTENSIONS = DIARY_PHOTO_EXT | DIARY_VIDEO_EXT | DIARY_AUDIO_EXT
 DB_PATH = "db/app.db"
 db_context = None  # Store database content globally
+
+
+def diary_media_type(ext: str) -> str:
+    ext = ext.lower()
+    if ext in DIARY_AUDIO_EXT:
+        return "audio"
+    if ext in DIARY_VIDEO_EXT:
+        return "video"
+    return "photo"
 
 
 def utcnow():
@@ -85,7 +102,10 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         CORS(app)  # Allow frontend to connect
 
     app.config["UPLOAD_FOLDER"] = config.UPLOAD_FOLDER
-    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max file size
+    app.config["UPLOAD_FOLDER"].mkdir(parents=True, exist_ok=True)
+    app.config["DIARY_FOLDER"] = config.DIARY_FOLDER
+    app.config["DIARY_FOLDER"].mkdir(parents=True, exist_ok=True)
+    app.config["MAX_CONTENT_LENGTH"] = 200 * 1024 * 1024  # 200MB max (for video/audio)
 
     @app.get("/")
     @app.get("/login")
@@ -95,6 +115,7 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
     @app.get("/breastfeeding")
     @app.get("/gallery")
     @app.get("/activities")
+    @app.get("/diary")
 
     def index():
         return send_from_directory(app.static_folder, "index.html")
@@ -218,6 +239,8 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         is_pumped: bool = False,
         is_breast: bool = True,
         ml_amount: int = 0,
+        is_solid: bool = False,
+        solid_food: str = None,
     ):
         user_id = session["user_id"]
         user = User.query.get(user_id)
@@ -231,6 +254,8 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
             is_pumped=is_pumped,
             is_breast=is_breast,
             ml_amount=ml_amount,
+            is_solid=is_solid,
+            solid_food=solid_food,
             user=user,
         )
         db.session.add(breastfeeding)
@@ -246,6 +271,106 @@ def create_app(*, dev: bool = False, testing: bool = False) -> Flask:
         db.session.delete(breastfeeding)
         db.session.commit()
         return jsonify({}), 204
+
+    @app.get("/api/food-status")
+    @login_required
+    def get_food_status():
+        statuses = FoodStatus.query.filter_by(user_id=session["user_id"]).all()
+        return jsonify(GetFoodStatusSchema(many=True).dump(statuses))
+
+    @app.post("/api/food-status")
+    @login_required
+    @use_kwargs(SetFoodStatusSchema)
+    def set_food_status(food_name: str, status: str):
+        user_id = session["user_id"]
+        existing = FoodStatus.query.filter_by(user_id=user_id, food_name=food_name).first()
+        if existing:
+            existing.status = status
+        else:
+            existing = FoodStatus(user_id=user_id, food_name=food_name, status=status)
+            db.session.add(existing)
+        db.session.commit()
+        return jsonify(GetFoodStatusSchema().dump(existing)), 200
+
+    @app.get("/api/diary")
+    @admin_required
+    def get_diary():
+        entries = DiaryEntry.query.filter_by(user_id=session["user_id"]).order_by(DiaryEntry.date.desc()).all()
+        return jsonify(GetDiaryEntrySchema(many=True).dump(entries))
+
+    @app.post("/api/diary")
+    @admin_required
+    @use_kwargs(UpsertDiaryEntrySchema)
+    def upsert_diary(date, text):
+        user_id = session["user_id"]
+        entry = DiaryEntry.query.filter_by(user_id=user_id, date=date).first()
+        if entry:
+            entry.text = text
+            entry.updated_dt = utcnow()
+        else:
+            entry = DiaryEntry(user_id=user_id, date=date, text=text)
+            db.session.add(entry)
+        db.session.commit()
+        return jsonify(GetDiaryEntrySchema().dump(entry)), 200
+
+    @app.delete("/api/diary/<int:entry_id>")
+    @admin_required
+    def delete_diary(entry_id: int):
+        entry = DiaryEntry.query.filter_by(id=entry_id, user_id=session["user_id"]).first()
+        if not entry:
+            return jsonify({"error": "Entry not found"}), 404
+        for m in entry.media:
+            filepath = app.config["DIARY_FOLDER"] / m.storage_filename
+            if filepath.exists():
+                filepath.unlink()
+        db.session.delete(entry)
+        db.session.commit()
+        return jsonify({}), 204
+
+    @app.post("/api/diary/<int:entry_id>/media")
+    @admin_required
+    def add_diary_media(entry_id: int):
+        entry = DiaryEntry.query.filter_by(id=entry_id, user_id=session["user_id"]).first()
+        if not entry:
+            return jsonify({"error": "Entry not found"}), 404
+        if "file" not in request.files:
+            return jsonify({"error": "No file part"}), 422
+        file = request.files["file"]
+        ext = Path(file.filename).suffix.lower()
+        if not file or ext not in DIARY_ALLOWED_EXTENSIONS:
+            return jsonify({"error": "Invalid file"}), 400
+        media = DiaryMedia(entry_id=entry.id, ext=ext, media_type=diary_media_type(ext))
+        db.session.add(media)
+        db.session.commit()
+        filepath = app.config["DIARY_FOLDER"] / media.storage_filename
+        try:
+            file.save(filepath)
+        except OSError as e:
+            db.session.delete(media)
+            db.session.commit()
+            return jsonify({"error": "Failed to save file"}), 500
+        return jsonify(GetDiaryEntrySchema().dump(entry)), 201
+
+    @app.delete("/api/diary/media/<int:media_id>")
+    @admin_required
+    def delete_diary_media(media_id: int):
+        media = DiaryMedia.query.join(DiaryEntry).filter(
+            DiaryMedia.id == media_id,
+            DiaryEntry.user_id == session["user_id"],
+        ).first()
+        if not media:
+            return jsonify({"error": "Media not found"}), 404
+        filepath = app.config["DIARY_FOLDER"] / media.storage_filename
+        if filepath.exists():
+            filepath.unlink()
+        db.session.delete(media)
+        db.session.commit()
+        return jsonify({}), 204
+
+    @app.get("/api/diary/media/<filename>")
+    @admin_required
+    def serve_diary_media(filename: str):
+        return send_from_directory(app.config["DIARY_FOLDER"], filename)
 
     @app.get("/api/activities")
     @login_required

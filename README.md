@@ -29,15 +29,13 @@ npm run dev
 ```
 docker build -t lucinka .
 
-docker save -o /tmp/lucinka-docker.tar lucinka:latest
-
-scp /tmp/lucinka-docker.tar tomas@<TOMAS IP>:/home/tomas/lucinka-docker.tar
+lucinka-docker.tar
 ```
 
 now ssh into it
 
 ```
-ssh tomas@<TOMAS IP>
+ssh tomas@46.62.136.60
 
 tmux a -t 0
 

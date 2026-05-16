@@ -27,6 +27,7 @@ COPY uv.lock ./
 
 RUN mkdir -p /app/db
 RUN mkdir -p /app/photos
+RUN mkdir -p /app/diary
 
 RUN uv pip install --system .
 

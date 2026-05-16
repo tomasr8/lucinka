@@ -9,6 +9,7 @@ import {
   BookImage,
   LogOut,
   Activity,
+  BookOpen,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { setLocale } from "./i18n";
@@ -91,7 +92,7 @@ export default function Header({ isAdmin = false }) {
       </div>
       <div>
         {/* Navigation */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <div className={`grid gap-4 mb-8 ${isAdmin ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-6" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-5"}`}>
           <button
             type="button"
             onClick={() => navigate("/")}
@@ -122,7 +123,7 @@ export default function Header({ isAdmin = false }) {
             } ${commonStyle}`}
           >
             <Milk />
-            {t("Breastfeeding")}
+            {t("Food")}
           </button>
           <button
             type="button"
@@ -146,6 +147,18 @@ export default function Header({ isAdmin = false }) {
             <BookImage />
             {t("Gallery")}
           </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => navigate("/diary")}
+              className={`${
+                location.pathname === "/diary" ? activeStyle : defaultStyle
+              } ${commonStyle}`}
+            >
+              <BookOpen />
+              {t("Diary")}
+            </button>
+          )}
         </div>
       </div>
     </div>

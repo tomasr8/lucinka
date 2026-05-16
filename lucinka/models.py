@@ -95,6 +95,8 @@ class Breastfeeding(db.Model):
     is_pumped: Mapped[bool] = mapped_column(db.Boolean, nullable=False, default=False)
     is_breast: Mapped[bool] = mapped_column(db.Boolean, nullable=False, default=True)
     ml_amount: Mapped[int] = mapped_column(db.Integer, nullable=False, default=0)
+    is_solid: Mapped[bool] = mapped_column(db.Boolean, nullable=False, default=False)
+    solid_food: Mapped[str | None] = mapped_column(db.Text, nullable=True)
 
     user: Mapped[User] = db.relationship()
 
@@ -120,6 +122,52 @@ class Photo(db.Model):
 
     def __repr__(self) -> str:
         return f"<Photo({self.id}) date={self.date} notes={self.notes} created_dt={self.created_dt} user_id={self.user_id}>"
+
+
+class DiaryEntry(db.Model):
+    __tablename__ = "diary_entries"
+    __table_args__ = (db.UniqueConstraint("user_id", "date", name="uq_diary_user_date"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"), nullable=False)
+    date: Mapped[date] = mapped_column(db.Date, nullable=False)
+    text: Mapped[str | None] = mapped_column(db.Text, nullable=True)
+    created_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=db.func.now())
+    updated_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=db.func.now())
+
+    user: Mapped[User] = db.relationship()
+    media: Mapped[list["DiaryMedia"]] = db.relationship("DiaryMedia", back_populates="entry", cascade="all, delete-orphan")
+
+
+class DiaryMedia(db.Model):
+    __tablename__ = "diary_media"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    entry_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("diary_entries.id"), nullable=False)
+    ext: Mapped[str] = mapped_column(db.Text, nullable=False)
+    media_type: Mapped[str] = mapped_column(db.Text, nullable=False)  # 'photo', 'video', 'audio'
+    created_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=db.func.now())
+
+    entry: Mapped["DiaryEntry"] = db.relationship(back_populates="media")
+
+    @property
+    def storage_filename(self) -> str:
+        return f"diary_{self.id}{self.ext}"
+
+
+class FoodStatus(db.Model):
+    __tablename__ = "food_status"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"), nullable=False)
+    food_name: Mapped[str] = mapped_column(db.Text, nullable=False)
+    status: Mapped[str] = mapped_column(db.Text, nullable=False, default="undecided")
+    created_dt: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=db.func.now())
+
+    user: Mapped[User] = db.relationship()
+
+    def __repr__(self) -> str:
+        return f"<FoodStatus({self.id}) food={self.food_name} status={self.status}>"
 
 
 class Activity(db.Model):

@@ -9,7 +9,7 @@ import Gallery from "./Gallery.jsx";
 import VisitsPage from "./Visits.jsx";
 import BreastfeedingPage from "./Breastfeeding.jsx";
 import ActivitiesPage from "./Activities.jsx";
-// import More from "./More.jsx";
+import DiaryPage from "./Diary.jsx";
 import "./i18n";
 import { ThemeProvider } from "./theme.jsx";
 
@@ -25,6 +25,7 @@ function App() {
           <Route path="/visits" element={<VisitsPage />} />
           <Route path="/breastfeeding" element={<BreastfeedingPage />} />
           <Route path="/activities" element={<ActivitiesPage />} />
+          <Route path="/diary" element={<DiaryPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

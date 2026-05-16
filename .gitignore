@@ -35,6 +35,7 @@ db/*.db
 static/
 
 photos/
+diary/
 
 *.csv
 percentile.py

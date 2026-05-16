@@ -9,58 +9,49 @@ import {
   Legend,
 } from "recharts";
 import { useTranslation } from "react-i18next";
-import { useData } from "./util";
 
 export default function BreastfeedingPolarChart({ sessions }) {
-  const {
-    data: { user },
-    loading,
-    refetch,
-  } = useData("breastfeeding");
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const [monthlyData, setMonthlyData] = useState([]);
 
   useEffect(() => {
-    // Group sessions by month and hour
     const monthlyGroups = {};
 
     sessions.forEach(session => {
-      // Create date object
       const date = new Date(session.start_dt);
-      const monthKey = `${date.getFullYear()}-${String(
-        date.getMonth() + 1
-      ).padStart(2, "0")}`;
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
       const hour = date.getHours();
 
       if (!monthlyGroups[monthKey]) {
         monthlyGroups[monthKey] = {
           monthKey,
-          monthLabel: date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-          }),
+          monthLabel: date.toLocaleDateString("en-US", { year: "numeric", month: "long" }),
           hourlyData: Array.from({ length: 24 }, (_, h) => ({
             hour: h,
             hourLabel: `${h}h`,
-            sessions: 0,
+            breastfeedingSessions: 0,
+            solidSessions: 0,
             totalDuration: 0,
           })),
         };
       }
 
-      monthlyGroups[monthKey].hourlyData[hour].sessions += 1;
-      monthlyGroups[monthKey].hourlyData[hour].totalDuration +=
-        session.right_duration + session.left_duration;
+      if (session.is_solid) {
+        monthlyGroups[monthKey].hourlyData[hour].solidSessions += 1;
+      } else {
+        monthlyGroups[monthKey].hourlyData[hour].breastfeedingSessions += 1;
+        monthlyGroups[monthKey].hourlyData[hour].totalDuration +=
+          (session.right_duration || 0) + (session.left_duration || 0);
+      }
     });
 
-    // Calculate average duration and sort by month (newest first)
     const processedData = Object.values(monthlyGroups)
       .map(month => {
         month.hourlyData.forEach(item => {
           item.avgDuration =
-            item.sessions > 0
-              ? Math.round(item.totalDuration / item.sessions)
+            item.breastfeedingSessions > 0
+              ? Math.round(item.totalDuration / item.breastfeedingSessions)
               : 0;
         });
         return month;
@@ -68,107 +59,87 @@ export default function BreastfeedingPolarChart({ sessions }) {
       .sort((a, b) => b.monthKey.localeCompare(a.monthKey));
 
     setMonthlyData(processedData);
-    refetch();
   }, [sessions]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">{t("Loading data...")}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Get current month and other months
   const currentMonth = monthlyData.length > 0 ? monthlyData[0] : null;
   const otherMonths = monthlyData.slice(1);
 
-  const renderMonthChart = (month, isCurrentMonth = false) => (
-    <div
-      key={month.monthKey}
-      className={`bg-gray-50 dark:bg-gray-700 rounded-xl p-3 md:p-4 ${
-        isCurrentMonth ? "border-2 border-pink-500" : ""
-      }`}
-    >
-      <h3
-        className={`text-base md:text-lg font-semibold ${
-          isCurrentMonth
-            ? "text-pink-600 dark:text-pink-400"
-            : "text-gray-700 dark:text-gray-200"
-        } mb-2 text-center`}
+  const renderMonthChart = (month, isCurrentMonth = false) => {
+    const totalBreastfeeding = month.hourlyData.reduce((sum, h) => sum + h.breastfeedingSessions, 0);
+    const totalSolid = month.hourlyData.reduce((sum, h) => sum + h.solidSessions, 0);
+    const peakHour = month.hourlyData.reduce(
+      (maxH, h) => (h.breastfeedingSessions + h.solidSessions) > (month.hourlyData[maxH].breastfeedingSessions + month.hourlyData[maxH].solidSessions) ? h.hour : maxH,
+      0
+    );
+
+    return (
+      <div
+        key={month.monthKey}
+        className={`bg-gray-50 dark:bg-gray-700 rounded-xl p-3 md:p-4 ${
+          isCurrentMonth ? "border-2 border-pink-500" : ""
+        }`}
       >
-        {t(month.monthLabel)}
-      </h3>
-      <ResponsiveContainer width="100%" height={250} className="md:h-[300px]">
-        <RadarChart data={month.hourlyData}>
-          <PolarGrid stroke="#e5e7eb" />
-          <PolarAngleAxis
-            dataKey="hourLabel"
-            tick={{ fill: "#ec4899", fontSize: 9 }}
-            className="md:text-[10px]"
-          />
-          <Radar
-            dataKey="sessions"
-            stroke="#ec4899"
-            fill="#ec4899"
-            fillOpacity={0.6}
-            name="Sessions"
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "white",
-              border: "1px solid #e5e7eb",
-              borderRadius: "8px",
-              padding: "8px",
-              fontSize: "11px",
-            }}
-            formatter={(value, name) => {
-              if (name === "Sessions") return [value, "Sessions"];
-              return [value, name];
-            }}
-            labelFormatter={label => `Hour: ${label}`}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
-      {/* Statistics */}
-      <div className="text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 mt-1">
-        {t("Avg Duration:")}{" "}
-        {Math.round(
-          month.hourlyData.reduce((sum, h) => sum + h.totalDuration, 0) /
-            Math.max(
-              1,
-              month.hourlyData.reduce((sum, h) => sum + h.sessions, 0)
-            )
-        )}{" "}
-        {t("mins")}
+        <h3
+          className={`text-base md:text-lg font-semibold ${
+            isCurrentMonth
+              ? "text-pink-600 dark:text-pink-400"
+              : "text-gray-700 dark:text-gray-200"
+          } mb-2 text-center`}
+        >
+          {t(month.monthLabel)}
+        </h3>
+        <ResponsiveContainer width="100%" height={250} className="md:h-[300px]">
+          <RadarChart data={month.hourlyData}>
+            <PolarGrid stroke="#e5e7eb" />
+            <PolarAngleAxis
+              dataKey="hourLabel"
+              tick={{ fill: "#ec4899", fontSize: 9 }}
+            />
+            <Radar
+              dataKey="breastfeedingSessions"
+              stroke="#ec4899"
+              fill="#ec4899"
+              fillOpacity={0.6}
+              name={t("Feedings")}
+            />
+            <Radar
+              dataKey="solidSessions"
+              stroke="#10b981"
+              fill="#10b981"
+              fillOpacity={0.6}
+              name={t("Solid Food")}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "white",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                padding: "8px",
+                fontSize: "11px",
+              }}
+              labelFormatter={label => `${t("Hour")}: ${label}`}
+            />
+            <Legend wrapperStyle={{ fontSize: "11px" }} />
+          </RadarChart>
+        </ResponsiveContainer>
+        <div className="flex flex-wrap justify-center gap-3 mt-2 text-xs md:text-sm text-gray-600 dark:text-gray-300">
+          {totalBreastfeeding > 0 && (
+            <span>
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-pink-500 mr-1"></span>
+              {t("Feedings")}: {totalBreastfeeding}
+            </span>
+          )}
+          {totalSolid > 0 && (
+            <span>
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 mr-1"></span>
+              {t("Solid Food")}: {totalSolid}
+            </span>
+          )}
+          <span>{t("Peak Hour:")} {peakHour}h</span>
+        </div>
       </div>
-      <div className="text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 mt-1">
-        {t("Peak Hour:")}{" "}
-        {month.hourlyData.reduce(
-          (maxHour, h) =>
-            h.sessions > month.hourlyData[maxHour].sessions ? h.hour : maxHour,
-          0
-        )}
-        h
-      </div>
-      <div className="text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 mt-1">
-        {t("Low Hour:")}{" "}
-        {month.hourlyData.reduce(
-          (minHour, h) =>
-            h.sessions < month.hourlyData[minHour].sessions ? h.hour : minHour,
-          0
-        )}
-        h
-      </div>
-      <div className="text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 mt-2">
-        {t("Total:")} {month.hourlyData.reduce((sum, h) => sum + h.sessions, 0)}{" "}
-        {t("sessions")}
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-lg p-4 md:p-6">

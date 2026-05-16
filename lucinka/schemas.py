@@ -77,6 +77,8 @@ class GetBreastfeedingSchema(Schema):
     is_pumped = fields.Bool(dump_only=True)
     is_breast = fields.Bool(dump_only=True)
     ml_amount = fields.Int(dump_only=True)
+    is_solid = fields.Bool(dump_only=True)
+    solid_food = fields.Str(dump_only=True, allow_none=True)
 
 
 class AddBreastfeedingSchema(Schema):
@@ -87,6 +89,40 @@ class AddBreastfeedingSchema(Schema):
     is_pumped = fields.Bool(load_default=False)
     is_breast = fields.Bool(load_default=True)
     ml_amount = fields.Int(load_default=0)
+    is_solid = fields.Bool(load_default=False)
+    solid_food = fields.Str(load_default=None)
+
+
+class GetDiaryMediaSchema(Schema):
+    id = fields.Int(dump_only=True)
+    media_type = fields.Str(dump_only=True)
+    filename = fields.Method("get_filename", dump_only=True)
+
+    def get_filename(self, obj):
+        return obj.storage_filename
+
+
+class GetDiaryEntrySchema(Schema):
+    id = fields.Int(dump_only=True)
+    date = fields.Date(dump_only=True)
+    text = fields.Str(dump_only=True, allow_none=True)
+    media = fields.List(fields.Nested(GetDiaryMediaSchema), dump_only=True)
+
+
+class UpsertDiaryEntrySchema(Schema):
+    date = fields.Date(required=True)
+    text = fields.Str(load_default=None)
+
+
+class GetFoodStatusSchema(Schema):
+    id = fields.Int(dump_only=True)
+    food_name = fields.Str(dump_only=True)
+    status = fields.Str(dump_only=True)
+
+
+class SetFoodStatusSchema(Schema):
+    food_name = fields.Str(required=True)
+    status = fields.Str(required=True)
 
 
 class AddPhotoSchema(Schema):

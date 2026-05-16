@@ -25,6 +25,7 @@ const ACTIVITY_TYPES = {
 // Special types that come from other data sources (not activities table)
 const DERIVED_ACTIVITY_TYPES = {
   eating: { label: "Eating", color: "#ec4899", icon: "🍼" },
+  solid_food: { label: "Solid Food", color: "#10b981", icon: "🥣" },
   visit: { label: "Doctor Visit", color: "#f97316", icon: "🏥" },
 };
 
@@ -275,13 +276,23 @@ export default function ActivitiesPage() {
   const combinedActivities = [
     ...activities,
     ...breastfeeding
-      .filter((session) => !session.is_pumped) // Exclude pumped sessions
+      .filter((session) => !session.is_pumped && !session.is_solid)
       .map((session) => ({
         id: `eating-${session.id}`,
         activity_type: "eating",
         start_dt: session.start_dt,
         end_dt: session.end_dt,
         from_breastfeeding: true,
+      })),
+    ...breastfeeding
+      .filter((session) => session.is_solid)
+      .map((session) => ({
+        id: `solid-${session.id}`,
+        activity_type: "solid_food",
+        start_dt: session.start_dt,
+        end_dt: session.end_dt,
+        from_breastfeeding: true,
+        notes: session.solid_food,
       })),
     ...visits.map((visit) => {
       // Parse the visit date (which includes time)
@@ -841,153 +852,6 @@ export default function ActivitiesPage() {
                   );
                 })}
               </select>
-            </div>
-
-            {/* Statistics - Per Activity Comparison */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold dark:text-white text-gray-800 mb-3">
-                {t("Statistics by Activity")}
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="dark:bg-gray-700 bg-gray-100">
-                      <th className="text-left p-3 dark:text-white text-gray-800 font-semibold">
-                        {t("Activity")}
-                      </th>
-                      <th className="text-center p-3 dark:text-white text-gray-800 font-semibold">
-                        {t("Today")}
-                      </th>
-                      <th className="text-center p-3 dark:text-white text-gray-800 font-semibold">
-                        {t("This Week")}
-                      </th>
-                      <th className="text-center p-3 dark:text-white text-gray-800 font-semibold">
-                        {t("Selected Month")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allActivityTypes
-                      .filter(type => type !== 'visit')
-                      .map((type) => {
-                        const todayType = todayStats.byType[type] || { count: 0, duration: 0 };
-                        const weekType = weekStats.byType[type] || { count: 0, duration: 0 };
-                        const monthType = statistics.byType[type] || { count: 0, duration: 0 };
-
-                        // Skip if no data for this activity type
-                        if (todayType.count === 0 && weekType.count === 0 && monthType.count === 0) {
-                          return null;
-                        }
-
-                        const activityInfo = getActivityInfo(type);
-
-                        return (
-                          <tr
-                            key={type}
-                            className="border-b dark:border-gray-700 border-gray-200 dark:hover:bg-gray-750 hover:bg-gray-50"
-                          >
-                            <td className="p-3">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="w-8 h-8 rounded-full flex items-center justify-center text-lg flex-shrink-0"
-                                  style={{ backgroundColor: activityInfo.color }}
-                                >
-                                  {activityInfo.icon}
-                                </div>
-                                <span className="font-semibold dark:text-white text-gray-800">
-                                  {t(activityInfo.label)}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="dark:text-white text-gray-800">
-                                <div className="font-bold text-lg">
-                                  {todayType.count > 0 ? (
-                                    <>
-                                      {Math.floor(todayType.duration / 60)}h {Math.round(todayType.duration % 60)}m
-                                    </>
-                                  ) : (
-                                    <span className="dark:text-gray-500 text-gray-400">-</span>
-                                  )}
-                                </div>
-                                {todayType.count > 0 && (
-                                  <div className="text-xs dark:text-gray-400 text-gray-600">
-                                    {todayType.count}x
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="dark:text-white text-gray-800">
-                                <div className="font-bold text-lg">
-                                  {weekType.count > 0 ? (
-                                    <>
-                                      {Math.floor(weekType.duration / 60)}h {Math.round(weekType.duration % 60)}m
-                                    </>
-                                  ) : (
-                                    <span className="dark:text-gray-500 text-gray-400">-</span>
-                                  )}
-                                </div>
-                                {weekType.count > 0 && (
-                                  <div className="text-xs dark:text-gray-400 text-gray-600">
-                                    {weekType.count}x
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="dark:text-white text-gray-800">
-                                <div className="font-bold text-lg">
-                                  {monthType.count > 0 ? (
-                                    <>
-                                      {Math.floor(monthType.duration / 60)}h {Math.round(monthType.duration % 60)}m
-                                    </>
-                                  ) : (
-                                    <span className="dark:text-gray-500 text-gray-400">-</span>
-                                  )}
-                                </div>
-                                {monthType.count > 0 && (
-                                  <div className="text-xs dark:text-gray-400 text-gray-600">
-                                    {monthType.count}x • {Math.round(monthType.duration / 60 / chartData.length * 10) / 10}h/day
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                  <tfoot>
-                    <tr className="dark:bg-gray-700 bg-gray-100 font-bold">
-                      <td className="p-3 dark:text-white text-gray-800">{t("Total")}</td>
-                      <td className="p-3 text-center dark:text-white text-gray-800">
-                        <div className="text-lg">
-                          {Math.floor(todayStats.totalDuration / 60)}h {Math.round(todayStats.totalDuration % 60)}m
-                        </div>
-                        <div className="text-xs dark:text-gray-400 text-gray-600 font-normal">
-                          {todayStats.totalActivities} {t("activities")}
-                        </div>
-                      </td>
-                      <td className="p-3 text-center dark:text-white text-gray-800">
-                        <div className="text-lg">
-                          {Math.floor(weekStats.totalDuration / 60)}h {Math.round(weekStats.totalDuration % 60)}m
-                        </div>
-                        <div className="text-xs dark:text-gray-400 text-gray-600 font-normal">
-                          {weekStats.totalActivities} {t("activities")}
-                        </div>
-                      </td>
-                      <td className="p-3 text-center dark:text-white text-gray-800">
-                        <div className="text-lg">
-                          {Math.floor(statistics.totalDuration / 60)}h {Math.round(statistics.totalDuration % 60)}m
-                        </div>
-                        <div className="text-xs dark:text-gray-400 text-gray-600 font-normal">
-                          {statistics.totalActivities} {t("activities")}
-                        </div>
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
             </div>
 
             {/* Legend */}
