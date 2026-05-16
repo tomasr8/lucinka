@@ -6,6 +6,7 @@ services:
       - FLASK_ENV=production
       - SQLALCHEMY_DATABASE_URI=sqlite:////app/db/app.db
       - UPLOAD_FOLDER=/app/photos
+      - DIARY_FOLDER=/app/diary
       - SECRET_KEY=''
       - STATIC_FOLDER=/app/static
     ports:
@@ -23,6 +24,9 @@ services:
       - type: bind
         source: ./photos
         target: /app/photos
+      - type: bind
+        source: ./diary
+        target: /app/diary
       - type: bind
         source: ./db
         target: /app/db
