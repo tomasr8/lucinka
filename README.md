@@ -29,13 +29,9 @@ npm run dev
 ```
 docker build -t lucinka .
 
-lucinka-docker.tar
-```
+docker save -o /tmp/lucinka-docker.tar lucinka:latest
 
-now ssh into it
 
-```
-ssh tomas@46.62.136.60
 
 tmux a -t 0
 

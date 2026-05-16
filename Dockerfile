@@ -31,6 +31,9 @@ RUN mkdir -p /app/diary
 
 RUN uv pip install --system .
 
+ENV UPLOAD_FOLDER=/app/photos
+ENV DIARY_FOLDER=/app/diary
+
 RUN addgroup --gid 1000 lucinkagroup
 RUN adduser --disabled-password --no-create-home -G lucinkagroup --uid 1000 lucinka
 USER lucinka
